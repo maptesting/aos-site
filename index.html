@@ -7,67 +7,68 @@
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .card { @apply bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl; }
-    .label { @apply block text-sm font-medium text-neutral-200 mb-1; }
-    .input, .select, .textarea { @apply w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500; }
-    .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50; }
-    .ghost { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-neutral-800 text-neutral-100 border border-neutral-700 hover:bg-neutral-700; }
-    .pill { @apply text-xs px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
     .hidden-json { display:none; }
   </style>
 </head>
 <body class="bg-black text-neutral-100 min-h-screen">
+  <!-- Header -->
   <header class="max-w-5xl mx-auto px-4 pt-10 pb-6">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">AI Receptionist Prompt Pack — Free Builder</h1>
-      <span class="pill">Live Preview + n8n JSON downloads</span>
+      <span class="text-xs px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700">Live Preview + n8n JSON downloads</span>
     </div>
-    <p class="text-neutral-400 mt-2">Answer a few questions about your business. We’ll generate a production-ready **System Prompt** (preview only on this page) and downloadable **n8n workflows** for <span class="underline">check_availability</span> and <span class="underline">book_appointment</span>. You can voice-preview with ElevenLabs.</p>
+    <p class="text-neutral-400 mt-2">
+      Answer a few questions about your business. We’ll generate a production-ready <b>System Prompt</b> (preview only on this page) and downloadable
+      <b>n8n workflows</b> for <span class="underline">check_availability</span> and <span class="underline">book_appointment</span>. You can voice-preview with ElevenLabs.
+    </p>
   </header>
 
   <main class="max-w-5xl mx-auto px-4 pb-20 grid md:grid-cols-2 gap-6">
     <!-- Left: Form -->
-    <section class="card">
+    <section class="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl">
       <h2 class="text-lg font-semibold mb-4">Your Business</h2>
       <form id="aiForm" class="space-y-4">
         <div>
-          <label class="label">Business Name</label>
-          <input class="input" name="bizName" placeholder="e.g., Hemsted Window Tinting" required />
+          <label class="block text-sm font-medium text-neutral-200 mb-1">Business Name</label>
+          <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="bizName" placeholder="e.g., Hemsted Window Tinting" required />
         </div>
+
         <div>
-          <label class="label">Industry / Services (comma separated)</label>
-          <input class="input" name="services" placeholder="e.g., window tinting, ceramic coating, detailing" />
+          <label class="block text-sm font-medium text-neutral-200 mb-1">Industry / Services (comma separated)</label>
+          <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="services" placeholder="e.g., window tinting, ceramic coating, detailing" />
         </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="label">Agent Name</label>
-            <input class="input" name="agentName" placeholder="e.g., Alex" />
+            <label class="block text-sm font-medium text-neutral-200 mb-1">Agent Name</label>
+            <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="agentName" placeholder="e.g., Alex" />
           </div>
           <div>
-            <label class="label">Timezone (IANA)</label>
-            <input class="input" name="tz" placeholder="e.g., America/New_York" />
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="label">Business Email</label>
-            <input class="input" name="bizEmail" type="email" placeholder="e.g., hello@yourbiz.com" />
-          </div>
-          <div>
-            <label class="label">Calendar ID (Google)</label>
-            <input class="input" name="calendarId" placeholder="e.g., owner@gmail.com" />
+            <label class="block text-sm font-medium text-neutral-200 mb-1">Timezone (IANA)</label>
+            <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="tz" placeholder="e.g., America/New_York" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="label">n8n Webhook URL — Check Availability</label>
-            <input class="input mono" name="whCheck" placeholder="https://n8n.yourdomain.com/webhook/check-availability" />
+            <label class="block text-sm font-medium text-neutral-200 mb-1">Business Email</label>
+            <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="bizEmail" type="email" placeholder="e.g., hello@yourbiz.com" />
           </div>
           <div>
-            <label class="label">n8n Webhook URL — Book Appointment</label>
-            <input class="input mono" name="whBook" placeholder="https://n8n.yourdomain.com/webhook/book-appointment" />
+            <label class="block text-sm font-medium text-neutral-200 mb-1">Calendar ID (Google)</label>
+            <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="calendarId" placeholder="e.g., owner@gmail.com" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-neutral-200 mb-1">n8n Webhook URL — Check Availability</label>
+            <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mono" name="whCheck" placeholder="https://n8n.yourdomain.com/webhook/check-availability" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-neutral-200 mb-1">n8n Webhook URL — Book Appointment</label>
+            <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 mono" name="whBook" placeholder="https://n8n.yourdomain.com/webhook/book-appointment" />
           </div>
         </div>
 
@@ -75,27 +76,27 @@
           <summary class="cursor-pointer text-sm text-neutral-300">Advanced</summary>
           <div class="grid grid-cols-3 gap-3 mt-3">
             <div>
-              <label class="label">Greeting Style</label>
-              <select class="select" name="tone">
+              <label class="block text-sm font-medium text-neutral-200 mb-1">Greeting Style</label>
+              <select class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="tone">
                 <option value="friendly">Friendly & helpful</option>
                 <option value="modern">Modern & stylish</option>
                 <option value="professional">Calm & professional</option>
               </select>
             </div>
             <div>
-              <label class="label">Appt. Duration (mins)</label>
-              <input class="input" name="durationMin" type="number" value="60" />
+              <label class="block text-sm font-medium text-neutral-200 mb-1">Appt. Duration (mins)</label>
+              <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="durationMin" type="number" value="60" />
             </div>
             <div>
-              <label class="label">Hours Window (local)</label>
-              <input class="input" name="hours" placeholder="e.g., 09:00-18:00" />
+              <label class="block text-sm font-medium text-neutral-200 mb-1">Hours Window (local)</label>
+              <input class="w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" name="hours" placeholder="e.g., 09:00-18:00" />
             </div>
           </div>
         </details>
 
         <div class="flex items-center gap-3 pt-2">
-          <button type="button" id="genBtn" class="btn">Generate</button>
-          <button type="button" id="ttsBtn" class="ghost">Hear AI Greeting (ElevenLabs)</button>
+          <button type="button" id="genBtn" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-indigo-600 hover:bg-indigo-500 text-white">Generate</button>
+          <button type="button" id="ttsBtn" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-neutral-800 text-neutral-100 border border-neutral-700 hover:bg-neutral-700">Hear AI Greeting (ElevenLabs)</button>
         </div>
       </form>
 
@@ -109,27 +110,30 @@
 
     <!-- Right: Previews & Downloads -->
     <section class="space-y-6">
-      <div class="card">
+      <div class="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold">System Prompt — Preview</h2>
-          <span class="pill">Preview only (truncated)</span>
+          <span class="text-xs px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700">Preview only (truncated)</span>
         </div>
         <pre id="promptPreview" class="mono text-sm mt-3 whitespace-pre-wrap"></pre>
 
         <div class="mt-4 flex gap-2">
-          <button id="downloadPrompt" class="btn" disabled>Download Full Prompt (.txt)</button>
+          <button id="downloadPrompt" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-indigo-600 hover:bg-indigo-500 text-white" disabled>Download Full Prompt (.txt)</button>
         </div>
       </div>
 
-      <div class="card">
+      <div class="bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold">n8n Workflows</h2>
-          <span class="pill">Hidden in preview</span>
+          <span class="text-xs px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700">Hidden in preview</span>
         </div>
-        <p class="text-neutral-400 text-sm mt-2">Two separate flows that your AI agent will call via tools/functions named <span class="mono">check_availability</span> and <span class="mono">book_appointment</span>. Import into n8n and connect your Google credentials.</p>
+        <p class="text-neutral-400 text-sm mt-2">
+          Two separate flows that your AI agent will call via tools/functions named <span class="mono">check_availability</span> and <span class="mono">book_appointment</span>.
+          Import into n8n and connect your Google credentials.
+        </p>
         <div class="mt-4 flex flex-wrap gap-2">
-          <button id="downloadAvail" class="ghost" disabled>Download: check_availability.n8n.json</button>
-          <button id="downloadBook" class="ghost" disabled>Download: book_appointment.n8n.json</button>
+          <button id="downloadAvail" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-neutral-800 text-neutral-100 border border-neutral-700 hover:bg-neutral-700" disabled>Download: check_availability.n8n.json</button>
+          <button id="downloadBook" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-neutral-800 text-neutral-100 border border-neutral-700 hover:bg-neutral-700" disabled>Download: book_appointment.n8n.json</button>
         </div>
         <pre id="jsonPreview" class="hidden-json"></pre>
       </div>
@@ -138,10 +142,16 @@
 
   <!-- ElevenLabs client script uses your /api/tts serverless endpoint -->
   <script>
-    // Helper: turn "A, B, C" -> ["A","B","C"]
+    // Default timezone to visitor if field empty
+    const tzField = document.querySelector('input[name="tz"]');
+    if (!tzField.value) {
+      try { tzField.value = Intl.DateTimeFormat().resolvedOptions().timeZone || "America/New_York"; } catch {}
+    }
+
+    // Helper: "A, B" -> ["A","B"]
     const csv = s => (s||"").split(",").map(x=>x.trim()).filter(Boolean);
 
-    // Build the SYSTEM PROMPT (full)
+    // Build full SYSTEM PROMPT (structured like your models)
     function buildSystemPrompt(v) {
       const servicesList = csv(v.services).join(", ");
       const hours = v.hours || "09:00-18:00";
@@ -173,14 +183,14 @@ ${servicesList || "general services (describe briefly during conversation)"}.
 
 ## Task (3 steps):
 1) Greet & Qualify
-- Greet warmly with your name and the business name.
+- Greet with your name and the business name.
 - Ask what service they need and their preferred date/time.
-- If they don't know a time, offer to check today's/tomorrow's availability within local hours (${hours}), ${durationMin} minutes per slot.
+- If they don’t know, offer to check today/tomorrow within local hours (${hours}), ${durationMin} minutes per slot.
 
 2) Check Availability
 - When the caller provides a time (or asks for options), call **check_availability** with ISO 8601 time (local to ${v.tz || "America/New_York"}).
 - If available → proceed to booking.
-- If unavailable → present 2–3 closest alternatives (within ${hours} window), then ask which works.
+- If unavailable → present 2–3 closest alternatives (within ${hours}), then ask which works.
 
 3) Book Appointment
 - Collect full name, phone, and email.
@@ -191,14 +201,13 @@ ${servicesList || "general services (describe briefly during conversation)"}.
 ## Context:
 This agent is the first point of contact for ${v.bizName || "the business"}, keeping calls short and efficient while protecting the calendar from double-booking.
 
-## Example (condensed):
+## Example (short):
 You: "Thanks for calling ${v.bizName || "our office"}, this is ${v.agentName || "Alex"}. What can I help you with?"
 Customer: "Tint for my sedan — can you do tomorrow afternoon?"
 You: "I’ll check. Do you prefer around 2 or 4 pm?"
 Customer: "4 pm."
 You: "(Runs check_availability). 4 pm is open. What’s your full name, phone, and email to lock it in?"
-Customer: "Jordan Lee, 555-222-1111, jordan@email.com."
-You: "(Runs book_appointment). You’re set for ${v.bizName || "our business"} tomorrow at 4 pm. You’ll get a confirmation by email. Anything else I can help with?"
+You: "(Runs book_appointment). You’re set for tomorrow at 4 pm. You’ll get a confirmation by email. Anything else I can help with?"
 
 ## Notes:
 - Be concise; never expose tool URLs.
@@ -221,7 +230,6 @@ You: "(Runs book_appointment). You’re set for ${v.bizName || "our business"} t
       const tz = v.tz || "America/New_York";
       const duration = Number(v.durationMin || 60);
 
-      // n8n workflow: Webhook (POST) -> Code (parse ISO) -> Google Calendar (FreeBusy) -> IF free? -> Respond OK or suggest alt slots
       return {
         name: `${v.bizName || "Business"} — check_availability`,
         nodes: [
@@ -235,10 +243,8 @@ You: "(Runs book_appointment). You’re set for ${v.bizName || "our business"} t
               httpMethod: "POST",
               path: "check-availability",
               responseMode: "onReceived",
-              responseData: "allEntries",
-              options: { },
-            },
-            webhookId: "auto-generate"
+              responseData: "allEntries"
+            }
           },
           {
             id: "CodeParseRequestedTime",
@@ -249,9 +255,7 @@ You: "(Runs book_appointment). You’re set for ${v.bizName || "our business"} t
             parameters: {
               language: "javascript",
               jsCode:
-`// Expect { time: "ISO string", durationMin?: number } in JSON.
-// Fallback to now+1h if missing.
-const body = items[0].json || {};
+`const body = items[0].json || {};
 const ISO = body.time || new Date(Date.now()+60*60*1000).toISOString();
 const durationMin = Number(body.durationMin || ${duration});
 return [{ json: { start: ISO, end: new Date(new Date(ISO).getTime() + durationMin*60000).toISOString(), tz: "${tz}", durationMin } }];`
@@ -269,7 +273,7 @@ return [{ json: { start: ISO, end: new Date(new Date(ISO).getTime() + durationMi
               calendar: { value: calId, mode: "id" },
               timeMin: "={{$json.start}}",
               timeMax: "={{$json.end}}",
-              timeZone: tz,
+              timeZone: tz
             }
           },
           {
@@ -280,12 +284,8 @@ return [{ json: { start: ISO, end: new Date(new Date(ISO).getTime() + durationMi
             position: [1040, 300],
             parameters: {
               conditions: {
-                number: [],
                 boolean: [
-                  {
-                    value1: "={{$json.busy && $json.busy.length === 0}}",
-                    operation: "isTrue"
-                  }
+                  { value1: "={{$json.busy && $json.busy.length === 0}}", operation: "isTrue" }
                 ]
               }
             }
@@ -296,11 +296,7 @@ return [{ json: { start: ISO, end: new Date(new Date(ISO).getTime() + durationMi
             type: "n8n-nodes-base.respondToWebhook",
             typeVersion: 1,
             position: [1300, 220],
-            parameters: {
-              responseBody: {
-                result: "Great, the time slot you selected is available. Let me go ahead and book it for you."
-              }
-            }
+            parameters: { responseBody: { result: "Available" } }
           },
           {
             id: "AltTimesCode",
@@ -311,32 +307,25 @@ return [{ json: { start: ISO, end: new Date(new Date(ISO).getTime() + durationMi
             parameters: {
               language: "javascript",
               jsCode:
-`// Build 3 alternative slots near the requested time within business hours window.
-// Input: start, end, durationMin
-const inItem = items[0].json;
+`const inItem = items[0].json;
 const start = new Date(inItem.start);
 const duration = Number(inItem.durationMin || ${duration});
-function pad(n){return String(n).padStart(2,"0")}
 function withinHours(d){
   const [open, close] = "${v.hours || "09:00-18:00"}".split("-");
-  const s = new Date(d);
-  const h = s.getHours(), m = s.getMinutes();
   const [oH,oM]=open.split(":").map(Number);
   const [cH,cM]=close.split(":").map(Number);
-  const mins=(h*60+m), minO=oH*60+oM, minC=cH*60+cM;
-  return mins>=minO && (mins+duration)<=minC;
+  const mins=d.getHours()*60+d.getMinutes();
+  return mins >= (oH*60+oM) && (mins+duration) <= (cH*60+cM);
 }
 const candidates = [];
-let offset = 30; // minutes step
-let tries=0;
+let offset = 30; let tries=0;
 while(candidates.length<3 && tries<40){
   tries++;
   const t = new Date(start.getTime() + offset*60000);
   offset += 30;
-  if(!withinHours(t)) continue;
-  candidates.push(t.toISOString());
+  if(withinHours(t)) candidates.push(t.toISOString());
 }
-return [{ json: { message: "Unfortunately your chosen time is booked out. How about one of these:", alternatives: candidates } }];`
+return [{ json: { message: "Unavailable; suggested alternatives:", alternatives: candidates } }];`
             }
           },
           {
@@ -345,9 +334,7 @@ return [{ json: { message: "Unfortunately your chosen time is booked out. How ab
             type: "n8n-nodes-base.respondToWebhook",
             typeVersion: 1,
             position: [1540, 380],
-            parameters: {
-              responseBody: "={{$json}}"
-            }
+            parameters: { responseBody: "={{$json}}" }
           }
         ],
         connections: {
@@ -362,9 +349,7 @@ return [{ json: { message: "Unfortunately your chosen time is booked out. How ab
           },
           "Build Alternative Times": { main: [[{ node: "Respond: Alternatives", type: "main", index: 0 }]] }
         },
-        settings: { timezone: tz },
-        pinData: {},
-        staticData: null
+        settings: { timezone: tz }
       };
     }
 
@@ -382,8 +367,7 @@ return [{ json: { message: "Unfortunately your chosen time is booked out. How ab
             type: "n8n-nodes-base.webhook",
             typeVersion: 1,
             position: [260, 300],
-            parameters: { httpMethod: "POST", path: "book-appointment", responseMode: "onReceived", responseData: "allEntries" },
-            webhookId: "auto-generate"
+            parameters: { httpMethod: "POST", path: "book-appointment", responseMode: "onReceived", responseData: "allEntries" }
           },
           {
             id: "CodeNormalize",
@@ -395,7 +379,6 @@ return [{ json: { message: "Unfortunately your chosen time is booked out. How ab
               language: "javascript",
               jsCode:
 `const b = items[0].json || {};
-// expected: full_name, email, phone_number, service_type, time (ISO)
 const timeISO = b.time || new Date(Date.now()+2*3600*1000).toISOString();
 return [{ json: {
   full_name: b.full_name || "Unknown",
@@ -417,7 +400,6 @@ return [{ json: {
             parameters: {
               operation: "create",
               calendar: { value: calId, mode: "id" },
-              'additionalFields.location': "",
               start: "={{$json.start}}",
               end: "={{$json.end}}",
               summary: "={{\"New Appointment — \" + $json.full_name}}",
@@ -431,12 +413,7 @@ return [{ json: {
             type: "n8n-nodes-base.respondToWebhook",
             typeVersion: 1,
             position: [1040, 300],
-            parameters: {
-              responseBody: {
-                result: "Great, your job has been booked.",
-                icsEventCreated: true
-              }
-            }
+            parameters: { responseBody: { result: "Booked", icsEventCreated: true } }
           }
         ],
         connections: {
@@ -444,13 +421,11 @@ return [{ json: {
           "Normalize Inputs": { main: [[{ node: "Google Calendar: Create Event", type: "main", index: 0 }]] },
           "Google Calendar: Create Event": { main: [[{ node: "Respond: Booked", type: "main", index: 0 }]] }
         },
-        settings: { timezone: tz },
-        pinData: {},
-        staticData: null
+        settings: { timezone: tz }
       };
     }
 
-    // ElevenLabs TTS (uses your `/api/tts` serverless function)
+    // ElevenLabs preview via /api/tts
     async function elevenLabsPreview() {
       const v = Object.fromEntries(new FormData(document.getElementById('aiForm')).entries());
       const voiceId   = (document.getElementById('voiceId')?.value || '').trim() || '21m00Tcm4TlvDq8ikWAM';
@@ -461,12 +436,7 @@ return [{ json: {
       const res = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text,
-          voice_id: voiceId,
-          model_id: modelId,
-          voice_settings: { stability, similarity_boost: 0.7 }
-        })
+        body: JSON.stringify({ text, voice_id: voiceId, model_id: modelId, voice_settings: { stability, similarity_boost: 0.7 } })
       });
       if (!res.ok) {
         const msg = await res.text().catch(()=>res.statusText);
@@ -483,21 +453,18 @@ return [{ json: {
       audioEl.play().catch(()=>{});
       audioDownload.href = url;
     }
-
-    // Bind TTS
     document.getElementById('ttsBtn')?.addEventListener('click', elevenLabsPreview);
 
-    // Generate → fill previews + enable downloads
+    // Generate
     document.getElementById('genBtn')?.addEventListener('click', () => {
       const v = Object.fromEntries(new FormData(document.getElementById('aiForm')).entries());
       const fullPrompt = buildSystemPrompt(v);
       const preview = previewText(fullPrompt);
       document.getElementById('promptPreview').textContent = preview;
 
-      // Build n8n JSONs (not shown)
+      // Build (hidden) n8n JSONs
       const availJSON = buildN8NCheckWorkflow(v);
       const bookJSON  = buildN8NBookWorkflow(v);
-      document.getElementById('jsonPreview').textContent = JSON.stringify({avail:availJSON, book:bookJSON}, null, 2);
 
       // Enable downloads
       const promptBlob = new Blob([fullPrompt], { type: "text/plain" });
