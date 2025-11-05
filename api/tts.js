@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     const xiKey = process.env.ELEVENLABS_API_KEY; // 🔒 read from env var
     if (!xiKey) return res.status(500).send('Server missing ELEVENLABS_API_KEY');
 
-    const voiceId = voice_id || '21m00Tcm4TlvDq8ikWAM'; // default voice (you can replace with your fave)
+    const voiceId = voice_id || 'UgBBYS2sOqTuMpoF3BR0'; // default voice (you can replace with your fave)
 
     const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
       method: 'POST',
