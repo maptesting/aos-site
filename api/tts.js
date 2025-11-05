@@ -1,13 +1,15 @@
-// /api/tts.js
+// api/tts.js  (Vercel Serverless Function)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
   try {
     const { text, voice_id, model_id = 'eleven_multilingual_v2', voice_settings } = req.body || {};
     if (!text) return res.status(400).send('Missing text');
-    const voiceId = voice_id || 'uju3wxzG5OhpWcoi3SMy'; // default
-    const xiKey = process.env.sk_91a69a3752a0ad4a80bacce3e9f38137cf85f555f9b4b912;
+
+    const xiKey = process.env.ELEVENLABS_API_KEY; // 🔒 read from env var
     if (!xiKey) return res.status(500).send('Server missing ELEVENLABS_API_KEY');
+
+    const voiceId = voice_id || '21m00Tcm4TlvDq8ikWAM'; // default voice (you can replace with your fave)
 
     const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
       method: 'POST',
@@ -27,11 +29,10 @@ export default async function handler(req, res) {
     });
 
     if (!resp.ok) {
-      const errTxt = await resp.text().catch(()=>'');
+      const errTxt = await resp.text().catch(() => '');
       return res.status(resp.status).send(errTxt || 'TTS failed');
     }
 
-    // Stream back the MP3 to the browser
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'no-store');
     const arrayBuf = await resp.arrayBuffer();
