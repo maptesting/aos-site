@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>AOS – Instant AI Receptionist Builder</title>
-  <meta name="description" content="Generate a custom AI receptionist for any business in minutes. Answer a few questions, then download a ready-to-use system prompt and importable n8n workflow JSON." />
+  <meta name="description" content="Generate a custom AI receptionist for any business in minutes. Preview, hear an ElevenLabs voice greeting, and download your prompt + n8n workflow after purchase." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
 
   <!-- Tailwind -->
@@ -29,7 +29,7 @@
     .site-logo { width: 36px; height: 36px; object-fit: contain; border-radius: .75rem; }
     .code { white-space: pre-wrap; font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
     select, select option { background-color: rgba(255,255,255,.08)!important; color:#fff!important; }
-    select:focus { outline: none; box-shadow: 0 0 0 2px rgba(85,109,255,.6); }
+    select:focus, input:focus, textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(85,109,255,.6); }
   </style>
 
   <!-- Stripe Buy Button -->
@@ -52,7 +52,7 @@
   <!-- Top notice -->
   <div class="bg-brand-900/40 border-b border-white/10 text-sm">
     <div class="mx-auto max-w-7xl px-4 py-2 text-center">
-      Build a custom AI receptionist for <b>any business</b> — preview free, download after purchase.
+      Build a custom AI receptionist for <b>any business</b> — preview free, hear an ElevenLabs voice intro, download after purchase.
       <a href="#builder" class="ml-2 underline decoration-brand-400 hover:text-brand-300">Start building →</a>
     </div>
   </div>
@@ -126,14 +126,11 @@
   <section id="features" class="py-20 md:py-28">
     <div class="mx-auto max-w-7xl px-4">
       <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Built for any business, anywhere.</h2>
-      <p class="mt-3 text-white/70 max-w-2xl">From local services to global SaaS, the AI receptionist collects details, quotes ranges, schedules, confirms, and hands off to a human when needed.</p>
+      <p class="mt-3 text-white/70 max-w-2xl">The AI receptionist collects details, quotes ranges, schedules, confirms, and hands off to a human when needed.</p>
       <div class="mt-10 grid md:grid-cols-3 gap-6">
         <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📞 Missed inquiry recovery</h3><p class="mt-2 text-white/70 text-sm">Instant responses by web, SMS, or chat widget.</p></div>
         <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📅 Calendar & CRM ready</h3><p class="mt-2 text-white/70 text-sm">Google Calendar node pre-wired (connect your creds).</p></div>
         <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🧠 Trained on your info</h3><p class="mt-2 text-white/70 text-sm">Your services, prices, policies, and tone—no code.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🌍 Global timezones</h3><p class="mt-2 text-white/70 text-sm">Defaults to the visitor’s local timezone.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🤝 Human handoff</h3><p class="mt-2 text-white/70 text-sm">Escalate edge cases to your team instantly.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">⚡ Fast responses</h3><p class="mt-2 text-white/70 text-sm">Short, natural messages that convert.</p></div>
       </div>
     </div>
   </section>
@@ -146,57 +143,89 @@
           <!-- Form -->
           <div class="w-full lg:w-1/2">
             <h2 class="text-3xl font-bold tracking-tight">Build your AI Receptionist</h2>
-            <p class="mt-2 text-white/70">Answer a few questions. Preview for free. Pay once to unlock downloads.</p>
+            <p class="mt-2 text-white/70">Preview for free, hear an ElevenLabs voice intro, and pay once to unlock downloads.</p>
 
             <form id="aiForm" class="grid gap-3 mt-6">
               <div class="grid md:grid-cols-2 gap-3">
-                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Business name" name="bizName" required>
-                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Location / Service area" name="location" required>
+                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Business name" name="bizName" required>
+                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Location / Service area" name="location" required>
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
-                <input name="industry" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Industry (e.g., Cleaning, SaaS, Clinic)" required>
-                <input name="services" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Core services (comma-separated)" required>
-              </div>
-
-              <textarea name="pricing" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Typical price ranges or plans (optional)"></textarea>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <input name="hours" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Hours (e.g., Mon–Sat 9–6)">
-                <input name="calendarLink" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Booking link (Google/Calendly)">
+                <input name="industry" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Industry (e.g., Cleaning, SaaS, Clinic)" required>
+                <input name="services" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Core services (comma-separated)" required>
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
-                <input name="email" type="email" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Confirmation email (optional)">
-                <input name="phone" inputmode="tel" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Business phone (optional)">
+                <input name="agentName" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Agent name (e.g., Alex)" value="Alex">
+                <input name="language" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Language (e.g., English, Spanish)" value="English">
+              </div>
+
+              <textarea name="pricing" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Typical price ranges or plans (optional)"></textarea>
+
+              <div class="grid md:grid-cols-2 gap-3">
+                <input name="hours" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Hours (e.g., Mon–Sat 9–6)">
+                <input name="calendarLink" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Booking link (Google/Calendly)">
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
-                <input name="timezone" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Timezone (e.g., America/New_York)">
-                <input name="language" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Language (e.g., English, Spanish)">
+                <input name="email" type="email" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Confirmation email (optional)">
+                <input name="phone" inputmode="tel" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Business phone (optional)">
               </div>
 
-              <textarea name="policies" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Deposits / refunds / service area / compliance (optional)"></textarea>
+              <div class="grid md:grid-cols-2 gap-3">
+                <input name="timezone" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Timezone (e.g., America/New_York)">
+                <textarea name="policies" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Deposits / refunds / service area / compliance (optional)"></textarea>
+              </div>
 
               <div class="grid md:grid-cols-2 gap-3">
                 <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="upsell_a" class="accent-brand-500"> Offer upsells / add-ons</label>
                 <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="handoff" class="accent-brand-500" checked> Enable human handoff</label>
               </div>
 
+              <!-- Voice selection -->
+              <div class="grid md:grid-cols-3 gap-3 items-end">
+                <div>
+                  <label class="text-xs text-white/60">ElevenLabs Voice ID</label>
+                  <input id="voiceId" class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40"
+                         placeholder="e.g. 21m00Tcm4TlvDq8ikWAM">
+                </div>
+                <div>
+                  <label class="text-xs text-white/60">Model</label>
+                  <select id="modelId" class="w-full rounded-xl bg-white/10 border border-white/10 px-4 py-3">
+                    <option value="eleven_multilingual_v2" selected>eleven_multilingual_v2</option>
+                    <option value="eleven_flash_v2_5">eleven_flash_v2_5</option>
+                    <option value="eleven_turbo_v2">eleven_turbo_v2</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs text-white/60">Stability (0–1)</label>
+                  <input id="stability" type="number" min="0" max="1" step="0.05" value="0.5"
+                         class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3">
+                </div>
+              </div>
+
               <div class="mt-4 flex flex-wrap gap-3">
                 <button id="previewBtn" type="button" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Preview</button>
+                <button id="ttsBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5">▶ Hear AI Greeting (ElevenLabs)</button>
                 <button id="downloadPromptBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5" disabled>Download Prompt (.txt)</button>
                 <button id="downloadJsonBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5" disabled>Download n8n (.json)</button>
               </div>
 
+              <!-- Audio player + download -->
+              <div id="audioWrap" class="mt-3 hidden">
+                <audio id="audio" controls class="w-full"></audio>
+                <a id="audioDownload" download="ai-greeting.mp3" class="inline-block mt-2 text-sm underline decoration-brand-400">Download audio</a>
+              </div>
+
               <!-- Paywall -->
               <div id="paywall" class="mt-6 p-4 rounded-xl border border-white/10 bg-white/5">
-                <div class="text-sm mb-3">To unlock downloads, complete purchase below:</div>
+                <div class="text-sm mb-3">To unlock prompt & n8n downloads, complete purchase:</div>
                 <stripe-buy-button
                   buy-button-id="buy_btn_1SPzZiIpVNL8emy1w6rFZbiB"
                   publishable-key="pk_live_51SNnUTIpVNL8emy1p6TV1AUq714WVbxPRlWPDfakrubfe52E0Bnl47PIlKhXazPSPaAd23JQSOsI0s8leA8IyPf6001U3zIzzX">
                 </stripe-buy-button>
-                <div class="text-xs text-white/50 mt-3">Tip: Set your Stripe Buy Button’s <em>success URL</em> to this page with <code>?paid=1</code> appended to auto-unlock after checkout.</div>
+                <div class="text-xs text-white/50 mt-3">Set Buy Button <em>success URL</em> to this page with <code>?paid=1</code> to auto-unlock.</div>
               </div>
             </form>
           </div>
@@ -220,7 +249,7 @@
       </div>
 
       <div class="mt-6 text-center text-white/60 text-sm">
-        Prefer a done-for-you install (multi-language, phone, SMS, CRM)? <a class="underline decoration-brand-400" href="https://calendly.com/razerrtrading/30min" target="_blank">Book a call</a>.
+        Prefer a done-for-you install? <a class="underline decoration-brand-400" href="https://calendly.com/razerrtrading/30min" target="_blank">Book a call</a>.
       </div>
     </div>
   </section>
@@ -231,16 +260,12 @@
       <h2 class="text-3xl font-bold tracking-tight text-center">FAQ</h2>
       <div class="mt-8 divide-y divide-white/10">
         <details class="group py-4">
-          <summary class="flex justify-between cursor-pointer"><span>Does it work for any industry?</span><span class="transition group-open:rotate-180">⌄</span></summary>
-          <p class="mt-2 text-white/70 text-sm">Yes—fill in your services, prices, rules, and tone. The prompt adapts to clinics, trades, agencies, e-commerce, SaaS, and more.</p>
+          <summary class="flex justify-between cursor-pointer"><span>Which ElevenLabs model should I use?</span><span class="transition group-open:rotate-180">⌄</span></summary>
+          <p class="mt-2 text-white/70 text-sm">Default is <code>eleven_multilingual_v2</code> for natural, multilingual speech. Try <code>eleven_flash_v2_5</code> for speed.</p>
         </details>
         <details class="group py-4">
-          <summary class="flex justify-between cursor-pointer"><span>How do I use the n8n JSON?</span><span class="transition group-open:rotate-180">⌄</span></summary>
-          <p class="mt-2 text-white/70 text-sm">In n8n, go to <em>Import from File</em>, select the JSON, then connect your credentials for OpenAI, Google Calendar, and Email/SMTP.</p>
-        </details>
-        <details class="group py-4">
-          <summary class="flex justify-between cursor-pointer"><span>Which LLMs are supported?</span><span class="transition group-open:rotate-180">⌄</span></summary>
-          <p class="mt-2 text-white/70 text-sm">The prompt is model-agnostic. Template uses an OpenAI node by default; swap for any provider you prefer.</p>
+          <summary class="flex justify-between cursor-pointer"><span>How do I get a Voice ID?</span><span class="transition group-open:rotate-180">⌄</span></summary>
+          <p class="mt-2 text-white/70 text-sm">From ElevenLabs “My Voices” → three dots → “Copy voice ID”, or use the List Voices API.</p>
         </details>
       </div>
     </div>
@@ -254,14 +279,18 @@
 
     const form = document.getElementById('aiForm');
     const previewBtn = document.getElementById('previewBtn');
+    const ttsBtn = document.getElementById('ttsBtn');
     const downloadPromptBtn = document.getElementById('downloadPromptBtn');
     const downloadJsonBtn = document.getElementById('downloadJsonBtn');
     const promptOut = document.getElementById('promptOut');
     const jsonOut = document.getElementById('jsonOut');
     const notice = document.getElementById('notice');
     const paywall = document.getElementById('paywall');
+    const audioEl = document.getElementById('audio');
+    const audioWrap = document.getElementById('audioWrap');
+    const audioDownload = document.getElementById('audioDownload');
 
-    // Default timezone to visitor's
+    // Default timezone
     const tzGuess = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     if (!form.timezone.value) form.timezone.value = tzGuess;
 
@@ -279,7 +308,7 @@
       paywall.style.display = unlocked ? 'none' : 'block';
       notice.textContent = unlocked
         ? "Downloads unlocked. You can save your custom prompt and n8n workflow."
-        : "Preview is free. Complete purchase to enable downloads.";
+        : "Preview & voice demo are free. Complete purchase to enable downloads.";
     }
 
     function getValues() {
@@ -288,6 +317,7 @@
       data.handoff = !!form.handoff?.checked;
       if (!data.timezone) data.timezone = tzGuess;
       if (!data.language) data.language = "English";
+      if (!data.agentName) data.agentName = "Alex";
       return data;
     }
 
@@ -300,7 +330,7 @@
       const handoff = v.handoff ? `If conversation becomes complex or sensitive, route to a human immediately.` : ``;
 
       return `Role
-You are the AI Receptionist for "${v.bizName}", a ${v.industry} business in ${v.location}. Communicate in ${v.language}. Your job is to greet, qualify, price within guidance, and book.
+You are the AI Receptionist (“${v.agentName}”) for "${v.bizName}", a ${v.industry} business in ${v.location}. Communicate in ${v.language}. Your job is to greet, qualify, price within guidance, and book.
 
 Current Time
 {{ "now" | date: "%A, %B %d, %Y, %I:%M %p", "${v.timezone}" }}
@@ -344,113 +374,40 @@ End of instructions.`;
       return {
         name: `${v.bizName} – AI Receptionist`,
         nodes: [
-          {
-            id: "Webhook_Trigger",
-            name: "Incoming Message",
-            type: "n8n-nodes-base.webhook",
-            typeVersion: 1,
-            position: [200, 300],
-            parameters: {
-              httpMethod: "POST",
-              path: "ai-receptionist",
-              responseMode: "onReceived",
-              options: { responseCode: 200, responseData: "ok" }
-            }
-          },
-          {
-            id: "LLM_Chat",
-            name: "LLM Chat (OpenAI)",
-            type: "n8n-nodes-base.openAi",
-            typeVersion: 4,
-            position: [520, 300],
-            parameters: {
-              operation: "chat",
-              model: "gpt-4o-mini",
-              systemMessage: prompt,
-              text: "={{$json.message || $json.text || $json.body || ''}}",
-              temperature: 0.4
-            },
-            credentials: { openAIApi: { id: "__CONNECT_IN_N8N__", name: "OpenAI" } }
-          },
-          {
-            id: "Router",
-            name: "Intent Router",
-            type: "n8n-nodes-base.if",
-            typeVersion: 1,
-            position: [780, 300],
-            parameters: {
-              conditions: {
-                string: [
-                  { value1: "={{$json.data || $json || ''}}", operation: "contains", value2: "book" },
-                  { value1: "={{$json.data || $json || ''}}", operation: "contains", value2: "schedule" }
-                ]
-              }
-            }
-          },
-          {
-            id: "Google_Calendar",
-            name: "Create Event",
-            type: "n8n-nodes-base.googleCalendar",
-            typeVersion: 3,
-            position: [1040, 240],
-            parameters: {
-              operation: "create",
-              calendarId: "",
-              start: "={{$json.preferredStart || $json.requestedStart}}",
-              end: "={{$json.preferredEnd || $json.requestedEnd}}",
-              summary: `={{"${v.bizName} – "+($json.service||"Appointment")}}`,
-              description: "={{$json.name+\" | \"+$json.email+\" | \"+$json.phone}}",
-              options: { timezone: v.timezone || "UTC" }
-            },
-            credentials: { googleCalendarOAuth2Api: { id: "__CONNECT_IN_N8N__", name: "Google Calendar" } }
-          },
-          {
-            id: "Email",
-            name: "Send Confirmation",
-            type: "n8n-nodes-base.emailSend",
-            typeVersion: 2,
-            position: [1280, 240],
-            parameters: {
-              fromEmail: v.email || "no-reply@yourdomain.com",
-              toEmail: "={{$json.email}}",
-              subject: `${v.bizName} – Appointment Confirmed`,
-              text: `={{"Hi "+$json.name+", your "+($json.service||"appointment")+" is confirmed for "+($json.confirmedTime||$json.preferredStart)+". If you need changes, reply to this email. – ${v.bizName}"}}`
-            },
-            credentials: { smtp: { id: "__CONNECT_IN_N8N__", name: "SMTP" } }
-          },
-          {
-            id: "Return_Response",
-            name: "HTTP Response",
-            type: "n8n-nodes-base.respondToWebhook",
-            typeVersion: 1,
-            position: [1280, 380],
-            parameters: {
-              responseBody: "={{$json.reply || $json.data || $json || \"Thanks! We'll be in touch.\"}}",
-              responseCode: 200
-            }
-          }
+          { id: "Webhook_Trigger", name: "Incoming Message", type: "n8n-nodes-base.webhook", typeVersion: 1, position: [200, 300],
+            parameters: { httpMethod: "POST", path: "ai-receptionist", responseMode: "onReceived", options: { responseCode: 200, responseData: "ok" } } },
+          { id: "LLM_Chat", name: "LLM Chat (OpenAI)", type: "n8n-nodes-base.openAi", typeVersion: 4, position: [520, 300],
+            parameters: { operation: "chat", model: "gpt-4o-mini", systemMessage: prompt, text: "={{$json.message || $json.text || $json.body || ''}}", temperature: 0.4 },
+            credentials: { openAIApi: { id: "__CONNECT_IN_N8N__", name: "OpenAI" } } },
+          { id: "Router", name: "Intent Router", type: "n8n-nodes-base.if", typeVersion: 1, position: [780, 300],
+            parameters: { conditions: { string: [
+              { value1: "={{$json.data || $json || ''}}", operation: "contains", value2: "book" },
+              { value1: "={{$json.data || $json || ''}}", operation: "contains", value2: "schedule" }
+            ] } } },
+          { id: "Google_Calendar", name: "Create Event", type: "n8n-nodes-base.googleCalendar", typeVersion: 3, position: [1040, 240],
+            parameters: { operation: "create", calendarId: "", start: "={{$json.preferredStart || $json.requestedStart}}", end: "={{$json.preferredEnd || $json.requestedEnd}}",
+              summary: `={{"${v.bizName} – "+($json.service||"Appointment")}}`, description: "={{$json.name+\" | \"+$json.email+\" | \"+$json.phone}}",
+              options: { timezone: v.timezone || "UTC" } },
+            credentials: { googleCalendarOAuth2Api: { id: "__CONNECT_IN_N8N__", name: "Google Calendar" } } },
+          { id: "Email", name: "Send Confirmation", type: "n8n-nodes-base.emailSend", typeVersion: 2, position: [1280, 240],
+            parameters: { fromEmail: v.email || "no-reply@yourdomain.com", toEmail: "={{$json.email}}", subject: `${v.bizName} – Appointment Confirmed`,
+              text: `={{"Hi "+$json.name+", your "+($json.service||"appointment")+" is confirmed for "+($json.confirmedTime||$json.preferredStart)+". If you need changes, reply to this email. – ${v.bizName}"}}` },
+            credentials: { smtp: { id: "__CONNECT_IN_N8N__", name: "SMTP" } } },
+          { id: "Return_Response", name: "HTTP Response", type: "n8n-nodes-base.respondToWebhook", typeVersion: 1, position: [1280, 380],
+            parameters: { responseBody: "={{$json.reply || $json.data || $json || \"Thanks! We'll be in touch.\"}}", responseCode: 200 } }
         ],
         connections: {
           "Incoming Message": { main: [[{ node: "LLM Chat (OpenAI)", type: "main", index: 0 }]] },
           "LLM Chat (OpenAI)": { main: [[{ node: "Intent Router", type: "main", index: 0 }]] },
-          "Intent Router": {
-            main: [
-              [{ node: "Create Event", type: "main", index: 0 }],    // booking intent
-              [{ node: "HTTP Response", type: "main", index: 0 }]     // general reply
-            ]
-          },
+          "Intent Router": { main: [
+            [{ node: "Create Event", type: "main", index: 0 }],
+            [{ node: "HTTP Response", type: "main", index: 0 }]
+          ] },
           "Create Event": { main: [[{ node: "Send Confirmation", type: "main", index: 0 }]] },
           "Send Confirmation": { main: [[{ node: "HTTP Response", type: "main", index: 0 }]] }
         },
-        settings: { timezone: v.timezone || "UTC" },
-        staticData: null,
-        pinData: {}
+        settings: { timezone: v.timezone || "UTC" }
       };
-    }
-
-    function enableDownloads(enabled) {
-      downloadPromptBtn.disabled = !enabled;
-      downloadJsonBtn.disabled = !enabled;
     }
 
     function toBlobDownload(filename, content, mime="text/plain") {
@@ -469,10 +426,9 @@ End of instructions.`;
       promptOut.textContent = prompt;
       jsonOut.textContent = JSON.stringify(json, null, 2);
       notice.textContent = downloadPromptBtn.disabled
-        ? "Looks good! Complete purchase to enable downloads."
+        ? "Looks good! ElevenLabs voice preview is available. Complete purchase to enable downloads."
         : "Ready to download. Import the JSON in n8n.";
     }
-
     previewBtn.addEventListener('click', preview);
 
     downloadPromptBtn.addEventListener('click', () => {
@@ -487,6 +443,51 @@ End of instructions.`;
       const json = buildN8N(v, prompt);
       toBlobDownload(`${(v.bizName||"AI_Receptionist").replace(/\s+/g,'_')}_n8n.json`, JSON.stringify(json, null, 2), "application/json");
     });
+
+    // ------- ElevenLabs TTS preview (via /api/tts) -------
+    async function elevenLabsPreview() {
+      const v = getValues();
+      const voiceId = document.getElementById('voiceId').value.trim() || '21m00Tcm4TlvDq8ikWAM'; // default classic voice
+      const modelId = document.getElementById('modelId').value || 'eleven_multilingual_v2';
+      const stability = parseFloat(document.getElementById('stability').value || '0.5');
+
+      const text = `Hey, this is ${v.agentName || "Alex"} with ${v.bizName || "your business"}, how can I help you today?`;
+
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          text, voice_id: voiceId, model_id: modelId,
+          voice_settings: { stability, similarity_boost: 0.7 }
+        })
+      });
+
+      if (!res.ok) {
+        const errTxt = await res.text().catch(()=>res.statusText);
+        alert('TTS error: ' + errTxt);
+        return;
+      }
+
+      const blob = await res.blob(); // audio/mpeg
+      const url = URL.createObjectURL(blob);
+      audioEl.src = url;
+      audioWrap.classList.remove('hidden');
+      audioEl.play().catch(()=>{ /* user must click play on some browsers */ });
+      audioDownload.href = url;
+    }
+
+    const ttsBtnEl = document.getElementById('ttsBtn');
+    ttsBtnEl.addEventListener('click', elevenLabsPreview);
+
+    function getValues() {
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.upsells = form.upsell_a?.checked ? ["Relevant add-ons"] : [];
+      data.handoff = !!form.handoff?.checked;
+      if (!data.timezone) data.timezone = tzGuess;
+      if (!data.language) data.language = "English";
+      if (!data.agentName) data.agentName = "Alex";
+      return data;
+    }
   </script>
 </body>
 </html>
