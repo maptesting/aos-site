@@ -3,18 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AOS – AI Optimization Solutions | Charlotte’s 24/7 AI Receptionist</title>
-  <meta name="description" content="Charlotte-based AI receptionists that answer calls, text back, price jobs, and book appointments 24/7—so local operators never miss revenue." />
+  <title>AOS – Instant AI Receptionist Builder</title>
+  <meta name="description" content="Generate a custom AI receptionist for any business in minutes. Answer a few questions, then download a ready-to-use system prompt and importable n8n workflow JSON." />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="AOS – AI Optimization Solutions" />
-  <meta property="og:description" content="24/7 AI receptionist for Charlotte’s car detailers, rentals, tint, mechanics & more." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://your-domain.com/" />
-  <meta property="og:image" content="https://your-domain.com/og-image.jpg" />
-
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -33,38 +26,34 @@
     .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
     .gradient { background: radial-gradient(1200px 600px at 20% -10%, rgba(85,109,255,.25), transparent 60%), radial-gradient(1000px 600px at 100% 0%, rgba(34,42,130,.35), transparent 60%), linear-gradient(180deg, #0b0f1a 0%, #0b0f1a 100%); }
     html { scroll-behavior: smooth; }
-    .site-logo { width: 36px; height: 36px; object-fit: contain; border-radius: 0.75rem; background: transparent; }
-    select, select option { background-color: rgba(255,255,255,0.08) !important; color: #fff !important; }
+    .site-logo { width: 36px; height: 36px; object-fit: contain; border-radius: .75rem; }
+    .code { white-space: pre-wrap; font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+    select, select option { background-color: rgba(255,255,255,.08)!important; color:#fff!important; }
     select:focus { outline: none; box-shadow: 0 0 0 2px rgba(85,109,255,.6); }
-    @supports (-webkit-touch-callout: none) { select { -webkit-text-fill-color: #fff; } }
-    .code { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
   </style>
 
-  <!-- Schema -->
+  <!-- Stripe Buy Button -->
+  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+
+  <!-- SEO Schema -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
-    "@type":"LocalBusiness",
+    "@type":"Organization",
     "name":"AOS – AI Optimization Solutions",
     "url":"https://your-domain.com/",
     "logo":"images/logo/ChatGPT Image Oct 26, 2025, 04_40_34 PM.png",
-    "areaServed":{
-      "@type":"GeoCircle",
-      "name":"Charlotte Metro",
-      "geoMidpoint":{"@type":"GeoCoordinates","latitude":35.2271,"longitude":-80.8431},
-      "geoRadius":65000
-    },
-    "address":{"@type":"PostalAddress","addressLocality":"Charlotte","addressRegion":"NC","addressCountry":"US"}
+    "description":"Generate a custom AI receptionist for any business, anywhere."
   }
   </script>
 </head>
 <body class="bg-ink text-white antialiased selection:bg-brand-300/30">
 
-  <!-- Banner -->
+  <!-- Top notice -->
   <div class="bg-brand-900/40 border-b border-white/10 text-sm">
     <div class="mx-auto max-w-7xl px-4 py-2 text-center">
-      <span class="opacity-80">Now booking <strong>November</strong> pilot installs for Charlotte-area businesses — setup in ~72 hours.</span>
-      <a href="#builder" class="ml-2 underline decoration-brand-400 hover:text-brand-300">Build your AI →</a>
+      Build a custom AI receptionist for <b>any business</b> — preview free, download after purchase.
+      <a href="#builder" class="ml-2 underline decoration-brand-400 hover:text-brand-300">Start building →</a>
     </div>
   </div>
 
@@ -76,17 +65,15 @@
           <img src="images/logo/ChatGPT Image Oct 26, 2025, 04_40_34 PM.png" alt="AOS logo" class="site-logo" />
           <div class="leading-tight">
             <div class="font-semibold tracking-tight">AOS</div>
-            <div class="text-xs text-white/60">AI Optimization Solutions • Charlotte, NC</div>
+            <div class="text-xs text-white/60">AI Optimization Solutions</div>
           </div>
         </a>
         <nav class="hidden md:flex items-center gap-8 text-sm">
           <a href="#features" class="hover:text-brand-300">Features</a>
-          <a href="#solutions" class="hover:text-brand-300">Industries</a>
           <a href="#builder" class="hover:text-brand-300">AI Builder</a>
           <a href="#faq" class="hover:text-brand-300">FAQ</a>
         </nav>
         <div class="flex items-center gap-3">
-          <a href="https://calendly.com/razerrtrading/30min" target="_blank" class="hidden sm:inline-flex text-sm px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5">Live demo</a>
           <a href="#builder" class="inline-flex text-sm px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600">Build & Buy</a>
         </div>
       </div>
@@ -99,37 +86,34 @@
       <div class="grid md:grid-cols-2 gap-10 items-center">
         <div>
           <div class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-xs text-white/70 mb-5">
-            <span>🤖 Charlotte’s 24/7 AI Receptionist</span><span class="opacity-30">•</span><span>Built for local operators</span>
+            <span>🤖 Instant AI Receptionist Builder</span><span class="opacity-30">•</span><span>Any Business • Any Country</span>
           </div>
           <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-            Turn <span class="text-brand-400">missed calls</span> into booked jobs—automatically.
+            Turn inquiries into <span class="text-brand-400">booked customers</span>—automatically.
           </h1>
           <p class="mt-5 text-white/70 max-w-xl">
-            AOS installs AI receptionists that answer calls, text back, quote, and book directly into your calendar.
-            Specializations for <strong>car detailing, car rentals, window tint</strong>, and <strong>auto mechanic shops (coming soon)</strong> across the Charlotte metro.
+            Answer a few questions about your business. Get a tailored system prompt + an import-ready n8n workflow JSON. Works with ChatGPT, Claude, Gemini, and more.
           </p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a href="#builder" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Build your AI now</a>
-            <a href="https://calendly.com/razerrtrading/30min" target="_blank" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5">Book on Calendly</a>
           </div>
         </div>
 
-        <!-- Hero Card -->
         <div class="relative">
           <div class="glass rounded-2xl p-6 md:p-8 shadow-soft">
             <div class="text-sm text-white/60">Live conversation</div>
             <div class="mt-3 space-y-3">
               <div class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full bg-brand-500 grid place-items-center">🤖</div>
-                <div class="flex-1 text-sm"><span class="text-white/70">AOS:</span> Hey! Want a same-day detail or tomorrow?</div>
+                <div class="flex-1 text-sm"><span class="text-white/70">AI:</span> Hi! What can I help you with today?</div>
               </div>
               <div class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full bg-white/10 grid place-items-center">👤</div>
-                <div class="flex-1 text-sm">Tomorrow 2pm in South End. Interior + exterior?</div>
+                <div class="flex-1 text-sm">I need pricing and earliest availability.</div>
               </div>
               <div class="flex items-start gap-3">
                 <div class="h-9 w-9 rounded-full bg-brand-500 grid place-items-center">🤖</div>
-                <div class="flex-1 text-sm">Interior+Exterior from $179. I can lock in <strong>2:00 PM</strong>. What’s your full name, email, and phone?</div>
+                <div class="flex-1 text-sm">We can do tomorrow at <strong>2:00 PM</strong>. What’s your full name, email, and phone?</div>
               </div>
             </div>
           </div>
@@ -141,60 +125,41 @@
   <!-- Features -->
   <section id="features" class="py-20 md:py-28">
     <div class="mx-auto max-w-7xl px-4">
-      <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Capture and convert more Charlotte leads.</h2>
-      <p class="mt-3 text-white/70 max-w-2xl">AOS connects calls, SMS, and booking into one AI that performs like your best receptionist—without days off.</p>
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Built for any business, anywhere.</h2>
+      <p class="mt-3 text-white/70 max-w-2xl">From local services to global SaaS, the AI receptionist collects details, quotes ranges, schedules, confirms, and hands off to a human when needed.</p>
       <div class="mt-10 grid md:grid-cols-3 gap-6">
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📞 Missed call → instant text → booked</h3><p class="mt-2 text-white/70 text-sm">Quote, answer FAQs, and reserve a time in seconds.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📅 Calendar & CRM sync</h3><p class="mt-2 text-white/70 text-sm">Two-way Google/iCal sync with CRM or Sheets logging.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🧠 Trained on your pricing & policies</h3><p class="mt-2 text-white/70 text-sm">Accurate quotes, add-ons, deposits, and service areas.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🤝 Human handoff</h3><p class="mt-2 text-white/70 text-sm">Complex request? It routes to you instantly.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📈 Analytics & QA</h3><p class="mt-2 text-white/70 text-sm">Track booked jobs, response times, and transcripts.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">⚡ Replies in &lt; 2 seconds</h3><p class="mt-2 text-white/70 text-sm">Keep prospects engaged while others send them to voicemail.</p></div>
+        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📞 Missed inquiry recovery</h3><p class="mt-2 text-white/70 text-sm">Instant responses by web, SMS, or chat widget.</p></div>
+        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📅 Calendar & CRM ready</h3><p class="mt-2 text-white/70 text-sm">Google Calendar node pre-wired (connect your creds).</p></div>
+        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🧠 Trained on your info</h3><p class="mt-2 text-white/70 text-sm">Your services, prices, policies, and tone—no code.</p></div>
+        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🌍 Global timezones</h3><p class="mt-2 text-white/70 text-sm">Defaults to the visitor’s local timezone.</p></div>
+        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🤝 Human handoff</h3><p class="mt-2 text-white/70 text-sm">Escalate edge cases to your team instantly.</p></div>
+        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">⚡ Fast responses</h3><p class="mt-2 text-white/70 text-sm">Short, natural messages that convert.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- Industries -->
-  <section id="solutions" class="py-20 md:py-28 bg-white/5">
-    <div class="mx-auto max-w-7xl px-4">
-      <h2 class="text-3xl font-bold tracking-tight mb-10">Pre-tuned for Charlotte niches.</h2>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">Car Detailing</h3><ul class="mt-3 text-sm text-white/70 list-disc list-inside"><li>Interior / Exterior / Full menu</li><li>Upsells: pet hair, shampoo, ceramic</li></ul></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">Car Rentals</h3><ul class="mt-3 text-sm text-white/70 list-disc list-inside"><li>Deposits, insurance, age rules</li><li>Extensions, late returns</li></ul></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">Window Tint</h3><ul class="mt-3 text-sm text-white/70 list-disc list-inside"><li>Film types & shade recommendations</li><li>Add-ons: windshield strip, ceramic upgrade</li></ul></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">Auto Mechanic Shops <span class="text-xs text-white/50">(coming soon)</span></h3><ul class="mt-3 text-sm text-white/70 list-disc list-inside"><li>Service triage & job type intake</li><li>Estimate ranges by make/model</li></ul></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- AI BUILDER (NEW) -->
+  <!-- AI BUILDER -->
   <section id="builder" class="py-20 md:py-28">
     <div class="mx-auto max-w-6xl px-4">
       <div class="glass rounded-2xl p-6 md:p-10">
         <div class="flex items-start justify-between gap-8 flex-col lg:flex-row">
+          <!-- Form -->
           <div class="w-full lg:w-1/2">
             <h2 class="text-3xl font-bold tracking-tight">Build your AI Receptionist</h2>
-            <p class="mt-2 text-white/70">Answer a few questions. Get a customized system prompt + an import-ready n8n workflow JSON.</p>
+            <p class="mt-2 text-white/70">Answer a few questions. Preview for free. Pay once to unlock downloads.</p>
 
             <form id="aiForm" class="grid gap-3 mt-6">
               <div class="grid md:grid-cols-2 gap-3">
                 <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Business name" name="bizName" required>
-                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="City / Service area" name="location" required>
+                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Location / Service area" name="location" required>
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
-                <select name="industry" class="appearance-none rounded-xl bg-white/10 border border-white/10 px-4 py-3 pr-10 text-white focus:ring-2 focus:ring-brand-500" required>
-                  <option value="" disabled selected>Choose industry</option>
-                  <option>Car Detailing</option>
-                  <option>Car Rentals</option>
-                  <option>Window Tint</option>
-                  <option>Auto Mechanic</option>
-                  <option>Other</option>
-                </select>
+                <input name="industry" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Industry (e.g., Cleaning, SaaS, Clinic)" required>
                 <input name="services" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Core services (comma-separated)" required>
               </div>
 
-              <textarea name="pricing" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Typical price ranges (e.g., Interior $99–149, Full Detail $179–249)"></textarea>
+              <textarea name="pricing" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Typical price ranges or plans (optional)"></textarea>
 
               <div class="grid md:grid-cols-2 gap-3">
                 <input name="hours" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Hours (e.g., Mon–Sat 9–6)">
@@ -207,32 +172,36 @@
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
-                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="upsell_pet" class="accent-brand-500"> Upsell: Pet Hair</label>
-                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="upsell_ceramic" class="accent-brand-500"> Upsell: Ceramic / Premium</label>
+                <input name="timezone" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Timezone (e.g., America/New_York)">
+                <input name="language" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Language (e.g., English, Spanish)">
               </div>
 
-              <textarea name="policies" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Deposits / cancellation / service area rules (optional)"></textarea>
+              <textarea name="policies" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Deposits / refunds / service area / compliance (optional)"></textarea>
 
               <div class="grid md:grid-cols-2 gap-3">
-                <input name="googleCalendarId" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Google Calendar ID (optional)">
-                <input name="timezone" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40 focus:ring-2 focus:ring-brand-500" placeholder="Timezone (e.g., America/New_York)">
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="upsell_a" class="accent-brand-500"> Offer upsells / add-ons</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="handoff" class="accent-brand-500" checked> Enable human handoff</label>
               </div>
 
-              <!-- Purchase / Generate -->
               <div class="mt-4 flex flex-wrap gap-3">
-                <!-- If you want paywall first, replace type with button and call payThenGenerate() -->
                 <button id="previewBtn" type="button" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Preview</button>
                 <button id="downloadPromptBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5" disabled>Download Prompt (.txt)</button>
                 <button id="downloadJsonBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5" disabled>Download n8n (.json)</button>
-                <!-- Optional Stripe checkout (paste your link) -->
-                <a id="checkoutLink" href="#" target="_blank" class="px-5 py-3 rounded-xl bg-white text-ink font-medium hidden">Checkout to Unlock</a>
               </div>
 
-              <p class="text-xs text-white/50 mt-2">Tip: After importing the n8n workflow, open each credential node (OpenAI, Google Calendar, Email/SMTP) and connect your own accounts.</p>
+              <!-- Paywall -->
+              <div id="paywall" class="mt-6 p-4 rounded-xl border border-white/10 bg-white/5">
+                <div class="text-sm mb-3">To unlock downloads, complete purchase below:</div>
+                <stripe-buy-button
+                  buy-button-id="buy_btn_1SPzZiIpVNL8emy1w6rFZbiB"
+                  publishable-key="pk_live_51SNnUTIpVNL8emy1p6TV1AUq714WVbxPRlWPDfakrubfe52E0Bnl47PIlKhXazPSPaAd23JQSOsI0s8leA8IyPf6001U3zIzzX">
+                </stripe-buy-button>
+                <div class="text-xs text-white/50 mt-3">Tip: Set your Stripe Buy Button’s <em>success URL</em> to this page with <code>?paid=1</code> appended to auto-unlock after checkout.</div>
+              </div>
             </form>
           </div>
 
-          <!-- Preview Pane -->
+          <!-- Preview -->
           <div class="w-full lg:w-1/2">
             <div class="glass rounded-2xl p-5 h-full">
               <h3 class="text-xl font-semibold">Live Preview</h3>
@@ -250,41 +219,29 @@
         </div>
       </div>
 
-      <!-- Optional Pricing Toggle / Explainer -->
       <div class="mt-6 text-center text-white/60 text-sm">
-        Want a done-for-you install? <a class="underline decoration-brand-400" href="https://calendly.com/razerrtrading/30min" target="_blank">Book a call</a>.
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section id="cta" class="py-20 md:py-28 bg-white/5">
-    <div class="mx-auto max-w-5xl px-4">
-      <div class="glass rounded-2xl p-8 md:p-12">
-        <div class="grid md:grid-cols-2 gap-8">
-          <div>
-            <h2 class="text-3xl font-bold tracking-tight">Prefer white-glove setup?</h2>
-            <p class="mt-3 text-white/70">
-              We’ll map your call flow, import services/pricing, connect your calendar/CRM, then deploy your model in ~72 hours.
-              <strong>Pricing is discussed on the call</strong> so we can customize to your volume and tools.
-            </p>
-          </div>
-          <div>
-            <iframe class="w-full rounded-2xl border border-white/10" style="height:600px;" src="https://calendly.com/razerrtrading/30min?hide_event_type_details=1&hide_gdpr_banner=1"></iframe>
-          </div>
-        </div>
+        Prefer a done-for-you install (multi-language, phone, SMS, CRM)? <a class="underline decoration-brand-400" href="https://calendly.com/razerrtrading/30min" target="_blank">Book a call</a>.
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq" class="py-20 md:py-28">
+  <section id="faq" class="py-20 md:py-28 bg-white/5">
     <div class="mx-auto max-w-4xl px-4">
-      <h2 class="text-3xl font-bold tracking-tight text-center">Frequently asked questions</h2>
+      <h2 class="text-3xl font-bold tracking-tight text-center">FAQ</h2>
       <div class="mt-8 divide-y divide-white/10">
-        <details class="group py-4"><summary class="flex justify-between cursor-pointer"><span>How do I import the n8n JSON?</span><span class="transition group-open:rotate-180">⌄</span></summary><p class="mt-2 text-white/70 text-sm">In n8n, click <em>Import from File</em>, select the JSON you downloaded here, then connect your own credentials on the OpenAI, Google Calendar, and Email nodes.</p></details>
-        <details class="group py-4"><summary class="flex justify-between cursor-pointer"><span>Does this work with ChatGPT, Claude, Gemini?</span><span class="transition group-open:rotate-180">⌄</span></summary><p class="mt-2 text-white/70 text-sm">Yes. The prompt is provider-agnostic. The n8n template uses OpenAI by default but you can swap to any LLM node.</p></details>
-        <details class="group py-4"><summary class="flex justify-between cursor-pointer"><span>Can it quote my exact pricing?</span><span class="transition group-open:rotate-180">⌄</span></summary><p class="mt-2 text-white/70 text-sm">Enter your price ranges above. The bot repeats these in quotes and confirms before booking.</p></details>
+        <details class="group py-4">
+          <summary class="flex justify-between cursor-pointer"><span>Does it work for any industry?</span><span class="transition group-open:rotate-180">⌄</span></summary>
+          <p class="mt-2 text-white/70 text-sm">Yes—fill in your services, prices, rules, and tone. The prompt adapts to clinics, trades, agencies, e-commerce, SaaS, and more.</p>
+        </details>
+        <details class="group py-4">
+          <summary class="flex justify-between cursor-pointer"><span>How do I use the n8n JSON?</span><span class="transition group-open:rotate-180">⌄</span></summary>
+          <p class="mt-2 text-white/70 text-sm">In n8n, go to <em>Import from File</em>, select the JSON, then connect your credentials for OpenAI, Google Calendar, and Email/SMTP.</p>
+        </details>
+        <details class="group py-4">
+          <summary class="flex justify-between cursor-pointer"><span>Which LLMs are supported?</span><span class="transition group-open:rotate-180">⌄</span></summary>
+          <p class="mt-2 text-white/70 text-sm">The prompt is model-agnostic. Template uses an OpenAI node by default; swap for any provider you prefer.</p>
+        </details>
       </div>
     </div>
   </section>
@@ -292,6 +249,7 @@
   <footer class="py-10 text-center text-white/40 text-sm">© <span id="year"></span> AOS — AI Optimization Solutions</footer>
 
   <script>
+    // ------- Helpers -------
     document.getElementById('year').textContent = new Date().getFullYear();
 
     const form = document.getElementById('aiForm');
@@ -301,69 +259,89 @@
     const promptOut = document.getElementById('promptOut');
     const jsonOut = document.getElementById('jsonOut');
     const notice = document.getElementById('notice');
-    const checkoutLink = document.getElementById('checkoutLink');
+    const paywall = document.getElementById('paywall');
+
+    // Default timezone to visitor's
+    const tzGuess = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    if (!form.timezone.value) form.timezone.value = tzGuess;
+
+    // Unlock logic: ?paid=1 OR localStorage flag
+    const params = new URLSearchParams(window.location.search);
+    const hasPaidParam = params.get('paid') === '1';
+    const paidKey = 'aos_ai_paid';
+    if (hasPaidParam) localStorage.setItem(paidKey, 'true');
+    const isUnlocked = hasPaidParam || localStorage.getItem(paidKey) === 'true';
+    setUnlocked(isUnlocked);
+
+    function setUnlocked(unlocked){
+      downloadPromptBtn.disabled = !unlocked;
+      downloadJsonBtn.disabled = !unlocked;
+      paywall.style.display = unlocked ? 'none' : 'block';
+      notice.textContent = unlocked
+        ? "Downloads unlocked. You can save your custom prompt and n8n workflow."
+        : "Preview is free. Complete purchase to enable downloads.";
+    }
 
     function getValues() {
       const data = Object.fromEntries(new FormData(form).entries());
-      data.upsells = [
-        form.upsell_pet?.checked ? "Pet Hair" : null,
-        form.upsell_ceramic?.checked ? "Ceramic / Premium" : null
-      ].filter(Boolean);
+      data.upsells = form.upsell_a?.checked ? ["Relevant add-ons"] : [];
+      data.handoff = !!form.handoff?.checked;
+      if (!data.timezone) data.timezone = tzGuess;
+      if (!data.language) data.language = "English";
       return data;
     }
 
     function buildPrompt(v) {
-      const upsellLine = v.upsells.length ? `Offer upsells: ${v.upsells.join(", ")} when relevant.` : "";
-      const pricingLine = v.pricing ? `Use these price ranges to quote: ${v.pricing}. Never invent pricing outside this range; if uncertain, say you'll confirm.` : "Give estimate ranges only; confirm exact price on site.";
-      const policies = v.policies ? `Policies to respect: ${v.policies}` : "Be polite and concise.";
+      const upsellLine = v.upsells.length ? `Offer relevant add-ons when appropriate.` : "";
+      const pricingLine = v.pricing
+        ? `Use these price ranges to quote: ${v.pricing}. Do not invent numbers beyond these; if unsure, say you'll confirm.`
+        : `Provide estimate ranges conservatively; confirm exact amounts before booking.`;
+      const policies = v.policies ? `Policies to respect: ${v.policies}` : `Be courteous, concise, and transparent.`;
+      const handoff = v.handoff ? `If conversation becomes complex or sensitive, route to a human immediately.` : ``;
 
       return `Role
-You are "${v.bizName}" — a friendly, professional AI receptionist for ${v.industry} in ${v.location}. Your goals: greet, qualify, price accurately, and book into the calendar.
+You are the AI Receptionist for "${v.bizName}", a ${v.industry} business in ${v.location}. Communicate in ${v.language}. Your job is to greet, qualify, price within guidance, and book.
 
 Current Time
-{{ "now" | date: "%A, %B %d, %Y, %I:%M %p", "America/New_York" }}
+{{ "now" | date: "%A, %B %d, %Y, %I:%M %p", "${v.timezone}" }}
 
 Voice & Persona
-Warm, natural, confident; short replies (1–2 sentences); never robotic. Use casual fillers sparingly (“sounds good”, “no worries”).
+Warm, professional, and concise (1–2 sentences). Natural human tone. Use friendly fillers rarely (“sounds good”, “no worries”).
 
-Intake Data (collect every time)
-• Full name • Email • Phone number • Requested service • Preferred date/time • Zip/area if needed
+Always Collect
+• Full name • Email • Phone number • Requested service • Preferred date/time • Location/zip if needed
 
 Capabilities
-• Recommend the right ${v.industry} service from: ${v.services}.
+• Recommend services from: ${v.services}.
 • ${pricingLine}
-• Confirm availability using the connected calendar (hold tentative slot, then finalize).
-• Send confirmation message/email with details and cancellation policy.
+• Confirm availability with the connected calendar; propose nearest alternatives if slot is taken.
+• Send confirmation message/email summarizing details.
 ${upsellLine}
-• Route complex or unusual requests to a human instantly.
-
-Booking Rules
-• Offer soonest availability and next best options.
-• If time is unavailable, present 2 close alternatives.
-• Summarize: service, date/time, name, email, phone, price/estimate.
-
-Links
-Booking: ${v.calendarLink || "N/A"}
+${handoff}
 
 Policies
 ${policies}
 
-Output Format
-• Keep messages short and human.
-• When ready to book: “I can lock in [DATE, TIME]. Full name, email, and phone?”
+Links
+Booking: ${v.calendarLink || "N/A"}
+Business phone: ${v.phone || "N/A"}
+Confirmation email sender: ${v.email || "N/A"}
+
+Output Style
+• Short messages; avoid walls of text.
+• When ready to book: “I can lock in [DATE, TIME]. What’s your full name, email, and phone?”
 • After booking: “You’re all set! A confirmation was sent to [email].”
 
 Fail-safes
-• If unclear on price/policy, say you’ll confirm before scheduling.
-• Never make medical/legal/financial claims.
-• If outside service area, suggest alternatives or travel fee.
+• If unsure on price/policy/availability, say you’ll confirm before scheduling.
+• Never provide medical/legal/financial advice; escalate if asked.
+• If outside service area or compliance rules, explain clearly and offer alternatives.
 
 End of instructions.`;
     }
 
     function buildN8N(v, prompt) {
-      // Minimal, importable n8n workflow (no credentials bound).
-      const workflow = {
+      return {
         name: `${v.bizName} – AI Receptionist`,
         nodes: [
           {
@@ -417,12 +395,12 @@ End of instructions.`;
             position: [1040, 240],
             parameters: {
               operation: "create",
-              calendarId: v.googleCalendarId || "",
+              calendarId: "",
               start: "={{$json.preferredStart || $json.requestedStart}}",
               end: "={{$json.preferredEnd || $json.requestedEnd}}",
               summary: `={{"${v.bizName} – "+($json.service||"Appointment")}}`,
               description: "={{$json.name+\" | \"+$json.email+\" | \"+$json.phone}}",
-              options: { timezone: v.timezone || "America/New_York" }
+              options: { timezone: v.timezone || "UTC" }
             },
             credentials: { googleCalendarOAuth2Api: { id: "__CONNECT_IN_N8N__", name: "Google Calendar" } }
           },
@@ -436,7 +414,7 @@ End of instructions.`;
               fromEmail: v.email || "no-reply@yourdomain.com",
               toEmail: "={{$json.email}}",
               subject: `${v.bizName} – Appointment Confirmed`,
-              text: `={{"Hi "+$json.name+", your "+($json.service||"appointment")+" is confirmed for "+($json.confirmedTime||$json.preferredStart)+". Location: ${v.location}. If you need changes, reply to this email. – ${v.bizName}"}}`
+              text: `={{"Hi "+$json.name+", your "+($json.service||"appointment")+" is confirmed for "+($json.confirmedTime||$json.preferredStart)+". If you need changes, reply to this email. – ${v.bizName}"}}`
             },
             credentials: { smtp: { id: "__CONNECT_IN_N8N__", name: "SMTP" } }
           },
@@ -457,18 +435,17 @@ End of instructions.`;
           "LLM Chat (OpenAI)": { main: [[{ node: "Intent Router", type: "main", index: 0 }]] },
           "Intent Router": {
             main: [
-              [{ node: "Create Event", type: "main", index: 0 }],    // If booking intent
-              [{ node: "HTTP Response", type: "main", index: 0 }]     // Else general reply
+              [{ node: "Create Event", type: "main", index: 0 }],    // booking intent
+              [{ node: "HTTP Response", type: "main", index: 0 }]     // general reply
             ]
           },
           "Create Event": { main: [[{ node: "Send Confirmation", type: "main", index: 0 }]] },
           "Send Confirmation": { main: [[{ node: "HTTP Response", type: "main", index: 0 }]] }
         },
-        settings: { timezone: v.timezone || "America/New_York" },
+        settings: { timezone: v.timezone || "UTC" },
         staticData: null,
         pinData: {}
       };
-      return workflow;
     }
 
     function enableDownloads(enabled) {
@@ -491,14 +468,9 @@ End of instructions.`;
       const json = buildN8N(v, prompt);
       promptOut.textContent = prompt;
       jsonOut.textContent = JSON.stringify(json, null, 2);
-      enableDownloads(true);
-      notice.textContent = "Ready! Click the download buttons to save your files. Import the JSON in n8n.";
-    }
-
-    // If you want to require checkout first, set a link on #checkoutLink and hide download buttons until paid.
-    function payThenGenerate() {
-      // Example: window.location.href = "https://buy.stripe.com/your_price_id";
-      // After redirect back with ?paid=true -> call preview() and enable downloads.
+      notice.textContent = downloadPromptBtn.disabled
+        ? "Looks good! Complete purchase to enable downloads."
+        : "Ready to download. Import the JSON in n8n.";
     }
 
     previewBtn.addEventListener('click', preview);
