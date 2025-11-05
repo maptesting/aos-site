@@ -2,492 +2,545 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AOS – Instant AI Receptionist Builder</title>
-  <meta name="description" content="Generate a custom AI receptionist for any business in minutes. Preview, hear an ElevenLabs voice greeting, and download your prompt + n8n workflow after purchase." />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
-
-  <!-- Tailwind -->
+  <title>AI Receptionist Builder — Free Prompt & n8n Workflows</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {50:"#f5f8ff",100:"#eaf0ff",200:"#cfdcff",300:"#a5baff",400:"#7991ff",500:"#556dff",600:"#3d4fe6",700:"#2f3bb4",800:"#222a82",900:"#141a51"},
-            ink:"#0b0f1a"
-          },
-          boxShadow:{ soft:"0 8px 30px rgba(0,0,0,.08)" }
-        }
-      }
-    }
-  </script>
   <style>
-    .glass { backdrop-filter: blur(10px); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); }
-    .gradient { background: radial-gradient(1200px 600px at 20% -10%, rgba(85,109,255,.25), transparent 60%), radial-gradient(1000px 600px at 100% 0%, rgba(34,42,130,.35), transparent 60%), linear-gradient(180deg, #0b0f1a 0%, #0b0f1a 100%); }
-    html { scroll-behavior: smooth; }
-    .site-logo { width: 36px; height: 36px; object-fit: contain; border-radius: .75rem; }
-    .code { white-space: pre-wrap; font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
-    select, select option { background-color: rgba(255,255,255,.08)!important; color:#fff!important; }
-    select:focus, input:focus, textarea:focus { outline: none; box-shadow: 0 0 0 2px rgba(85,109,255,.6); }
+    .card { @apply bg-neutral-900/60 border border-neutral-800 rounded-2xl p-5 shadow-xl; }
+    .label { @apply block text-sm font-medium text-neutral-200 mb-1; }
+    .input, .select, .textarea { @apply w-full bg-neutral-800 text-neutral-100 rounded-xl px-3 py-2 border border-neutral-700 focus:outline-none focus:ring-2 focus:ring-indigo-500; }
+    .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50; }
+    .ghost { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-neutral-800 text-neutral-100 border border-neutral-700 hover:bg-neutral-700; }
+    .pill { @apply text-xs px-2 py-1 rounded-full bg-neutral-800 border border-neutral-700; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .hidden-json { display:none; }
   </style>
-
-  <!-- Stripe Buy Button -->
-  <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-
-  <!-- SEO Schema -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Organization",
-    "name":"AOS – AI Optimization Solutions",
-    "url":"https://your-domain.com/",
-    "logo":"images/logo/ChatGPT Image Oct 26, 2025, 04_40_34 PM.png",
-    "description":"Generate a custom AI receptionist for any business, anywhere."
-  }
-  </script>
 </head>
-<body class="bg-ink text-white antialiased selection:bg-brand-300/30">
-
-  <!-- Top notice -->
-  <div class="bg-brand-900/40 border-b border-white/10 text-sm">
-    <div class="mx-auto max-w-7xl px-4 py-2 text-center">
-      Build a custom AI receptionist for <b>any business</b> — preview free, hear an ElevenLabs voice intro, download after purchase.
-      <a href="#builder" class="ml-2 underline decoration-brand-400 hover:text-brand-300">Start building →</a>
+<body class="bg-black text-neutral-100 min-h-screen">
+  <header class="max-w-5xl mx-auto px-4 pt-10 pb-6">
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">AI Receptionist Prompt Pack — Free Builder</h1>
+      <span class="pill">Live Preview + n8n JSON downloads</span>
     </div>
-  </div>
-
-  <!-- Header -->
-  <header class="sticky top-0 z-50 bg-ink/70 glass">
-    <div class="mx-auto max-w-7xl px-4">
-      <div class="flex h-16 items-center justify-between">
-        <a href="#" class="flex items-center gap-3">
-          <img src="images/logo/ChatGPT Image Oct 26, 2025, 04_40_34 PM.png" alt="AOS logo" class="site-logo" />
-          <div class="leading-tight">
-            <div class="font-semibold tracking-tight">AOS</div>
-            <div class="text-xs text-white/60">AI Optimization Solutions</div>
-          </div>
-        </a>
-        <nav class="hidden md:flex items-center gap-8 text-sm">
-          <a href="#features" class="hover:text-brand-300">Features</a>
-          <a href="#builder" class="hover:text-brand-300">AI Builder</a>
-          <a href="#faq" class="hover:text-brand-300">FAQ</a>
-        </nav>
-        <div class="flex items-center gap-3">
-          <a href="#builder" class="inline-flex text-sm px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600">Build & Buy</a>
-        </div>
-      </div>
-    </div>
+    <p class="text-neutral-400 mt-2">Answer a few questions about your business. We’ll generate a production-ready **System Prompt** (preview only on this page) and downloadable **n8n workflows** for <span class="underline">check_availability</span> and <span class="underline">book_appointment</span>. You can voice-preview with ElevenLabs.</p>
   </header>
 
-  <!-- Hero -->
-  <section class="relative gradient overflow-hidden">
-    <div class="mx-auto max-w-7xl px-4 pt-16 pb-24 md:pt-24 md:pb-28">
-      <div class="grid md:grid-cols-2 gap-10 items-center">
+  <main class="max-w-5xl mx-auto px-4 pb-20 grid md:grid-cols-2 gap-6">
+    <!-- Left: Form -->
+    <section class="card">
+      <h2 class="text-lg font-semibold mb-4">Your Business</h2>
+      <form id="aiForm" class="space-y-4">
         <div>
-          <div class="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1 text-xs text-white/70 mb-5">
-            <span>🤖 Instant AI Receptionist Builder</span><span class="opacity-30">•</span><span>Any Business • Any Country</span>
+          <label class="label">Business Name</label>
+          <input class="input" name="bizName" placeholder="e.g., Hemsted Window Tinting" required />
+        </div>
+        <div>
+          <label class="label">Industry / Services (comma separated)</label>
+          <input class="input" name="services" placeholder="e.g., window tinting, ceramic coating, detailing" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">Agent Name</label>
+            <input class="input" name="agentName" placeholder="e.g., Alex" />
           </div>
-          <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-            Turn inquiries into <span class="text-brand-400">booked customers</span>—automatically.
-          </h1>
-          <p class="mt-5 text-white/70 max-w-xl">
-            Answer a few questions about your business. Get a tailored system prompt + an import-ready n8n workflow JSON. Works with ChatGPT, Claude, Gemini, and more.
-          </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="#builder" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Build your AI now</a>
+          <div>
+            <label class="label">Timezone (IANA)</label>
+            <input class="input" name="tz" placeholder="e.g., America/New_York" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">Business Email</label>
+            <input class="input" name="bizEmail" type="email" placeholder="e.g., hello@yourbiz.com" />
+          </div>
+          <div>
+            <label class="label">Calendar ID (Google)</label>
+            <input class="input" name="calendarId" placeholder="e.g., owner@gmail.com" />
           </div>
         </div>
 
-        <div class="relative">
-          <div class="glass rounded-2xl p-6 md:p-8 shadow-soft">
-            <div class="text-sm text-white/60">Live conversation</div>
-            <div class="mt-3 space-y-3">
-              <div class="flex items-start gap-3">
-                <div class="h-9 w-9 rounded-full bg-brand-500 grid place-items-center">🤖</div>
-                <div class="flex-1 text-sm"><span class="text-white/70">AI:</span> Hi! What can I help you with today?</div>
-              </div>
-              <div class="flex items-start gap-3">
-                <div class="h-9 w-9 rounded-full bg-white/10 grid place-items-center">👤</div>
-                <div class="flex-1 text-sm">I need pricing and earliest availability.</div>
-              </div>
-              <div class="flex items-start gap-3">
-                <div class="h-9 w-9 rounded-full bg-brand-500 grid place-items-center">🤖</div>
-                <div class="flex-1 text-sm">We can do tomorrow at <strong>2:00 PM</strong>. What’s your full name, email, and phone?</div>
-              </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label">n8n Webhook URL — Check Availability</label>
+            <input class="input mono" name="whCheck" placeholder="https://n8n.yourdomain.com/webhook/check-availability" />
+          </div>
+          <div>
+            <label class="label">n8n Webhook URL — Book Appointment</label>
+            <input class="input mono" name="whBook" placeholder="https://n8n.yourdomain.com/webhook/book-appointment" />
+          </div>
+        </div>
+
+        <details class="mt-2">
+          <summary class="cursor-pointer text-sm text-neutral-300">Advanced</summary>
+          <div class="grid grid-cols-3 gap-3 mt-3">
+            <div>
+              <label class="label">Greeting Style</label>
+              <select class="select" name="tone">
+                <option value="friendly">Friendly & helpful</option>
+                <option value="modern">Modern & stylish</option>
+                <option value="professional">Calm & professional</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Appt. Duration (mins)</label>
+              <input class="input" name="durationMin" type="number" value="60" />
+            </div>
+            <div>
+              <label class="label">Hours Window (local)</label>
+              <input class="input" name="hours" placeholder="e.g., 09:00-18:00" />
             </div>
           </div>
+        </details>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="button" id="genBtn" class="btn">Generate</button>
+          <button type="button" id="ttsBtn" class="ghost">Hear AI Greeting (ElevenLabs)</button>
+        </div>
+      </form>
+
+      <div id="audioWrap" class="hidden mt-4">
+        <audio id="audio" controls class="w-full"></audio>
+        <div class="mt-2">
+          <a id="audioDownload" class="text-sm text-indigo-400 underline" download="ai-greeting.mp3">Download audio</a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Features -->
-  <section id="features" class="py-20 md:py-28">
-    <div class="mx-auto max-w-7xl px-4">
-      <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Built for any business, anywhere.</h2>
-      <p class="mt-3 text-white/70 max-w-2xl">The AI receptionist collects details, quotes ranges, schedules, confirms, and hands off to a human when needed.</p>
-      <div class="mt-10 grid md:grid-cols-3 gap-6">
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📞 Missed inquiry recovery</h3><p class="mt-2 text-white/70 text-sm">Instant responses by web, SMS, or chat widget.</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">📅 Calendar & CRM ready</h3><p class="mt-2 text-white/70 text-sm">Google Calendar node pre-wired (connect your creds).</p></div>
-        <div class="glass rounded-2xl p-6"><h3 class="font-semibold">🧠 Trained on your info</h3><p class="mt-2 text-white/70 text-sm">Your services, prices, policies, and tone—no code.</p></div>
-      </div>
-    </div>
-  </section>
+    <!-- Right: Previews & Downloads -->
+    <section class="space-y-6">
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">System Prompt — Preview</h2>
+          <span class="pill">Preview only (truncated)</span>
+        </div>
+        <pre id="promptPreview" class="mono text-sm mt-3 whitespace-pre-wrap"></pre>
 
-  <!-- AI BUILDER -->
-  <section id="builder" class="py-20 md:py-28">
-    <div class="mx-auto max-w-6xl px-4">
-      <div class="glass rounded-2xl p-6 md:p-10">
-        <div class="flex items-start justify-between gap-8 flex-col lg:flex-row">
-          <!-- Form -->
-          <div class="w-full lg:w-1/2">
-            <h2 class="text-3xl font-bold tracking-tight">Build your AI Receptionist</h2>
-            <p class="mt-2 text-white/70">Preview for free, hear an ElevenLabs voice intro, and pay once to unlock downloads.</p>
-
-            <form id="aiForm" class="grid gap-3 mt-6">
-              <div class="grid md:grid-cols-2 gap-3">
-                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Business name" name="bizName" required>
-                <input class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Location / Service area" name="location" required>
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <input name="industry" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Industry (e.g., Cleaning, SaaS, Clinic)" required>
-                <input name="services" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Core services (comma-separated)" required>
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <input name="agentName" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Agent name (e.g., Alex)" value="Alex">
-                <input name="language" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Language (e.g., English, Spanish)" value="English">
-              </div>
-
-              <textarea name="pricing" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Typical price ranges or plans (optional)"></textarea>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <input name="hours" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Hours (e.g., Mon–Sat 9–6)">
-                <input name="calendarLink" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Booking link (Google/Calendly)">
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <input name="email" type="email" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Confirmation email (optional)">
-                <input name="phone" inputmode="tel" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Business phone (optional)">
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <input name="timezone" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Timezone (e.g., America/New_York)">
-                <textarea name="policies" rows="2" class="rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40" placeholder="Deposits / refunds / service area / compliance (optional)"></textarea>
-              </div>
-
-              <div class="grid md:grid-cols-2 gap-3">
-                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="upsell_a" class="accent-brand-500"> Offer upsells / add-ons</label>
-                <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="handoff" class="accent-brand-500" checked> Enable human handoff</label>
-              </div>
-
-              <!-- Voice selection -->
-              <div class="grid md:grid-cols-3 gap-3 items-end">
-                <div>
-                  <label class="text-xs text-white/60">ElevenLabs Voice ID</label>
-                  <input id="voiceId" class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 placeholder-white/40"
-                         placeholder="e.g. 21m00Tcm4TlvDq8ikWAM">
-                </div>
-                <div>
-                  <label class="text-xs text-white/60">Model</label>
-                  <select id="modelId" class="w-full rounded-xl bg-white/10 border border-white/10 px-4 py-3">
-                    <option value="eleven_multilingual_v2" selected>eleven_multilingual_v2</option>
-                    <option value="eleven_flash_v2_5">eleven_flash_v2_5</option>
-                    <option value="eleven_turbo_v2">eleven_turbo_v2</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-xs text-white/60">Stability (0–1)</label>
-                  <input id="stability" type="number" min="0" max="1" step="0.05" value="0.5"
-                         class="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3">
-                </div>
-              </div>
-
-              <div class="mt-4 flex flex-wrap gap-3">
-                <button id="previewBtn" type="button" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Preview</button>
-                <button id="ttsBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5">▶ Hear AI Greeting (ElevenLabs)</button>
-                <button id="downloadPromptBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5" disabled>Download Prompt (.txt)</button>
-                <button id="downloadJsonBtn" type="button" class="px-5 py-3 rounded-xl border border-white/10 hover:bg-white/5" disabled>Download n8n (.json)</button>
-              </div>
-
-              <!-- Audio player + download -->
-              <div id="audioWrap" class="mt-3 hidden">
-                <audio id="audio" controls class="w-full"></audio>
-                <a id="audioDownload" download="ai-greeting.mp3" class="inline-block mt-2 text-sm underline decoration-brand-400">Download audio</a>
-              </div>
-
-              <!-- Paywall -->
-              <div id="paywall" class="mt-6 p-4 rounded-xl border border-white/10 bg-white/5">
-                <div class="text-sm mb-3">To unlock prompt & n8n downloads, complete purchase:</div>
-                <stripe-buy-button
-                  buy-button-id="buy_btn_1SPzZiIpVNL8emy1w6rFZbiB"
-                  publishable-key="pk_live_51SNnUTIpVNL8emy1p6TV1AUq714WVbxPRlWPDfakrubfe52E0Bnl47PIlKhXazPSPaAd23JQSOsI0s8leA8IyPf6001U3zIzzX">
-                </stripe-buy-button>
-                <div class="text-xs text-white/50 mt-3">Set Buy Button <em>success URL</em> to this page with <code>?paid=1</code> to auto-unlock.</div>
-              </div>
-            </form>
-          </div>
-
-          <!-- Preview -->
-          <div class="w-full lg:w-1/2">
-            <div class="glass rounded-2xl p-5 h-full">
-              <h3 class="text-xl font-semibold">Live Preview</h3>
-              <div class="mt-3">
-                <h4 class="text-sm text-white/60 mb-2">System Prompt</h4>
-                <div id="promptOut" class="code text-sm bg-black/30 rounded-xl p-4 border border-white/10 min-h-[200px]"></div>
-              </div>
-              <div class="mt-6">
-                <h4 class="text-sm text-white/60 mb-2">n8n Workflow JSON</h4>
-                <div id="jsonOut" class="code text-xs bg-black/30 rounded-xl p-4 border border-white/10 min-h-[200px] overflow-auto"></div>
-              </div>
-              <div id="notice" class="mt-4 text-xs text-white/60"></div>
-            </div>
-          </div>
+        <div class="mt-4 flex gap-2">
+          <button id="downloadPrompt" class="btn" disabled>Download Full Prompt (.txt)</button>
         </div>
       </div>
 
-      <div class="mt-6 text-center text-white/60 text-sm">
-        Prefer a done-for-you install? <a class="underline decoration-brand-400" href="https://calendly.com/razerrtrading/30min" target="_blank">Book a call</a>.
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">n8n Workflows</h2>
+          <span class="pill">Hidden in preview</span>
+        </div>
+        <p class="text-neutral-400 text-sm mt-2">Two separate flows that your AI agent will call via tools/functions named <span class="mono">check_availability</span> and <span class="mono">book_appointment</span>. Import into n8n and connect your Google credentials.</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button id="downloadAvail" class="ghost" disabled>Download: check_availability.n8n.json</button>
+          <button id="downloadBook" class="ghost" disabled>Download: book_appointment.n8n.json</button>
+        </div>
+        <pre id="jsonPreview" class="hidden-json"></pre>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- FAQ -->
-  <section id="faq" class="py-20 md:py-28 bg-white/5">
-    <div class="mx-auto max-w-4xl px-4">
-      <h2 class="text-3xl font-bold tracking-tight text-center">FAQ</h2>
-      <div class="mt-8 divide-y divide-white/10">
-        <details class="group py-4">
-          <summary class="flex justify-between cursor-pointer"><span>Which ElevenLabs model should I use?</span><span class="transition group-open:rotate-180">⌄</span></summary>
-          <p class="mt-2 text-white/70 text-sm">Default is <code>eleven_multilingual_v2</code> for natural, multilingual speech. Try <code>eleven_flash_v2_5</code> for speed.</p>
-        </details>
-        <details class="group py-4">
-          <summary class="flex justify-between cursor-pointer"><span>How do I get a Voice ID?</span><span class="transition group-open:rotate-180">⌄</span></summary>
-          <p class="mt-2 text-white/70 text-sm">From ElevenLabs “My Voices” → three dots → “Copy voice ID”, or use the List Voices API.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <footer class="py-10 text-center text-white/40 text-sm">© <span id="year"></span> AOS — AI Optimization Solutions</footer>
-
+  <!-- ElevenLabs client script uses your /api/tts serverless endpoint -->
   <script>
-    // ------- Helpers -------
-    document.getElementById('year').textContent = new Date().getFullYear();
+    // Helper: turn "A, B, C" -> ["A","B","C"]
+    const csv = s => (s||"").split(",").map(x=>x.trim()).filter(Boolean);
 
-    const form = document.getElementById('aiForm');
-    const previewBtn = document.getElementById('previewBtn');
-    const ttsBtn = document.getElementById('ttsBtn');
-    const downloadPromptBtn = document.getElementById('downloadPromptBtn');
-    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
-    const promptOut = document.getElementById('promptOut');
-    const jsonOut = document.getElementById('jsonOut');
-    const notice = document.getElementById('notice');
-    const paywall = document.getElementById('paywall');
-    const audioEl = document.getElementById('audio');
-    const audioWrap = document.getElementById('audioWrap');
-    const audioDownload = document.getElementById('audioDownload');
+    // Build the SYSTEM PROMPT (full)
+    function buildSystemPrompt(v) {
+      const servicesList = csv(v.services).join(", ");
+      const hours = v.hours || "09:00-18:00";
+      const durationMin = Number(v.durationMin || 60);
+      const toneMap = {
+        friendly: "Warm, friendly, and helpful — like a real person.",
+        modern: "Modern, stylish, and confident — concise responses.",
+        professional: "Calm, efficient, and professional — reassuring tone."
+      };
+      const tone = toneMap[v.tone || "friendly"];
 
-    // Default timezone
-    const tzGuess = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-    if (!form.timezone.value) form.timezone.value = tzGuess;
+      return [
+`## Role:
+You are ${v.agentName || "Alex"}, an AI receptionist for "${v.bizName || "Your Business"}". You handle inbound calls/chats to answer questions and schedule appointments.
 
-    // Unlock logic: ?paid=1 OR localStorage flag
-    const params = new URLSearchParams(window.location.search);
-    const hasPaidParam = params.get('paid') === '1';
-    const paidKey = 'aos_ai_paid';
-    if (hasPaidParam) localStorage.setItem(paidKey, 'true');
-    const isUnlocked = hasPaidParam || localStorage.getItem(paidKey) === 'true';
-    setUnlocked(isUnlocked);
+## Current Time:
+{{"now" | date: "%A, %B %d, %Y, %I:%M %p", "${v.tz || "America/New_York"}"}}
 
-    function setUnlocked(unlocked){
-      downloadPromptBtn.disabled = !unlocked;
-      downloadJsonBtn.disabled = !unlocked;
-      paywall.style.display = unlocked ? 'none' : 'block';
-      notice.textContent = unlocked
-        ? "Downloads unlocked. You can save your custom prompt and n8n workflow."
-        : "Preview & voice demo are free. Complete purchase to enable downloads.";
+## Voice & Style:
+${tone}
+Use contractions; keep responses short (1–2 sentences). Use the caller's name naturally. Avoid sounding robotic.
+
+## Services You Handle:
+${servicesList || "general services (describe briefly during conversation)"}.
+
+## Tools (must call them by name when needed):
+- check_availability(time_requested) → Calls n8n webhook at: ${v.whCheck || "[CHECK_AVAILABILITY_URL]"}
+- book_appointment(full_name, email, phone_number, service_type, time) → Calls n8n webhook at: ${v.whBook || "[BOOK_APPOINTMENT_URL]"}
+
+## Task (3 steps):
+1) Greet & Qualify
+- Greet warmly with your name and the business name.
+- Ask what service they need and their preferred date/time.
+- If they don't know a time, offer to check today's/tomorrow's availability within local hours (${hours}), ${durationMin} minutes per slot.
+
+2) Check Availability
+- When the caller provides a time (or asks for options), call **check_availability** with ISO 8601 time (local to ${v.tz || "America/New_York"}).
+- If available → proceed to booking.
+- If unavailable → present 2–3 closest alternatives (within ${hours} window), then ask which works.
+
+3) Book Appointment
+- Collect full name, phone, and email.
+- Confirm the service type and final time (ISO 8601).
+- Call **book_appointment** with: name, email, phone_number, service_type, time.
+- Confirm they’ll receive a confirmation email at ${v.bizEmail || "their email"}.
+
+## Context:
+This agent is the first point of contact for ${v.bizName || "the business"}, keeping calls short and efficient while protecting the calendar from double-booking.
+
+## Example (condensed):
+You: "Thanks for calling ${v.bizName || "our office"}, this is ${v.agentName || "Alex"}. What can I help you with?"
+Customer: "Tint for my sedan — can you do tomorrow afternoon?"
+You: "I’ll check. Do you prefer around 2 or 4 pm?"
+Customer: "4 pm."
+You: "(Runs check_availability). 4 pm is open. What’s your full name, phone, and email to lock it in?"
+Customer: "Jordan Lee, 555-222-1111, jordan@email.com."
+You: "(Runs book_appointment). You’re set for ${v.bizName || "our business"} tomorrow at 4 pm. You’ll get a confirmation by email. Anything else I can help with?"
+
+## Notes:
+- Be concise; never expose tool URLs.
+- If unsure about a business detail, say you’ll pass it to the team via notes.
+- Always keep times in the future and in ${v.tz || "America/New_York"} local time.
+`
+      ].join("\n");
     }
 
-    function getValues() {
-      const data = Object.fromEntries(new FormData(form).entries());
-      data.upsells = form.upsell_a?.checked ? ["Relevant add-ons"] : [];
-      data.handoff = !!form.handoff?.checked;
-      if (!data.timezone) data.timezone = tzGuess;
-      if (!data.language) data.language = "English";
-      if (!data.agentName) data.agentName = "Alex";
-      return data;
+    // Truncate preview safely
+    function previewText(full, maxChars=850) {
+      if (!full) return "";
+      if (full.length <= maxChars) return full;
+      return full.slice(0, maxChars) + "\n\n…(preview truncated)";
     }
 
-    function buildPrompt(v) {
-      const upsellLine = v.upsells.length ? `Offer relevant add-ons when appropriate.` : "";
-      const pricingLine = v.pricing
-        ? `Use these price ranges to quote: ${v.pricing}. Do not invent numbers beyond these; if unsure, say you'll confirm.`
-        : `Provide estimate ranges conservatively; confirm exact amounts before booking.`;
-      const policies = v.policies ? `Policies to respect: ${v.policies}` : `Be courteous, concise, and transparent.`;
-      const handoff = v.handoff ? `If conversation becomes complex or sensitive, route to a human immediately.` : ``;
+    // n8n: build "check_availability" workflow JSON
+    function buildN8NCheckWorkflow(v) {
+      const calId = v.calendarId || "primary";
+      const tz = v.tz || "America/New_York";
+      const duration = Number(v.durationMin || 60);
 
-      return `Role
-You are the AI Receptionist (“${v.agentName}”) for "${v.bizName}", a ${v.industry} business in ${v.location}. Communicate in ${v.language}. Your job is to greet, qualify, price within guidance, and book.
-
-Current Time
-{{ "now" | date: "%A, %B %d, %Y, %I:%M %p", "${v.timezone}" }}
-
-Voice & Persona
-Warm, professional, and concise (1–2 sentences). Natural human tone. Use friendly fillers rarely (“sounds good”, “no worries”).
-
-Always Collect
-• Full name • Email • Phone number • Requested service • Preferred date/time • Location/zip if needed
-
-Capabilities
-• Recommend services from: ${v.services}.
-• ${pricingLine}
-• Confirm availability with the connected calendar; propose nearest alternatives if slot is taken.
-• Send confirmation message/email summarizing details.
-${upsellLine}
-${handoff}
-
-Policies
-${policies}
-
-Links
-Booking: ${v.calendarLink || "N/A"}
-Business phone: ${v.phone || "N/A"}
-Confirmation email sender: ${v.email || "N/A"}
-
-Output Style
-• Short messages; avoid walls of text.
-• When ready to book: “I can lock in [DATE, TIME]. What’s your full name, email, and phone?”
-• After booking: “You’re all set! A confirmation was sent to [email].”
-
-Fail-safes
-• If unsure on price/policy/availability, say you’ll confirm before scheduling.
-• Never provide medical/legal/financial advice; escalate if asked.
-• If outside service area or compliance rules, explain clearly and offer alternatives.
-
-End of instructions.`;
-    }
-
-    function buildN8N(v, prompt) {
+      // n8n workflow: Webhook (POST) -> Code (parse ISO) -> Google Calendar (FreeBusy) -> IF free? -> Respond OK or suggest alt slots
       return {
-        name: `${v.bizName} – AI Receptionist`,
+        name: `${v.bizName || "Business"} — check_availability`,
         nodes: [
-          { id: "Webhook_Trigger", name: "Incoming Message", type: "n8n-nodes-base.webhook", typeVersion: 1, position: [200, 300],
-            parameters: { httpMethod: "POST", path: "ai-receptionist", responseMode: "onReceived", options: { responseCode: 200, responseData: "ok" } } },
-          { id: "LLM_Chat", name: "LLM Chat (OpenAI)", type: "n8n-nodes-base.openAi", typeVersion: 4, position: [520, 300],
-            parameters: { operation: "chat", model: "gpt-4o-mini", systemMessage: prompt, text: "={{$json.message || $json.text || $json.body || ''}}", temperature: 0.4 },
-            credentials: { openAIApi: { id: "__CONNECT_IN_N8N__", name: "OpenAI" } } },
-          { id: "Router", name: "Intent Router", type: "n8n-nodes-base.if", typeVersion: 1, position: [780, 300],
-            parameters: { conditions: { string: [
-              { value1: "={{$json.data || $json || ''}}", operation: "contains", value2: "book" },
-              { value1: "={{$json.data || $json || ''}}", operation: "contains", value2: "schedule" }
-            ] } } },
-          { id: "Google_Calendar", name: "Create Event", type: "n8n-nodes-base.googleCalendar", typeVersion: 3, position: [1040, 240],
-            parameters: { operation: "create", calendarId: "", start: "={{$json.preferredStart || $json.requestedStart}}", end: "={{$json.preferredEnd || $json.requestedEnd}}",
-              summary: `={{"${v.bizName} – "+($json.service||"Appointment")}}`, description: "={{$json.name+\" | \"+$json.email+\" | \"+$json.phone}}",
-              options: { timezone: v.timezone || "UTC" } },
-            credentials: { googleCalendarOAuth2Api: { id: "__CONNECT_IN_N8N__", name: "Google Calendar" } } },
-          { id: "Email", name: "Send Confirmation", type: "n8n-nodes-base.emailSend", typeVersion: 2, position: [1280, 240],
-            parameters: { fromEmail: v.email || "no-reply@yourdomain.com", toEmail: "={{$json.email}}", subject: `${v.bizName} – Appointment Confirmed`,
-              text: `={{"Hi "+$json.name+", your "+($json.service||"appointment")+" is confirmed for "+($json.confirmedTime||$json.preferredStart)+". If you need changes, reply to this email. – ${v.bizName}"}}` },
-            credentials: { smtp: { id: "__CONNECT_IN_N8N__", name: "SMTP" } } },
-          { id: "Return_Response", name: "HTTP Response", type: "n8n-nodes-base.respondToWebhook", typeVersion: 1, position: [1280, 380],
-            parameters: { responseBody: "={{$json.reply || $json.data || $json || \"Thanks! We'll be in touch.\"}}", responseCode: 200 } }
+          {
+            id: "Webhook1",
+            name: "Webhook (check_availability)",
+            type: "n8n-nodes-base.webhook",
+            typeVersion: 1,
+            position: [260, 300],
+            parameters: {
+              httpMethod: "POST",
+              path: "check-availability",
+              responseMode: "onReceived",
+              responseData: "allEntries",
+              options: { },
+            },
+            webhookId: "auto-generate"
+          },
+          {
+            id: "CodeParseRequestedTime",
+            name: "Parse Requested Time",
+            type: "n8n-nodes-base.code",
+            typeVersion: 2,
+            position: [520, 300],
+            parameters: {
+              language: "javascript",
+              jsCode:
+`// Expect { time: "ISO string", durationMin?: number } in JSON.
+// Fallback to now+1h if missing.
+const body = items[0].json || {};
+const ISO = body.time || new Date(Date.now()+60*60*1000).toISOString();
+const durationMin = Number(body.durationMin || ${duration});
+return [{ json: { start: ISO, end: new Date(new Date(ISO).getTime() + durationMin*60000).toISOString(), tz: "${tz}", durationMin } }];`
+            }
+          },
+          {
+            id: "GoogleFreeBusy",
+            name: "Google Calendar: Free/Busy",
+            type: "n8n-nodes-base.googleCalendar",
+            typeVersion: 2,
+            position: [780, 300],
+            credentials: { googleCalendarOAuth2Api: { id: "__REPLACE_IN_N8N__", name: "Your Google OAuth" } },
+            parameters: {
+              operation: "availability",
+              calendar: { value: calId, mode: "id" },
+              timeMin: "={{$json.start}}",
+              timeMax: "={{$json.end}}",
+              timeZone: tz,
+            }
+          },
+          {
+            id: "IFAvailable",
+            name: "IF Available?",
+            type: "n8n-nodes-base.if",
+            typeVersion: 1,
+            position: [1040, 300],
+            parameters: {
+              conditions: {
+                number: [],
+                boolean: [
+                  {
+                    value1: "={{$json.busy && $json.busy.length === 0}}",
+                    operation: "isTrue"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            id: "RespondAvailable",
+            name: "Respond: Available",
+            type: "n8n-nodes-base.respondToWebhook",
+            typeVersion: 1,
+            position: [1300, 220],
+            parameters: {
+              responseBody: {
+                result: "Great, the time slot you selected is available. Let me go ahead and book it for you."
+              }
+            }
+          },
+          {
+            id: "AltTimesCode",
+            name: "Build Alternative Times",
+            type: "n8n-nodes-base.code",
+            typeVersion: 2,
+            position: [1300, 380],
+            parameters: {
+              language: "javascript",
+              jsCode:
+`// Build 3 alternative slots near the requested time within business hours window.
+// Input: start, end, durationMin
+const inItem = items[0].json;
+const start = new Date(inItem.start);
+const duration = Number(inItem.durationMin || ${duration});
+function pad(n){return String(n).padStart(2,"0")}
+function withinHours(d){
+  const [open, close] = "${v.hours || "09:00-18:00"}".split("-");
+  const s = new Date(d);
+  const h = s.getHours(), m = s.getMinutes();
+  const [oH,oM]=open.split(":").map(Number);
+  const [cH,cM]=close.split(":").map(Number);
+  const mins=(h*60+m), minO=oH*60+oM, minC=cH*60+cM;
+  return mins>=minO && (mins+duration)<=minC;
+}
+const candidates = [];
+let offset = 30; // minutes step
+let tries=0;
+while(candidates.length<3 && tries<40){
+  tries++;
+  const t = new Date(start.getTime() + offset*60000);
+  offset += 30;
+  if(!withinHours(t)) continue;
+  candidates.push(t.toISOString());
+}
+return [{ json: { message: "Unfortunately your chosen time is booked out. How about one of these:", alternatives: candidates } }];`
+            }
+          },
+          {
+            id: "RespondAlternatives",
+            name: "Respond: Alternatives",
+            type: "n8n-nodes-base.respondToWebhook",
+            typeVersion: 1,
+            position: [1540, 380],
+            parameters: {
+              responseBody: "={{$json}}"
+            }
+          }
         ],
         connections: {
-          "Incoming Message": { main: [[{ node: "LLM Chat (OpenAI)", type: "main", index: 0 }]] },
-          "LLM Chat (OpenAI)": { main: [[{ node: "Intent Router", type: "main", index: 0 }]] },
-          "Intent Router": { main: [
-            [{ node: "Create Event", type: "main", index: 0 }],
-            [{ node: "HTTP Response", type: "main", index: 0 }]
-          ] },
-          "Create Event": { main: [[{ node: "Send Confirmation", type: "main", index: 0 }]] },
-          "Send Confirmation": { main: [[{ node: "HTTP Response", type: "main", index: 0 }]] }
+          "Webhook (check_availability)": { main: [[{ node: "Parse Requested Time", type: "main", index: 0 }]] },
+          "Parse Requested Time": { main: [[{ node: "Google Calendar: Free/Busy", type: "main", index: 0 }]] },
+          "Google Calendar: Free/Busy": { main: [[{ node: "IF Available?", type: "main", index: 0 }]] },
+          "IF Available?": {
+            main: [
+              [{ node: "Respond: Available", type: "main", index: 0 }],
+              [{ node: "Build Alternative Times", type: "main", index: 0 }]
+            ]
+          },
+          "Build Alternative Times": { main: [[{ node: "Respond: Alternatives", type: "main", index: 0 }]] }
         },
-        settings: { timezone: v.timezone || "UTC" }
+        settings: { timezone: tz },
+        pinData: {},
+        staticData: null
       };
     }
 
-    function toBlobDownload(filename, content, mime="text/plain") {
-      const blob = new Blob([content], {type: mime});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
+    // n8n: build "book_appointment" workflow JSON
+    function buildN8NBookWorkflow(v) {
+      const calId = v.calendarId || "primary";
+      const tz = v.tz || "America/New_York";
+
+      return {
+        name: `${v.bizName || "Business"} — book_appointment`,
+        nodes: [
+          {
+            id: "WebhookBook",
+            name: "Webhook (book_appointment)",
+            type: "n8n-nodes-base.webhook",
+            typeVersion: 1,
+            position: [260, 300],
+            parameters: { httpMethod: "POST", path: "book-appointment", responseMode: "onReceived", responseData: "allEntries" },
+            webhookId: "auto-generate"
+          },
+          {
+            id: "CodeNormalize",
+            name: "Normalize Inputs",
+            type: "n8n-nodes-base.code",
+            typeVersion: 2,
+            position: [520, 300],
+            parameters: {
+              language: "javascript",
+              jsCode:
+`const b = items[0].json || {};
+// expected: full_name, email, phone_number, service_type, time (ISO)
+const timeISO = b.time || new Date(Date.now()+2*3600*1000).toISOString();
+return [{ json: {
+  full_name: b.full_name || "Unknown",
+  email: b.email || "${v.bizEmail || ""}",
+  phone_number: b.phone_number || "",
+  service_type: b.service_type || "General",
+  start: timeISO,
+  end: new Date(new Date(timeISO).getTime()+60*60000).toISOString()
+} }];`
+            }
+          },
+          {
+            id: "CalCreate",
+            name: "Google Calendar: Create Event",
+            type: "n8n-nodes-base.googleCalendar",
+            typeVersion: 2,
+            position: [780, 300],
+            credentials: { googleCalendarOAuth2Api: { id: "__REPLACE_IN_N8N__", name: "Your Google OAuth" } },
+            parameters: {
+              operation: "create",
+              calendar: { value: calId, mode: "id" },
+              'additionalFields.location': "",
+              start: "={{$json.start}}",
+              end: "={{$json.end}}",
+              summary: "={{\"New Appointment — \" + $json.full_name}}",
+              description: "={{\"Service: \" + $json.service_type + \"\\nEmail: \" + $json.email + \"\\nPhone: \" + $json.phone_number}}",
+              sendUpdates: "all"
+            }
+          },
+          {
+            id: "RespondBooked",
+            name: "Respond: Booked",
+            type: "n8n-nodes-base.respondToWebhook",
+            typeVersion: 1,
+            position: [1040, 300],
+            parameters: {
+              responseBody: {
+                result: "Great, your job has been booked.",
+                icsEventCreated: true
+              }
+            }
+          }
+        ],
+        connections: {
+          "Webhook (book_appointment)": { main: [[{ node: "Normalize Inputs", type: "main", index: 0 }]] },
+          "Normalize Inputs": { main: [[{ node: "Google Calendar: Create Event", type: "main", index: 0 }]] },
+          "Google Calendar: Create Event": { main: [[{ node: "Respond: Booked", type: "main", index: 0 }]] }
+        },
+        settings: { timezone: tz },
+        pinData: {},
+        staticData: null
+      };
     }
 
-    function preview() {
-      const v = getValues();
-      const prompt = buildPrompt(v);
-      const json = buildN8N(v, prompt);
-      promptOut.textContent = prompt;
-      jsonOut.textContent = JSON.stringify(json, null, 2);
-      notice.textContent = downloadPromptBtn.disabled
-        ? "Looks good! ElevenLabs voice preview is available. Complete purchase to enable downloads."
-        : "Ready to download. Import the JSON in n8n.";
-    }
-    previewBtn.addEventListener('click', preview);
-
-    downloadPromptBtn.addEventListener('click', () => {
-      const v = getValues();
-      const prompt = buildPrompt(v);
-      toBlobDownload(`${(v.bizName||"AI_Receptionist").replace(/\s+/g,'_')}_prompt.txt`, prompt, "text/plain;charset=utf-8");
-    });
-
-    downloadJsonBtn.addEventListener('click', () => {
-      const v = getValues();
-      const prompt = buildPrompt(v);
-      const json = buildN8N(v, prompt);
-      toBlobDownload(`${(v.bizName||"AI_Receptionist").replace(/\s+/g,'_')}_n8n.json`, JSON.stringify(json, null, 2), "application/json");
-    });
-
-    // ------- ElevenLabs TTS preview (via /api/tts) -------
+    // ElevenLabs TTS (uses your `/api/tts` serverless function)
     async function elevenLabsPreview() {
-      const v = getValues();
-      const voiceId = document.getElementById('voiceId').value.trim() || '21m00Tcm4TlvDq8ikWAM'; // default classic voice
-      const modelId = document.getElementById('modelId').value || 'eleven_multilingual_v2';
-      const stability = parseFloat(document.getElementById('stability').value || '0.5');
-
+      const v = Object.fromEntries(new FormData(document.getElementById('aiForm')).entries());
+      const voiceId   = (document.getElementById('voiceId')?.value || '').trim() || '21m00Tcm4TlvDq8ikWAM';
+      const modelId   = document.getElementById('modelId')?.value || 'eleven_multilingual_v2';
+      const stability = parseFloat(document.getElementById('stability')?.value || '0.5');
       const text = `Hey, this is ${v.agentName || "Alex"} with ${v.bizName || "your business"}, how can I help you today?`;
 
       const res = await fetch('/api/tts', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text, voice_id: voiceId, model_id: modelId,
+          text,
+          voice_id: voiceId,
+          model_id: modelId,
           voice_settings: { stability, similarity_boost: 0.7 }
         })
       });
-
       if (!res.ok) {
-        const errTxt = await res.text().catch(()=>res.statusText);
-        alert('TTS error: ' + errTxt);
+        const msg = await res.text().catch(()=>res.statusText);
+        alert('TTS error: ' + msg);
         return;
       }
-
-      const blob = await res.blob(); // audio/mpeg
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
+      const audioEl = document.getElementById('audio');
+      const audioWrap = document.getElementById('audioWrap');
+      const audioDownload = document.getElementById('audioDownload');
       audioEl.src = url;
       audioWrap.classList.remove('hidden');
-      audioEl.play().catch(()=>{ /* user must click play on some browsers */ });
+      audioEl.play().catch(()=>{});
       audioDownload.href = url;
     }
 
-    const ttsBtnEl = document.getElementById('ttsBtn');
-    ttsBtnEl.addEventListener('click', elevenLabsPreview);
+    // Bind TTS
+    document.getElementById('ttsBtn')?.addEventListener('click', elevenLabsPreview);
 
-    function getValues() {
-      const data = Object.fromEntries(new FormData(form).entries());
-      data.upsells = form.upsell_a?.checked ? ["Relevant add-ons"] : [];
-      data.handoff = !!form.handoff?.checked;
-      if (!data.timezone) data.timezone = tzGuess;
-      if (!data.language) data.language = "English";
-      if (!data.agentName) data.agentName = "Alex";
-      return data;
-    }
+    // Generate → fill previews + enable downloads
+    document.getElementById('genBtn')?.addEventListener('click', () => {
+      const v = Object.fromEntries(new FormData(document.getElementById('aiForm')).entries());
+      const fullPrompt = buildSystemPrompt(v);
+      const preview = previewText(fullPrompt);
+      document.getElementById('promptPreview').textContent = preview;
+
+      // Build n8n JSONs (not shown)
+      const availJSON = buildN8NCheckWorkflow(v);
+      const bookJSON  = buildN8NBookWorkflow(v);
+      document.getElementById('jsonPreview').textContent = JSON.stringify({avail:availJSON, book:bookJSON}, null, 2);
+
+      // Enable downloads
+      const promptBlob = new Blob([fullPrompt], { type: "text/plain" });
+      const promptUrl  = URL.createObjectURL(promptBlob);
+      const dlPrompt   = document.getElementById('downloadPrompt');
+      dlPrompt.disabled = false;
+      dlPrompt.onclick = () => {
+        const a = document.createElement('a');
+        a.href = promptUrl;
+        a.download = `${(v.bizName||"business").toLowerCase().replace(/[^a-z0-9]+/g,'-')}-receptionist-prompt.txt`;
+        a.click();
+      };
+
+      const aBlob = new Blob([JSON.stringify(availJSON, null, 2)], { type: "application/json" });
+      const bBlob = new Blob([JSON.stringify(bookJSON,  null, 2)], { type: "application/json" });
+      const aUrl  = URL.createObjectURL(aBlob);
+      const bUrl  = URL.createObjectURL(bBlob);
+
+      const btnAvail = document.getElementById('downloadAvail');
+      const btnBook  = document.getElementById('downloadBook');
+      btnAvail.disabled = false;
+      btnBook.disabled  = false;
+
+      btnAvail.onclick = () => {
+        const a = document.createElement('a');
+        a.href = aUrl;
+        a.download = "check_availability.n8n.json";
+        a.click();
+      };
+      btnBook.onclick = () => {
+        const a = document.createElement('a');
+        a.href = bUrl;
+        a.download = "book_appointment.n8n.json";
+        a.click();
+      };
+    });
   </script>
+
+  <!-- Optional ElevenLabs controls (hidden) -->
+  <div class="hidden">
+    <input id="voiceId" value="21m00Tcm4TlvDq8ikWAM" />
+    <input id="modelId" value="eleven_multilingual_v2" />
+    <input id="stability" value="0.5" />
+  </div>
 </body>
 </html>
