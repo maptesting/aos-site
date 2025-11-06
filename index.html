@@ -149,8 +149,8 @@
                 <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
                 <div class="flex flex-wrap gap-2">
                   <button id="downloadPromptBtn" class="px-4 py-2 rounded-xl bg-brand-500/80 hover:bg-brand-600 font-medium disabled:opacity-50" disabled>Download Full Prompt (.txt)</button>
-                  <button id="downloadAvailBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: checkAvailability.json</button>
-                  <button id="downloadBookBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: bookAppointment.json</button>
+                  <a id="downloadAvailBtn" href="#" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 pointer-events-none opacity-50">Download: checkAvailability.json</a>
+                  <a id="downloadBookBtn"  href="#" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 pointer-events-none opacity-50">Download: bookAppointment.json</a>
                 </div>
                 <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded ✅</div>
               </div>
@@ -180,19 +180,18 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- External builders: MUST live with /public/templates/*.json present -->
+  <!-- External builders (for prompt only) -->
   <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 
-  <!-- Async-aware binder with ready() + graph validation -->
+  <!-- Binder: JSON downloads are direct files; prompt is generated -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
-    const previewTruncate = (s, n = 1200) => (s && s.length > n ? s.slice(0, n) + ' …' : (s || ''));
+    const truncate = (s,n=1200)=> (s && s.length>n ? s.slice(0,n)+' …' : (s||''));
 
     function getValues() {
       const form = $('aiForm');
-      if (!form) return {};
       const v = Object.fromEntries(new FormData(form).entries());
       try { v.timezone ||= Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
       v.agentName ||= 'Alex';
@@ -200,31 +199,43 @@
       return v;
     }
 
-    // Replace handler each time (no stale closures)
-    function setDL(id, factory, filenameFactory, mime) {
-      const btn = $(id); if (!btn) return;
+    // Prompt download (generated; JSON files are zero-touch)
+    function wirePromptDownload(getPrompt) {
+      const btn = $('downloadPromptBtn'); if (!btn) return;
       btn.onclick = async (e) => {
         e.preventDefault();
         btn.disabled = true; btn.classList.add('opacity-50');
         try {
-          const data = await factory(); // builds with CURRENT form values
-          const text = (typeof data === 'string') ? data : JSON.stringify(data, null, 2);
-          const name = (typeof filenameFactory === 'function') ? filenameFactory() : filenameFactory;
-          if (!text || text.length < 20 || text === '{}') {
-            alert('Could not generate ' + name + '. Click “Generate Preview” again.');
-            return;
-          }
-          const url = URL.createObjectURL(new Blob([text], { type: mime }));
+          const full = await getPrompt();
+          const text = typeof full === 'string' ? full : JSON.stringify(full, null, 2);
+          const name = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
+          const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
           const a = Object.assign(document.createElement('a'), { href: url, download: name });
           a.click(); URL.revokeObjectURL(url);
           const ok = $('successMsg'); if (ok) { ok.textContent = name + ' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
         } catch (e) {
-          console.error('Download error:', e);
-          alert('Download error — see console.');
+          console.error(e);
+          alert('Failed to download prompt.');
         } finally {
           btn.disabled = false; btn.classList.remove('opacity-50');
         }
       };
+    }
+
+    // Direct-file download helpers for EXACT JSON files
+    function enableDirectJsonLinks() {
+      const a1 = $('downloadAvailBtn');
+      const a2 = $('downloadBookBtn');
+      if (a1) {
+        a1.href = '/templates/checkAvailability.json';
+        a1.setAttribute('download', 'checkAvailability.json');
+        a1.classList.remove('opacity-50','pointer-events-none');
+      }
+      if (a2) {
+        a2.href = '/templates/bookAppointment.json';
+        a2.setAttribute('download', 'bookAppointment.json');
+        a2.classList.remove('opacity-50','pointer-events-none');
+      }
     }
 
     async function doPreview() {
@@ -233,55 +244,21 @@
       const out = $('promptOut');
       if (!btn || !out) return;
 
-      if (!window.AOS
-        || typeof window.AOS.buildPrompt !== 'function'
-        || typeof window.AOS.buildCheckAvailability !== 'function'
-        || typeof window.AOS.buildBookAppointment !== 'function'
-        || typeof window.AOS.ready !== 'function') {
-        alert('Builders not loaded.');
-        return;
-      }
-
-      btn.disabled = true; spinner && spinner.classList.remove('hidden');
+      btn.disabled = true;
+      spinner && spinner.classList.remove('hidden');
       const minWait = new Promise(r=>setTimeout(r,300));
 
       try {
-        // *** Ensure templates are loaded (prevents race that causes empty graphs) ***
-        await window.AOS.ready();
+        // Generate long prompt PREVIEW only; JSON files are not touched
+        if (!window.AOS || typeof window.AOS.buildPrompt !== 'function') throw new Error('builders.js not loaded');
+        const fullPrompt = await window.AOS.buildPrompt(getValues());
+        out.textContent = truncate(fullPrompt);
 
-        const v = getValues();
-        const fullPrompt = await window.AOS.buildPrompt(v);
-        out.textContent = previewTruncate(fullPrompt);
-
-        // *** Validate graphs BEFORE wiring downloads (prevents broken .json) ***
-        const statsAvail = await window.AOS.debugBuild('avail', v);
-        const statsBook  = await window.AOS.debugBuild('book', v);
-        if (!statsAvail.connections || !statsBook.connections) {
-          console.error('Graph validation failed:', { statsAvail, statsBook });
-          alert('Template connections missing — fix templates or builders before downloading. See console for details.');
-          return;
-        }
-
-        // Enable buttons
-        ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => { const el=$(id); if (el) el.disabled = false; });
-        const n = $('notice'); if (n) n.textContent = 'Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.';
-
-        // Wire downloads to ALWAYS read CURRENT values at click
-        setDL('downloadPromptBtn',
-          async () => window.AOS.buildPrompt(getValues()),
-          () => `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`,
-          'text/plain;charset=utf-8');
-
-        setDL('downloadAvailBtn',
-          async () => window.AOS.buildCheckAvailability(getValues()),
-          () => 'checkAvailability.json',
-          'application/json');
-
-        setDL('downloadBookBtn',
-          async () => window.AOS.buildBookAppointment(getValues()),
-          () => 'bookAppointment.json',
-          'application/json');
-
+        // Enable prompt + JSON downloads (JSON are direct links to your attached files)
+        $('downloadPromptBtn').disabled = false;
+        enableDirectJsonLinks();
+        const n = $('notice'); if (n) n.textContent = 'Downloads ready. JSONs are your exact templates.';
+        wirePromptDownload(()=>window.AOS.buildPrompt(getValues()));
       } catch (e) {
         console.error('Preview failed:', e);
         alert('Failed to generate preview. See console.');
@@ -327,13 +304,10 @@
       if (ttsBtn) { ev.preventDefault(); doTTS(); return; }
     });
 
-    // Sanity check
-    function sanity() {
-      const ids = ['aiForm','previewBtn','ttsBtn','promptOut','downloadPromptBtn','downloadAvailBtn','downloadBookBtn'];
-      const missing = ids.filter(id => !$(id));
-      if (missing.length) console.warn('Missing elements:', missing);
+    // Sanity
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', ()=>{/* noop */});
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sanity); else sanity();
   })();
   </script>
 </body>
