@@ -1,13 +1,16 @@
-// js/wireBuilder.js — retry until AOS is ready
+// js/wireBuilder.js
 (function () {
   const $ = (id) => document.getElementById(id);
 
+  // keep the latest values + full prompt in memory
   let lastValues = null;
   let lastFullPrompt = "";
 
   function getValues(form) {
     const v = Object.fromEntries(new FormData(form).entries());
-    if (!v.timezone) { try { v.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {} }
+    if (!v.timezone) {
+      try { v.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
+    }
     if (!v.agentName) v.agentName = "Alex";
     if (!v.language) v.language = "English";
     return v;
@@ -19,33 +22,62 @@
     el.textContent = text || 'Downloaded ✅';
     el.classList.remove('hidden');
     clearTimeout(showSuccess._t);
-    showSuccess._t = setTimeout(()=> el.classList.add('hidden'), 2500);
+    showSuccess._t = setTimeout(() => el.classList.add('hidden'), 2500);
   }
 
   function enableDownloads(v, fullPrompt) {
+    // Full Prompt (.txt)
     $('downloadPromptBtn').onclick = () => {
+      if (!fullPrompt || fullPrompt.length < 20) {
+        alert('Could not generate prompt. Please click “Generate Preview” again.');
+        return;
+      }
       const blob = new Blob([fullPrompt], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement('a'), {
-        href: url, download: `${(v.bizName||'AI_Receptionist')}_prompt.txt`
+        href: url,
+        download: `${(v.bizName || 'AI_Receptionist')}_prompt.txt`
       });
-      a.click(); URL.revokeObjectURL(url);
+      a.click();
+      URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('Prompt downloaded ✅'), 0);
     };
 
+    // checkAvailability.json
     $('downloadAvailBtn').onclick = () => {
-      const json = window.AOS.buildCheckAvailability(v);
-      const url = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: "application/json" }));
-      const a = Object.assign(document.createElement('a'), { href: url, download: "checkAvailability.json" });
-      a.click(); URL.revokeObjectURL(url);
+      const json = (window.AOS && window.AOS.buildCheckAvailability)
+        ? window.AOS.buildCheckAvailability(v)
+        : {};
+      const text = JSON.stringify(json, null, 2);
+      if (!text || text.length < 20 || text === "{}") {
+        alert('Could not generate checkAvailability.json. Please click “Generate Preview” again.');
+        return;
+      }
+      const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+      const a = Object.assign(document.createElement('a'), {
+        href: url, download: "checkAvailability.json"
+      });
+      a.click();
+      URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('checkAvailability.json downloaded ✅'), 0);
     };
 
+    // bookAppointment.json
     $('downloadBookBtn').onclick = () => {
-      const json = window.AOS.buildBookAppointment(v);
-      const url = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: "application/json" }));
-      const a = Object.assign(document.createElement('a'), { href: url, download: "bookAppointment.json" });
-      a.click(); URL.revokeObjectURL(url);
+      const json = (window.AOS && window.AOS.buildBookAppointment)
+        ? window.AOS.buildBookAppointment(v)
+        : {};
+      const text = JSON.stringify(json, null, 2);
+      if (!text || text.length < 20 || text === "{}") {
+        alert('Could not generate bookAppointment.json. Please click “Generate Preview” again.');
+        return;
+      }
+      const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+      const a = Object.assign(document.createElement('a'), {
+        href: url, download: "bookAppointment.json"
+      });
+      a.click();
+      URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('bookAppointment.json downloaded ✅'), 0);
     };
   }
@@ -62,9 +94,12 @@
         voice_settings: { stability: 0.5, similarity_boost: 0.7 }
       })
     });
-    if (!res.ok) { alert('TTS error: ' + (await res.text()).slice(0, 200)); return; }
+    if (!res.ok) {
+      alert('TTS error: ' + (await res.text()).slice(0, 200));
+      return;
+    }
     const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     $('audio').src = url;
     $('audioWrap').classList.remove('hidden');
     $('audio').play().catch(()=>{});
@@ -72,7 +107,7 @@
   }
 
   function wire() {
-    // wait until builders.js has defined window.AOS
+    // wait until builders.js has defined window.AOS + buildPrompt
     if (!window.AOS || !window.AOS.buildPrompt) {
       return setTimeout(wire, 50);
     }
@@ -82,15 +117,18 @@
     const ttsBtn = $('ttsBtn');
     const spinner = $('previewSpinner');
 
+    // Generate Preview (with spinner + save full prompt for downloads)
     previewBtn.addEventListener('click', async () => {
       previewBtn.disabled = true;
       spinner?.classList.remove('hidden');
-      const minWait = new Promise(res => setTimeout(res, 400));
 
+      const minWait = new Promise(res => setTimeout(res, 400)); // ensure spinner is visible
       try {
         lastValues = getValues(form);
-        lastFullPrompt = window.AOS.buildPrompt(lastValues);
-        $('promptOut').textContent = window.AOS.truncate(lastFullPrompt);
+        lastFullPrompt = window.AOS.buildPrompt(lastValues);   // full text
+        $('promptOut').textContent = window.AOS.truncate(lastFullPrompt); // preview only
+
+        // enable download buttons
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => $(id).disabled = false);
         enableDownloads(lastValues, lastFullPrompt);
         $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
@@ -101,6 +139,7 @@
       }
     });
 
+    // Hear AI Greeting (TTS)
     ttsBtn.addEventListener('click', async () => {
       const v = getValues(form);
       await previewTTS(v);
