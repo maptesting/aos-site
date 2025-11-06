@@ -1,6 +1,5 @@
 // js/demoChat.js
 (function () {
-  // Run after DOM is ready even if script isn't at the very end
   const start = () => {
     const chatBox   = document.getElementById('chatBox');
     const chatForm  = document.getElementById('chatForm');
@@ -23,18 +22,31 @@
       return div;
     };
 
-    const typing = () => {
+    const typingBubble = () => {
       const div = document.createElement('div');
       div.className = 'flex gap-3 items-start opacity-80';
       div.innerHTML = `<div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center">🤖</div>
-                       <div data-msg>Ava is typing…</div>`;
+                       <div data-msg>Ava is typing</div>`;
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
-      return div;
+
+      // animate dots …
+      const label = div.querySelector('[data-msg]');
+      let dots = 0;
+      const iv = setInterval(() => {
+        dots = (dots + 1) % 4;
+        label.textContent = 'Ava is typing' + '.'.repeat(dots);
+      }, 350);
+
+      return {
+        el: div,
+        set(text){ label.textContent = text; div.classList.remove('opacity-80'); },
+        stop(){ clearInterval(iv); }
+      };
     };
 
     const send = async (e) => {
-      if (e) { e.preventDefault?.(); e.stopPropagation?.(); }
+      e?.preventDefault?.(); e?.stopPropagation?.();
       const msg = chatInput.value.trim();
       if (!msg) return;
 
@@ -42,7 +54,7 @@
       chatInput.value = '';
       history.push({ role: 'user', content: msg });
 
-      const t = typing();
+      const t = typingBubble();
       try {
         const res = await fetch('/api/demoChat', {
           method: 'POST',
@@ -51,18 +63,18 @@
         });
         if (!res.ok) throw new Error(await res.text());
         const { reply } = await res.json();
-        t.querySelector('[data-msg]').textContent = reply;
-        t.classList.remove('opacity-80');
+        t.stop();
+        t.set(reply);
         history.push({ role: 'assistant', content: reply });
       } catch (err) {
         console.error(err);
-        t.querySelector('[data-msg]').textContent = 'Sorry — I had trouble responding. Please try again.';
+        t.stop();
+        t.set('Sorry — I had trouble responding. Please try again.');
       } finally {
         chatBox.scrollTop = chatBox.scrollHeight;
       }
     };
 
-    // Guard against page reloads in all cases
     chatForm.addEventListener('submit', send);
     chatSend.addEventListener('click', send);
   };
