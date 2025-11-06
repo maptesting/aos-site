@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AOS — AI Receptionist Prompt Pack (Free Builder)</title>
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -110,7 +111,10 @@
               <textarea name="policies" rows="2" placeholder="Policies / deposits / refunds (optional)"></textarea>
 
               <div class="mt-3 flex gap-3 flex-wrap">
-                <button type="button" id="previewBtn" class="px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Generate Preview</button>
+                <button type="button" id="previewBtn" class="px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium inline-flex items-center gap-2">
+                  <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                  <span>Generate Preview</span>
+                </button>
                 <button type="button" id="ttsBtn" class="px-4 py-3 rounded-xl border border-white/10 hover:bg-white/5 font-medium">▶ Hear AI Greeting</button>
               </div>
             </form>
@@ -130,6 +134,7 @@
                   <button id="downloadAvailBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: checkAvailability.json</button>
                   <button id="downloadBookBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: bookAppointment.json</button>
                 </div>
+                <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded ✅</div>
               </div>
 
               <div class="mt-6">
@@ -150,7 +155,9 @@
     </div>
   </section>
 
-  <footer class="py-10 text-center text-white/40 text-sm">© <span id="year"></span> AOS — AI Optimization Solutions</footer>
+  <footer class="py-10 text-center text-white/40 text-sm">
+    © <span id="year"></span> AOS — AI Optimization Solutions
+  </footer>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
