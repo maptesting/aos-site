@@ -180,311 +180,14 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ========== EMBEDDED TEMPLATES (from your attachments) ========== -->
-  <script type="application/json" id="tpl-checkAvailability">
-  {
-  "name": "checkAvailability",
-  "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "0635b597-12bc-4601-87d9-530c58e028ff",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [-640,432],
-      "id": "09e7f082-cfac-4027-80a6-9edeb64ef87d",
-      "name": "Webhook",
-      "webhookId": "0635b597-12bc-4601-87d9-530c58e028ff"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Role: \n\nYou are an appointment availability checker. Your job is to get the requested time and use the calendar to check availability for the customer.\n\nThe current date and time is: {{ $now }}\n\nCustomer requested time is:\n{{ $json.body.message.toolCallList[0].function.arguments.time }}\n\nCalendar data:\nWorking hours 8am - 9pm\nLength of each slot: 1 hour\n\nBooking Process\n\n-Check if the customer’s requested time is available using the calendar\n-If the time is available let the AI model know & confirm\n-If the time is unavailable, suggest up to 2 alternative slots close to the requested time, by checking the availability again\n-If there are no slots upon rechecking within that day, search the next weekday from the current time and provide alternative slots. \n\nResponse & output:\n\n-If the requested time is available confirm it by saying:\nE.g: The requested time of 10am on June 22nd is available, just to confirm would you like to book this?\n-If you have found no availability or unavailable in the requested time, suggest up to 3 alternative slots closest to the requested time.\n-If no slots exist within the day suggest 3 more times the next weekday.\n-Your output must be natural and conversational e.g. “Hey there, the time that you requested of 10am on June 22nd is available, just to confirm would you like to book this?”\n\nImportant notes:\n\n- You must not output your result in the past, aways check availability in the future, use the current time you have received and the requested data to help make that decision.\n-Your ability to follow these steps precisely is very crucial and can impact the business’s reputation.",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
-      "position": [-336,368],
-      "id": "75f18a8b-f48d-4027-8872-98ce8cbd7ecd",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {"__rl": true,"mode": "list","value": "gpt-4.1-mini"},
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [-416,608],
-      "id": "bde217d0-c5bb-412f-9b56-b50967ddcbee",
-      "name": "OpenAI Chat Model",
-      "credentials": { "openAiApi": { "id": "exm7lxhShqpiglPn", "name": "n8n free OpenAI API credits" } }
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"results\": [\n    { \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\", \"result\": \"{{ $json.output }}\" }\n  ]\n}\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [64,416],
-      "id": "ffe1fcc9-82a3-4284-9069-897621ab7d13",
-      "name": "Respond to Webhook"
-    },
-    {
-      "parameters": {
-        "resource": "calendar",
-        "calendar": { "__rl": true, "value": "razerrtrading@gmail.com", "mode": "list", "cachedResultName": "razerrtrading@gmail.com" },
-        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
-        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleCalendarTool",
-      "typeVersion": 1.3,
-      "position": [-144,624],
-      "id": "fe54952b-15ca-4f28-a9b3-476ca9858ae4",
-      "name": "check availability",
-      "credentials": { "googleCalendarOAuth2Api": { "id": "VyBLeoRYD28XxnYS", "name": "Google Calendar account" } }
-    }
-  ],
-  "connections": {
-    "Webhook": { "main": [[{ "node": "AI Agent","type": "main","index": 0 }]] },
-    "OpenAI Chat Model": { "ai_languageModel": [[{ "node": "AI Agent","type": "ai_languageModel","index": 0 }]] },
-    "AI Agent": { "main": [[{ "node": "Respond to Webhook","type": "main","index": 0 }]] },
-    "check availability": { "ai_tool": [[{ "node": "AI Agent","type": "ai_tool","index": 0 }]] }
-  },
-  "active": false,
-  "settings": { "executionOrder": "v1" },
-  "versionId": "6244fb20-f4d2-4e76-bc7b-bfbcc2e69ffb",
-  "meta": { "templateCredsSetupCompleted": true, "instanceId": "7f9dc07fb31a147dfb7c603ae53d42791f4343e40143376561662d2f77053c95" },
-  "id": "s2Oz4PD8hi3d8dXJ",
-  "tags": []
-}
-  </script>
-
-  <script type="application/json" id="tpl-bookAppointment">
-  {
-  "name": "bookAppointment",
-  "nodes": [
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=You are a appointment booking AI Agent your job is to use the \"Create an event in Google Calendar\" tool to get the details of the customer and create a event/ booking in the calendar. \n\nThe confirmed time:  {{ $json.body.message.toolCalls[0].function.arguments.time }}\n\nTime now (use for bookings) : {{ $now }}\n\nAppointment duration will be one hour. Simply add one hour on to the confirm time, use the confirm time as the start time and then simply just add one hour on to the confirm time to get the end time. \n\nIf the event has been schedualed please provide your output in this format:\n\nOutput: \n\nHey there the appointment at July 18th 2025 for a message has been schedualed we will see you there. ",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2,
-      "position": [-832,144],
-      "id": "b4d922ad-2b69-49d5-a2da-17c1ecbe345f",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": { "__rl": true, "mode": "list", "value": "gpt-4.1-mini" },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [-912,384],
-      "id": "c1c61458-8e97-4e7c-ab54-d395e74ae84a",
-      "name": "OpenAI Chat Model",
-      "credentials": { "openAiApi": { "id": "exm7lxhShqpiglPn", "name": "n8n free OpenAI API credits" } }
-    },
-    {
-      "parameters": {
-        "calendar": { "__rl": true, "value": "razerrtrading@gmail.com", "mode": "list", "cachedResultName": "razerrtrading@gmail.com" },
-        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
-        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
-        "additionalFields": {
-          "attendees": ["={{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}"],
-          "description": "=Details of the Appointment: \nname:{{ $json.body.message.toolCallList[0].function.arguments.full_name }} \nService Type: {{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.service_type }}\nTime::{{ $json.body.message.toolCallList[0].function.arguments.time }} \nEmail:{{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}",
-          "summary": "=New Appointment For  {{ $json.body.message.toolCallList[0].function.arguments.full_name }} at {{ $json.body.message.toolCallList[0].function.arguments.time }}"
-        }
-      },
-      "type": "n8n-nodes-base.googleCalendarTool",
-      "typeVersion": 1.3,
-      "position": [-672,384],
-      "id": "7b5d02c2-e5e4-4609-ad6c-4ba402a9a757",
-      "name": "Create an event in Google Calendar",
-      "credentials": { "googleCalendarOAuth2Api": { "id": "VyBLeoRYD28XxnYS", "name": "Google Calendar account" } }
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"results\": [\n    { \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\", \"result\": \"{{ $json.output }}\" }\n  ]\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [-368,224],
-      "id": "57b1eac0-b482-4a59-9228-a6cc5cd30025",
-      "name": "Respond to Webhook"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "test77823457892345879245",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [-1104,208],
-      "id": "a5013f1c-24ed-4d41-8d36-e9a579100421",
-      "name": "Webhook1",
-      "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
-    }
-  ],
-  "connections": {
-    "OpenAI Chat Model": { "ai_languageModel": [[{ "node": "AI Agent","type": "ai_languageModel","index": 0 }]] },
-    "Create an event in Google Calendar": { "ai_tool": [[{ "node": "AI Agent","type": "ai_tool","index": 0 }]] },
-    "AI Agent": { "main": [[{ "node": "Respond to Webhook","type": "main","index": 0 }]] },
-    "Webhook1": { "main": [[{ "node": "AI Agent","type": "main","index": 0 }]] }
-  },
-  "active": false,
-  "settings": { "executionOrder": "v1" },
-  "versionId": "1204e689-05e3-4059-82cc-e6e5cac9d410",
-  "meta": { "instanceId": "7f9dc07fb31a147dfb7c603ae53d42791f4343e40143376561662d2f77053c95" },
-  "id": "rk03nuO44WQh49bc",
-  "tags": []
-}
-  </script>
-
-  <!-- ========== INLINE BUILDERS (uses embedded templates) ========== -->
-  <script>
-  (function () {
-    // ---- tiny utils
-    const $ = (id) => document.getElementById(id);
-    const log = (...a) => console.log('[AOS]', ...a);
-    const warn = (...a) => console.warn('[AOS]', ...a);
-    const err = (...a) => console.error('[AOS]', ...a);
-    const deepClone = (o)=>JSON.parse(JSON.stringify(o||{}));
-    const slug = (s)=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-
-    // ---- embed templates (from <script type="application/json">)
-    function readTemplate(id){
-      const el = $(id);
-      if(!el) throw new Error('Missing template tag: #' + id);
-      try { return JSON.parse(el.textContent); } catch(e){ throw new Error('Bad JSON in #' + id + ': ' + e.message); }
-    }
-    const TPL = {
-      checkAvailability: readTemplate('tpl-checkAvailability'),
-      bookAppointment: readTemplate('tpl-bookAppointment'),
-    };
-
-    // ---- prompt (LONG)
-    function buildLongPrompt(v){
-      const tz = v.timezone || 'America/New_York';
-      const now = new Date().toLocaleString('en-US',{
-        timeZone: tz, weekday:'long', year:'numeric', month:'long', day:'2-digit', hour:'2-digit', minute:'2-digit'
-      });
-      return [
-        `You are ${v.agentName || 'Alex'}, a friendly, fast, and professional AI receptionist for ${v.bizName || 'the business'}.`,
-        `Current time: ${now} (${tz}).`,
-        ``,
-        `Goals:`,
-        `1) Greet naturally. 2) Identify the service needed. 3) Collect full name, phone, and email. 4) Offer times within business hours. 5) Confirm and summarize.`,
-        ``,
-        `Business Context:`,
-        `- Business: ${v.bizName || 'N/A'}`,
-        `- Location: ${v.location || 'N/A'}`,
-        `- Industry: ${v.industry || 'N/A'}`,
-        `- Services: ${v.services || 'N/A'}`,
-        `- Hours: ${v.hours || 'N/A'}`,
-        `- Policies: ${v.policies || 'None provided'}`,
-        ``,
-        `Persona & Style:`,
-        `- Warm, concise, human. Uses contractions. 1–2 sentences per reply.`,
-        `- Proactive and respectful. Avoid jargon. Confirm details clearly.`,
-        ``,
-        `Calendar & Email:`,
-        `- Use Google Calendar to offer/book. Timezone: ${tz}.`,
-        `- Send confirmations from ${v.email || 'no-reply@example.com'} if configured.`,
-        ``,
-        `Rules:`,
-        `- Never invent times outside business hours. If unclear, ask for the customer's availability.`,
-        `- Always confirm final date/time and contact info before closing.`,
-        `- If non-service inquiry, capture contact and route to email.`,
-      ].join('\n');
-    }
-
-    // ---- light-touch injectors (leave graph shape & connections intact)
-    function injectGraph(baseGraph, v, kind){
-      const g = deepClone(baseGraph);
-      const map = {
-        WEBHOOK_PATH: kind==='avail'
-          ? `/webhook/${slug(v.bizName || 'business')}/check-availability`
-          : `/webhook/${slug(v.bizName || 'business')}/book-appointment`,
-        TIMEZONE: v.timezone || 'America/New_York',
-        CALENDAR_ID: v.calendarId || 'primary',
-        EMAIL: v.email || '',
-        SYSTEM_PROMPT: buildLongPrompt(v),
-      };
-
-      // walk nodes and override only common param fields if present
-      try {
-        const nodes = Array.isArray(g.nodes) ? g.nodes : [];
-        for (const n of nodes) {
-          const p = n.parameters || {};
-          // webhook path
-          if (n.type && String(n.type).includes('webhook') && typeof p.path === 'string' && p.path) {
-            p.path = map.WEBHOOK_PATH;
-          }
-          // timezone if exists
-          if (typeof p.timezone === 'string') p.timezone = map.TIMEZONE;
-
-          // google calendar tool shapes used in your templates
-          if (n.type === 'n8n-nodes-base.googleCalendarTool' || n.name?.toLowerCase().includes('calendar')) {
-            if (p.calendar && typeof p.calendar === 'object') {
-              p.calendar.value = map.CALENDAR_ID;
-              p.calendar.cachedResultName = map.CALENDAR_ID;
-            }
-            if (p.additionalFields && typeof p.additionalFields === 'object') {
-              // keep as-is; description/summary formulas reference webhook node names—unchanged
-            }
-          }
-
-          // LLM system text keys (for agent nodes)
-          const keys = ['systemMessage','systemPrompt','system','prompt','text'];
-          for (const k of keys) {
-            if (typeof p[k] === 'string' && p[k].length < 2000) {
-              // only replace short defaults; leave long agent scripts alone
-              // (your templates already carry specific instructions)
-              // We skip overwrite by default to preserve your agent script.
-            }
-          }
-          n.parameters = p;
-        }
-      } catch(e){ /* non-fatal */ }
-
-      return g;
-    }
-
-    // ---- public AOS API (inlined)
-    window.AOS = {
-      buildPrompt(values){ return buildLongPrompt(values || {}); },
-      async buildCheckAvailability(values){ return injectGraph(TPL.checkAvailability, values||{}, 'avail'); },
-      async buildBookAppointment(values){ return injectGraph(TPL.bookAppointment, values||{}, 'book'); },
-      truncate(s,n=1200){ return s && s.length>n ? s.slice(0,n)+' …' : (s||''); }
-    };
-  })();
-  </script>
-
-  <!-- (Optional) your demo chat file if you use it -->
+  <!-- Your builders must expose: AOS.buildPrompt / buildCheckAvailability / buildBookAppointment -->
+  <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 
-  <!-- ========== ASYNC-AWARE BINDER (preview/tts/downloads) ========== -->
+  <!-- Async-aware binder (rebuilds FROM CURRENT FORM VALUES on every click) -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
-    const log = (...a) => console.log('[AOS-Binder]', ...a);
-    const warn = (...a) => console.warn('[AOS-Binder]', ...a);
-    const err = (...a) => console.error('[AOS-Binder]', ...a);
-
     const previewTruncate = (s, n = 1200) => (s && s.length > n ? s.slice(0, n) + ' …' : (s || ''));
 
     function getValues() {
@@ -497,47 +200,48 @@
       return v;
     }
 
-    function setDL(id, factory, filename, mime) {
+    // IMPORTANT: replace handler each time (no stacking old closures)
+    function setDL(id, factory, filenameFactory, mime) {
       const btn = $(id); if (!btn) return;
-      btn.addEventListener('click', async (e) => {
+      btn.onclick = async (e) => {
         e.preventDefault();
         btn.disabled = true; btn.classList.add('opacity-50');
         try {
-          const data = (typeof factory === 'function') ? await factory() : factory;
+          const data = await factory(); // builds with CURRENT form values
           const text = (typeof data === 'string') ? data : JSON.stringify(data, null, 2);
+          const name = typeof filenameFactory === 'function' ? filenameFactory() : filenameFactory;
           if (!text || text.length < 20 || text === '{}') {
-            alert('Could not generate ' + filename + '. Click “Generate Preview” again.');
+            alert('Could not generate ' + name + '. Click “Generate Preview” again.');
             return;
           }
           const url = URL.createObjectURL(new Blob([text], { type: mime }));
-          const a = Object.assign(document.createElement('a'), { href: url, download: filename });
+          const a = Object.assign(document.createElement('a'), { href: url, download: name });
           a.click(); URL.revokeObjectURL(url);
-          const ok = $('successMsg'); if (ok) { ok.textContent = filename + ' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
+          const ok = $('successMsg'); if (ok) { ok.textContent = name + ' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
         } catch (e) {
-          err('Download failed for', filename, e);
-          alert('Download error for ' + filename);
+          console.error('Download error:', e);
+          alert('Download error — see console.');
         } finally {
           btn.disabled = false; btn.classList.remove('opacity-50');
         }
-      });
+      };
     }
 
     async function doPreview() {
       const spinner = $('previewSpinner');
       const btn = $('previewBtn');
       const out = $('promptOut');
-      if (!btn || !out) { warn('Preview elements missing'); return; }
+      if (!btn || !out) return;
 
       if (!window.AOS
-          || typeof window.AOS.buildPrompt !== 'function'
-          || typeof window.AOS.buildCheckAvailability !== 'function'
-          || typeof window.AOS.buildBookAppointment !== 'function') {
+        || typeof window.AOS.buildPrompt !== 'function'
+        || typeof window.AOS.buildCheckAvailability !== 'function'
+        || typeof window.AOS.buildBookAppointment !== 'function') {
         alert('Builders not loaded.');
         return;
       }
 
-      btn.disabled = true;
-      spinner && spinner.classList.remove('hidden');
+      btn.disabled = true; spinner && spinner.classList.remove('hidden');
       const minWait = new Promise(r=>setTimeout(r,300));
 
       try {
@@ -545,17 +249,28 @@
         const fullPrompt = await window.AOS.buildPrompt(v);
         out.textContent = previewTruncate(fullPrompt);
 
-        // Enable & wire downloads
+        // Enable buttons
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => { const el=$(id); if (el) el.disabled = false; });
         const n = $('notice'); if (n) n.textContent = 'Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.';
 
-        setDL('downloadPromptBtn', () => fullPrompt, `${(v.bizName||'AI_Receptionist')}_prompt.txt`, 'text/plain;charset=utf-8');
-        setDL('downloadAvailBtn', () => window.AOS.buildCheckAvailability(v), 'checkAvailability.json', 'application/json');
-        setDL('downloadBookBtn',  () => window.AOS.buildBookAppointment(v),  'bookAppointment.json',  'application/json');
+        // Wire downloads to ALWAYS read CURRENT values at click
+        setDL('downloadPromptBtn',
+          async () => window.AOS.buildPrompt(getValues()),
+          () => `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`,
+          'text/plain;charset=utf-8');
 
-        log('Preview generated.');
+        setDL('downloadAvailBtn',
+          async () => window.AOS.buildCheckAvailability(getValues()),
+          () => 'checkAvailability.json',
+          'application/json');
+
+        setDL('downloadBookBtn',
+          async () => window.AOS.buildBookAppointment(getValues()),
+          () => 'bookAppointment.json',
+          'application/json');
+
       } catch (e) {
-        err('Preview failed:', e);
+        console.error('Preview failed:', e);
         alert('Failed to generate preview. See console.');
       } finally {
         await minWait;
@@ -585,7 +300,6 @@
         $('audioWrap').classList.remove('hidden');
         $('audio').play().catch(()=>{});
         $('audioDownload').href = url;
-        console.log('TTS played.');
       } catch (e) {
         console.error('TTS error:', e);
         alert('TTS error — check /api/tts route & ELEVENLABS_API_KEY.');
@@ -600,10 +314,11 @@
       if (ttsBtn) { ev.preventDefault(); doTTS(); return; }
     });
 
+    // Sanity check
     function sanity() {
-      const need = ['aiForm','previewBtn','ttsBtn','promptOut','downloadPromptBtn','downloadAvailBtn','downloadBookBtn'];
-      const missing = need.filter(id => !$(id));
-      if (missing.length) console.warn('Missing elements:', missing); else console.log('All core elements present.');
+      const ids = ['aiForm','previewBtn','ttsBtn','promptOut','downloadPromptBtn','downloadAvailBtn','downloadBookBtn'];
+      const missing = ids.filter(id => !$(id));
+      if (missing.length) console.warn('Missing elements:', missing);
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sanity); else sanity();
   })();
