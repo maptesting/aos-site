@@ -184,64 +184,6 @@
   <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 
-  <!-- FALLBACK: AOS builders so buttons work even if /js/builders.js fails or is late -->
-  <script>
-  (function(){
-    window.AOS = window.AOS || {};
-    if (typeof window.AOS.truncate !== 'function') {
-      window.AOS.truncate = function (s, n = 900) {
-        if (!s || typeof s !== 'string') return '';
-        return s.length > n ? s.slice(0, n) + "\n\n…(preview truncated)" : s;
-      };
-    }
-    if (typeof window.AOS.buildPrompt !== 'function') {
-      window.AOS.buildPrompt = function(v){
-        const agent     = v.agentName || "Alex";
-        const biz       = v.bizName || "Your Business";
-        const ind       = v.industry || "services";
-        const loc       = v.location || "your city";
-        const lang      = v.language || "English";
-        const tz        = v.timezone || "America/New_York";
-        const hours     = v.hours || "09:00–18:00";
-        const services  = v.services || "General consultation";
-        const emailFrom = v.email || "our email";
-        const calendarId= v.calendarId || "primary";
-        const policies  = v.policies || "Be courteous; confirm details before booking.";
-        return `# Role
-You are **${agent}**, a friendly, professional AI receptionist for **"${biz}"**, a **${ind}** business in **${loc}**. You speak **${lang}**. Your job is to greet, qualify, check availability, and book appointments while answering common questions about the business.
-
-# Current Time
-Use the current time and assume local timezone **${tz}** unless the user states otherwise.
-
-# Tools (call when needed)
-- **check_availability(timeISO)** for ${calendarId}
-- **book_appointment(full_name, email, phone_number, service_type, timeISO)**
-
-# Objectives
-Collect required fields, check availability first, suggest alternatives if needed, then book. Keep replies short. Confirm email from **${emailFrom}**.
-
-# Flow
-1) Greet & clarify intent.
-2) Normalize user time to ${tz} and call check_availability.
-3) If free → collect fields → call book_appointment. If busy → offer 2–3 nearby options.
-4) Confirm and close.`;
-      };
-    }
-    if (typeof window.AOS.buildCheckAvailability !== 'function') {
-      window.AOS.buildCheckAvailability = function(v){
-        const tz = v.timezone || 'America/New_York';
-        return { name:"checkAvailability", version:"fallback", settings:{ timezone: tz }, nodes:[{ name:"Webhook (check_availability)", type:"webhook" }], connections:{} };
-      };
-    }
-    if (typeof window.AOS.buildBookAppointment !== 'function') {
-      window.AOS.buildBookAppointment = function(v){
-        const tz = v.timezone || 'America/New_York';
-        return { name:"bookAppointment", version:"fallback", settings:{ timezone: tz }, nodes:[{ name:"Webhook (book_appointment)", type:"webhook" }], connections:{} };
-      };
-    }
-  })();
-  </script>
-
   <!-- Bulletproof event-delegation binder for Preview & TTS -->
   <script>
   (function () {
@@ -374,3 +316,4 @@ Collect required fields, check availability first, suggest alternatives if neede
   </script>
 </body>
 </html>
+
