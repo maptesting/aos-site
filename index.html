@@ -19,7 +19,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Plausible Analytics (kept) -->
+  <!-- Plausible Analytics -->
   <script async src="https://plausible.io/js/pa-Q4KaToxxaS4kAgA27RHba.js"></script>
   <script>
     window.plausible = window.plausible || function(){(plausible.q = plausible.q || []).push(arguments)};
@@ -180,11 +180,11 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Load external builders (no fallbacks here) -->
+  <!-- External scripts (no in-page builder fallbacks) -->
   <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 
-  <!-- Async-aware binder + strict delegation (NO fallback builders) -->
+  <!-- Async-aware binder + error surfacing -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
@@ -192,7 +192,7 @@
     const warn = (...a) => console.warn('[AOS-Binder]', ...a);
     const err = (...a) => console.error('[AOS-Binder]', ...a);
 
-    // Local preview truncation only — FULL prompt is used for the download
+    // Truncate just for on-page preview (download uses FULL prompt)
     const previewTruncate = (s, n = 1200) => (s && s.length > n ? s.slice(0, n) + ' …' : (s || ''));
 
     function getValues() {
@@ -237,10 +237,10 @@
       const out = $('promptOut');
       if (!btn || !out) { warn('Preview elements missing'); return; }
 
-      // Hard require external builders — no fallbacks here
-      if (!window.AOS || typeof window.AOS.buildPrompt !== 'function' ||
-          typeof window.AOS.buildCheckAvailability !== 'function' ||
-          typeof window.AOS.buildBookAppointment !== 'function') {
+      // require external builders — no in-page fallbacks
+      if (!window.AOS || typeof window.AOS.buildPrompt !== 'function'
+        || typeof window.AOS.buildCheckAvailability !== 'function'
+        || typeof window.AOS.buildBookAppointment !== 'function') {
         alert('Builders not loaded. Make sure /js/builders.js exports AOS.buildPrompt / buildCheckAvailability / buildBookAppointment.');
         return;
       }
@@ -252,17 +252,15 @@
       try {
         const v = getValues();
 
-        // Get full LONG prompt from builders.js
+        // Build LONG prompt for download; show truncated preview in UI
         const fullPrompt = await window.AOS.buildPrompt(v);
-
-        // Show a truncated preview ONLY in the UI
         out.textContent = previewTruncate(fullPrompt);
 
-        // Enable buttons after successful build
+        // Enable download buttons
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => { const el=$(id); if (el) el.disabled = false; });
         const n = $('notice'); if (n) n.textContent = 'Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.';
 
-        // Wire async-aware downloads
+        // Wire async downloads using factories (returns intact graphs)
         setDL('downloadPromptBtn', () => fullPrompt, `${(v.bizName||'AI_Receptionist')}_prompt.txt`, 'text/plain;charset=utf-8');
         setDL('downloadAvailBtn', () => window.AOS.buildCheckAvailability(v), 'checkAvailability.json', 'application/json');
         setDL('downloadBookBtn',  () => window.AOS.buildBookAppointment(v),  'bookAppointment.json',  'application/json');
@@ -306,7 +304,16 @@
       }
     }
 
-    // Event delegation (works through re-renders)
+    // Surface template load errors in UI
+    window.addEventListener('AOS:loadError', (ev) => {
+      const dbg = $('debug');
+      if (!dbg) return;
+      try { dbg.textContent = 'Template load error: ' + JSON.stringify(ev.detail, null, 2); }
+      catch { dbg.textContent = 'Template load error (see console).'; }
+      console.error('[AOS] Template load error', ev.detail);
+    });
+
+    // Delegated clicks
     document.addEventListener('click', (ev) => {
       const previewBtn = ev.target.closest && ev.target.closest('#previewBtn');
       if (previewBtn) { ev.preventDefault(); doPreview(); return; }
@@ -314,7 +321,7 @@
       if (ttsBtn) { ev.preventDefault(); doTTS(); return; }
     });
 
-    // Quick sanity check (no fallback wiring)
+    // Sanity check
     function sanity() {
       const need = ['aiForm','previewBtn','ttsBtn','promptOut','downloadPromptBtn','downloadAvailBtn','downloadBookBtn'];
       const missing = need.filter(id => !$(id));
