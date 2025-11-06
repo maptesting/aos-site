@@ -9,7 +9,7 @@
   <meta name="description" content="Build your own AI Receptionist in 30 seconds — free. Generate prompts, workflows, and voice previews for any business.">
   <meta property="og:title" content="AOS — Free AI Receptionist Builder">
   <meta property="og:description" content="Generate a custom AI receptionist instantly — prompt, workflows, and voice demo included.">
-  <meta property="og:image" content="https://aos-ai.com/og-preview.png">
+  <meta property="og:image" content="https://yourdomain.com/og-preview.png">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 
@@ -19,7 +19,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Privacy-friendly analytics by Plausible -->
+  <!-- Plausible Analytics -->
   <script async src="https://plausible.io/js/pa-Q4KaToxxaS4kAgA27RHba.js"></script>
   <script>
     window.plausible = window.plausible || function(){(plausible.q = plausible.q || []).push(arguments)};
@@ -161,6 +161,7 @@
                   <a id="audioDownload" download="ai-greeting.mp3" class="inline-block mt-2 text-sm underline decoration-blue-400">Download audio</a>
                 </div>
                 <div id="notice" class="mt-2 text-xs text-white/60"></div>
+                <div id="debug" class="mt-2 text-xs text-red-400"></div>
               </div>
             </div>
           </div>
@@ -171,31 +172,7 @@
         After import, attach your Google Calendar OAuth2 and OpenAI credentials in n8n.
       </p>
     </div>
-
-    <!-- How-to video -->
-<section id="howto" class="py-20 md:py-28">
-  <div class="max-w-5xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-center mb-6">How to Use the Builder (2-min)</h2>
-    <p class="text-center text-white/60 max-w-2xl mx-auto mb-8">
-      Quick walkthrough: generate your System Prompt, download the n8n workflows, and preview your AI voice.
-    </p>
-
-    <div class="glass rounded-2xl p-3 md:p-4">
-      <div class="relative w-full aspect-video rounded-xl overflow-hidden">
-        <iframe
-          class="absolute inset-0 w-full h-full"
-          src="https://www.youtube-nocookie.com/embed/Akwe5h3CQKo?si=o8yiaS0C47qwZ3gU"
-          title="How to use the AOS AI Receptionist Builder"
-          frameborder="0"
-          loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen
-        ></iframe>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
 
   <footer class="py-10 text-center text-white/40 text-sm">
     © <span id="year"></span> AOS — AI Optimization Solutions
@@ -203,11 +180,197 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <script src="/js/builders.js"></script>
-  <script src="/js/wireBuilder.js" defer></script>
+  <!-- (Optional) load your external builders; if they fail/are slow, fallbacks below take over -->
+  <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
+
+  <!-- FALLBACK: AOS builders so buttons work even if /js/builders.js fails or is late -->
+  <script>
+  (function(){
+    window.AOS = window.AOS || {};
+    if (typeof window.AOS.truncate !== 'function') {
+      window.AOS.truncate = function (s, n = 900) {
+        if (!s || typeof s !== 'string') return '';
+        return s.length > n ? s.slice(0, n) + "\n\n…(preview truncated)" : s;
+      };
+    }
+    if (typeof window.AOS.buildPrompt !== 'function') {
+      window.AOS.buildPrompt = function(v){
+        const agent     = v.agentName || "Alex";
+        const biz       = v.bizName || "Your Business";
+        const ind       = v.industry || "services";
+        const loc       = v.location || "your city";
+        const lang      = v.language || "English";
+        const tz        = v.timezone || "America/New_York";
+        const hours     = v.hours || "09:00–18:00";
+        const services  = v.services || "General consultation";
+        const emailFrom = v.email || "our email";
+        const calendarId= v.calendarId || "primary";
+        const policies  = v.policies || "Be courteous; confirm details before booking.";
+        return `# Role
+You are **${agent}**, a friendly, professional AI receptionist for **"${biz}"**, a **${ind}** business in **${loc}**. You speak **${lang}**. Your job is to greet, qualify, check availability, and book appointments while answering common questions about the business.
+
+# Current Time
+Use the current time and assume local timezone **${tz}** unless the user states otherwise.
+
+# Tools (call when needed)
+- **check_availability(timeISO)** for ${calendarId}
+- **book_appointment(full_name, email, phone_number, service_type, timeISO)**
+
+# Objectives
+Collect required fields, check availability first, suggest alternatives if needed, then book. Keep replies short. Confirm email from **${emailFrom}**.
+
+# Flow
+1) Greet & clarify intent.
+2) Normalize user time to ${tz} and call check_availability.
+3) If free → collect fields → call book_appointment. If busy → offer 2–3 nearby options.
+4) Confirm and close.`;
+      };
+    }
+    if (typeof window.AOS.buildCheckAvailability !== 'function') {
+      window.AOS.buildCheckAvailability = function(v){
+        const tz = v.timezone || 'America/New_York';
+        return { name:"checkAvailability", version:"fallback", settings:{ timezone: tz }, nodes:[{ name:"Webhook (check_availability)", type:"webhook" }], connections:{} };
+      };
+    }
+    if (typeof window.AOS.buildBookAppointment !== 'function') {
+      window.AOS.buildBookAppointment = function(v){
+        const tz = v.timezone || 'America/New_York';
+        return { name:"bookAppointment", version:"fallback", settings:{ timezone: tz }, nodes:[{ name:"Webhook (book_appointment)", type:"webhook" }], connections:{} };
+      };
+    }
+  })();
+  </script>
+
+  <!-- Bulletproof event-delegation binder for Preview & TTS -->
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    const log = (...a) => console.log('[AOS-Binder]', ...a);
+    const warn = (...a) => console.warn('[AOS-Binder]', ...a);
+    const err = (...a) => console.error('[AOS-Binder]', ...a);
+
+    function getValues() {
+      const form = $('aiForm');
+      if (!form) return {};
+      const v = Object.fromEntries(new FormData(form).entries());
+      try { v.timezone ||= Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
+      v.agentName ||= 'Alex';
+      v.language  ||= 'English';
+      return v;
+    }
+
+    function wireDownloads(v, fullPrompt) {
+      const success = (msg) => {
+        const el = $('successMsg'); if (!el) return;
+        el.textContent = msg || 'Downloaded ✅';
+        el.classList.remove('hidden');
+        clearTimeout(success._t); success._t = setTimeout(()=>el.classList.add('hidden'), 2000);
+      };
+
+      const setDL = (id, dataFactory, name, type) => {
+        const btn = $(id); if (!btn) return;
+        btn.onclick = () => {
+          try {
+            const data = typeof dataFactory === 'function' ? dataFactory() : dataFactory;
+            const text = (typeof data === 'string') ? data : JSON.stringify(data, null, 2);
+            if (!text || text.length < 20 || text === '{}') {
+              alert('Could not generate ' + name + '. Click “Generate Preview” again.');
+              return;
+            }
+            const url = URL.createObjectURL(new Blob([text], { type }));
+            const a = Object.assign(document.createElement('a'), { href: url, download: name });
+            a.click(); URL.revokeObjectURL(url);
+            success(name + ' downloaded ✅');
+          } catch (e) {
+            err('Download failed for', name, e);
+            alert('Download error for ' + name);
+          }
+        };
+      };
+
+      setDL('downloadPromptBtn', fullPrompt, `${(v.bizName||'AI_Receptionist')}_prompt.txt`, 'text/plain;charset=utf-8');
+      setDL('downloadAvailBtn', () => window.AOS.buildCheckAvailability(v), 'checkAvailability.json', 'application/json');
+      setDL('downloadBookBtn',  () => window.AOS.buildBookAppointment(v),  'bookAppointment.json',  'application/json');
+    }
+
+    async function doPreview() {
+      const spinner = $('previewSpinner');
+      const btn = $('previewBtn');
+      const out = $('promptOut');
+      if (!btn || !out) { warn('Preview elements missing'); return; }
+
+      btn.disabled = true;
+      spinner && spinner.classList.remove('hidden');
+      const minWait = new Promise(r=>setTimeout(r,300));
+
+      try {
+        // ensure AOS fallbacks exist (covers late/missing builders.js)
+        window.AOS = window.AOS || {};
+        if (typeof window.AOS.buildPrompt !== 'function') {
+          warn('AOS.buildPrompt missing — using fallback.');
+        }
+        const v = getValues();
+        const full = window.AOS.buildPrompt(v);
+        out.textContent = window.AOS.truncate(full);
+        ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => { const el=$(id); if (el) el.disabled = false; });
+        const n = $('notice'); if (n) n.textContent = 'Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.';
+        wireDownloads(v, full);
+        log('Preview generated.');
+      } catch (e) {
+        err('Preview failed:', e);
+        alert('Failed to generate preview. See console.');
+      } finally {
+        await minWait;
+        spinner && spinner.classList.add('hidden');
+        btn.disabled = false;
+      }
+    }
+
+    async function doTTS() {
+      const v = getValues();
+      const text = `Hey, this is ${v.agentName || 'Alex'} with ${v.bizName || 'your business'}. How can I help you today?`;
+      try {
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text,
+            voice_id: '21m00Tcm4TlvDq8ikWAM',
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: { stability: 0.5, similarity_boost: 0.7 }
+          })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        $('audio').src = url;
+        $('audioWrap').classList.remove('hidden');
+        $('audio').play().catch(()=>{});
+        $('audioDownload').href = url;
+        log('TTS played.');
+      } catch (e) {
+        err('TTS error:', e);
+        alert('TTS error — check /api/tts route & ELEVENLABS_API_KEY.');
+      }
+    }
+
+    // Event delegation: works even if buttons are re-rendered/replaced
+    document.addEventListener('click', (ev) => {
+      const previewBtn = ev.target.closest && ev.target.closest('#previewBtn');
+      if (previewBtn) { ev.preventDefault(); doPreview(); return; }
+      const ttsBtn = ev.target.closest && ev.target.closest('#ttsBtn');
+      if (ttsBtn) { ev.preventDefault(); doTTS(); return; }
+    });
+
+    // Sanity log
+    function sanity() {
+      const need = ['aiForm','previewBtn','ttsBtn','promptOut','downloadPromptBtn','downloadAvailBtn','downloadBookBtn'];
+      const missing = need.filter(id => !$(id));
+      if (missing.length) warn('Missing elements:', missing); else log('All core elements present.');
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sanity); else sanity();
+  })();
+  </script>
 </body>
 </html>
-
-
-
