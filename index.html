@@ -180,11 +180,11 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Your builders must expose: AOS.buildPrompt / buildCheckAvailability / buildBookAppointment -->
+  <!-- External builders: MUST live with /public/templates/*.json present -->
   <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 
-  <!-- Async-aware binder (rebuilds FROM CURRENT FORM VALUES on every click) -->
+  <!-- Async-aware binder with ready() + graph validation -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
@@ -200,7 +200,7 @@
       return v;
     }
 
-    // IMPORTANT: replace handler each time (no stacking old closures)
+    // Replace handler each time (no stale closures)
     function setDL(id, factory, filenameFactory, mime) {
       const btn = $(id); if (!btn) return;
       btn.onclick = async (e) => {
@@ -209,7 +209,7 @@
         try {
           const data = await factory(); // builds with CURRENT form values
           const text = (typeof data === 'string') ? data : JSON.stringify(data, null, 2);
-          const name = typeof filenameFactory === 'function' ? filenameFactory() : filenameFactory;
+          const name = (typeof filenameFactory === 'function') ? filenameFactory() : filenameFactory;
           if (!text || text.length < 20 || text === '{}') {
             alert('Could not generate ' + name + '. Click “Generate Preview” again.');
             return;
@@ -236,7 +236,8 @@
       if (!window.AOS
         || typeof window.AOS.buildPrompt !== 'function'
         || typeof window.AOS.buildCheckAvailability !== 'function'
-        || typeof window.AOS.buildBookAppointment !== 'function') {
+        || typeof window.AOS.buildBookAppointment !== 'function'
+        || typeof window.AOS.ready !== 'function') {
         alert('Builders not loaded.');
         return;
       }
@@ -245,9 +246,21 @@
       const minWait = new Promise(r=>setTimeout(r,300));
 
       try {
+        // *** Ensure templates are loaded (prevents race that causes empty graphs) ***
+        await window.AOS.ready();
+
         const v = getValues();
         const fullPrompt = await window.AOS.buildPrompt(v);
         out.textContent = previewTruncate(fullPrompt);
+
+        // *** Validate graphs BEFORE wiring downloads (prevents broken .json) ***
+        const statsAvail = await window.AOS.debugBuild('avail', v);
+        const statsBook  = await window.AOS.debugBuild('book', v);
+        if (!statsAvail.connections || !statsBook.connections) {
+          console.error('Graph validation failed:', { statsAvail, statsBook });
+          alert('Template connections missing — fix templates or builders before downloading. See console for details.');
+          return;
+        }
 
         // Enable buttons
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => { const el=$(id); if (el) el.disabled = false; });
