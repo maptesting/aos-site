@@ -4,12 +4,19 @@
 
   function getValues(form) {
     const v = Object.fromEntries(new FormData(form).entries());
-    if (!v.timezone) {
-      try { v.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
-    }
+    if (!v.timezone) { try { v.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {} }
     if (!v.agentName) v.agentName = "Alex";
     if (!v.language) v.language = "English";
     return v;
+  }
+
+  function showSuccess(text) {
+    const el = $('successMsg');
+    if (!el) return;
+    el.textContent = text || 'Downloaded ✅';
+    el.classList.remove('hidden');
+    clearTimeout(showSuccess._t);
+    showSuccess._t = setTimeout(()=> el.classList.add('hidden'), 2500);
   }
 
   function enableDownloads(v, prompt) {
@@ -21,18 +28,21 @@
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement('a'), { href: url, download: `${(v.bizName||'AI_Receptionist')}_prompt.txt` });
       a.click(); URL.revokeObjectURL(url);
+      showSuccess('Prompt downloaded ✅');
     };
 
     $('downloadAvailBtn').onclick = () => {
       const url = URL.createObjectURL(new Blob([JSON.stringify(availJSON, null, 2)], { type: "application/json" }));
       const a = Object.assign(document.createElement('a'), { href: url, download: "checkAvailability.json" });
       a.click(); URL.revokeObjectURL(url);
+      showSuccess('checkAvailability.json downloaded ✅');
     };
 
     $('downloadBookBtn').onclick = () => {
       const url = URL.createObjectURL(new Blob([JSON.stringify(bookJSON, null, 2)], { type: "application/json" }));
       const a = Object.assign(document.createElement('a'), { href: url, download: "bookAppointment.json" });
       a.click(); URL.revokeObjectURL(url);
+      showSuccess('bookAppointment.json downloaded ✅');
     };
   }
 
@@ -61,21 +71,32 @@
   }
 
   function wire() {
-    if (!window.AOS) return; // builders.js must be loaded
+    if (!window.AOS) return;
 
     const form = $('aiForm');
     const previewBtn = $('previewBtn');
     const ttsBtn = $('ttsBtn');
+    const spinner = $('previewSpinner');
 
-    previewBtn.addEventListener('click', () => {
-      const v = getValues(form);
-      const prompt = window.AOS.buildPrompt(v);
-      $('promptOut').textContent = window.AOS.truncate(prompt);
+    previewBtn.addEventListener('click', async () => {
+      // spinner on
+      previewBtn.disabled = true;
+      spinner?.classList.remove('hidden');
 
-      // enable buttons
-      ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => $(id).disabled = false);
-      enableDownloads(v, prompt);
-      $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
+      try {
+        const v = getValues(form);
+        const prompt = window.AOS.buildPrompt(v);
+        $('promptOut').textContent = window.AOS.truncate(prompt);
+
+        // enable buttons
+        ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => $(id).disabled = false);
+        enableDownloads(v, prompt);
+        $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
+      } finally {
+        // spinner off
+        spinner?.classList.add('hidden');
+        previewBtn.disabled = false;
+      }
     });
 
     ttsBtn.addEventListener('click', async () => {
