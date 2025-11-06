@@ -1,130 +1,272 @@
-// js/builders.js — SAFE ATTACH of buildPrompt + fallback truncate
+// js/builders.js (ONLY the two functions below need to exist/replace)
+// (If you already added the "safe AOS attach" block earlier, keep it;
+//  just ensure these functions are assigned onto window.AOS.)
+
 (function () {
-  // keep any previously defined builders (checkAvailability / bookAppointment)
   const prev = (typeof window !== 'undefined' ? window.AOS : null) || {};
 
-  // robust truncate (used for on-page preview only)
-  function truncate(s, n = 900) {
-    if (!s || typeof s !== 'string') return '';
-    return s.length > n ? s.slice(0, n) + "\n\n…(preview truncated)" : s;
+  function uuid() {
+    return Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
   }
 
-  // NEW: detailed production-ready buildPrompt
-  function buildPrompt(v = {}) {
-    const agent     = v.agentName || "Alex";
-    const biz       = v.bizName || "Your Business";
-    const ind       = v.industry || "services";
-    const loc       = v.location || "your city";
-    const lang      = v.language || "English";
-    const tz        = v.timezone || "America/New_York";
-    const hours     = v.hours || "09:00–18:00";
-    const services  = v.services || "General consultation";
-    const emailFrom = v.email || "our email";
-    const policies  = v.policies || "Be courteous; confirm details before booking.";
-    const calendarId= v.calendarId || "primary";
+  // ---------- CHECK AVAILABILITY WORKFLOW ----------
+  function buildCheckAvailability(v = {}) {
+    const tz = v.timezone || 'America/New_York';
+    const calendarId = v.calendarId || 'primary';
 
-    return `# Role
-You are **${agent}**, a friendly, professional AI receptionist for **"${biz}"**, a **${ind}** business in **${loc}**. You speak **${lang}**. Your job is to greet, qualify, check availability, and book appointments while answering common questions about the business.
+    const wfId = uuid();
+    const webhookPath = 'check_availability'; // keep stable so your agent can call it
 
-# Current Time
-Use the current time (server-provided) and assume local timezone **${tz}** unless the user states otherwise.
+    // Nodes
+    const nWebhook = {
+      parameters: {
+        httpMethod: 'POST',
+        path: webhookPath,
+        responseMode: 'responseNode',
+        options: { responseData: 'allEntries' }
+      },
+      id: 1,
+      name: 'Webhook (check_availability)',
+      type: 'n8n-nodes-base.webhook',
+      typeVersion: 1,
+      position: [300, 300]
+    };
 
-# Tools (call them only when needed)
-- **check_availability(timeISO)** → n8n webhook tool that checks the Google Calendar for **${calendarId}** within working hours.
-- **book_appointment(full_name, email, phone_number, service_type, timeISO)** → n8n webhook tool that creates a calendar event.
+    const nNormalize = {
+      parameters: {
+        functionCode: `
+const body = $json;
+const timeISO = (body.timeISO || body.time || body.date || '').toString();
+if (!timeISO) {
+  return [{ error: 'Missing timeISO' }];
+}
+const start = new Date(timeISO);
+if (isNaN(start.getTime())) {
+  return [{ error: 'Invalid timeISO' }];
+}
+// 60-minute slot by default
+const end = new Date(start.getTime() + 60 * 60 * 1000);
+return [{
+  timeISO,
+  rangeStart: start.toISOString(),
+  rangeEnd: end.toISOString(),
+  tz: ${JSON.stringify(tz)},
+  calendarId: ${JSON.stringify(calendarId)}
+}];
+        `.trim()
+      },
+      id: 2,
+      name: 'Normalize Time',
+      type: 'n8n-nodes-base.function',
+      typeVersion: 2,
+      position: [580, 300]
+    };
 
-**All times you send to tools must be ISO 8601**: \`YYYY-MM-DDTHH:MM:SS\` with timezone offset (e.g., \`2025-05-12T15:00:00-04:00\`). Keep conversation times referenced in **${tz}**.
+    const nGcalGet = {
+      parameters: {
+        operation: 'getMany',
+        calendar: calendarId,
+        options: {
+          timeMin: '={{$json["rangeStart"]}}',
+          timeMax: '={{$json["rangeEnd"]}}',
+          // show events overlapping the window
+          singleEvents: true
+        }
+      },
+      id: 3,
+      name: 'Google Calendar: Get Many',
+      type: 'n8n-nodes-base.googleCalendar',
+      typeVersion: 3,
+      position: [860, 300],
+      // credentials will be attached by the user inside n8n
+      credentials: {}
+    };
 
-# Objectives
-1. Understand what the customer needs (question vs booking).
-2. If booking, collect the required fields then schedule:
-   - **Required**: full name, email, phone number, service type, preferred date/time (ISO).
-   - **Optional**: notes/special requests.
-3. Verify availability first; suggest alternatives if needed.
-4. Confirm the booking and provide a concise summary.
+    const nIf = {
+      parameters: {
+        conditions: {
+          number: [
+            {
+              value1: '={{$json["total"] || ($json.length ?? 0)}}',
+              operation: 'equal',
+              value2: 0
+            }
+          ]
+        }
+      },
+      id: 4,
+      name: 'IF (No Events)',
+      type: 'n8n-nodes-base.if',
+      typeVersion: 1,
+      position: [1120, 300]
+    };
 
-# Business Context
-- **Services**: ${services}
-- **Working Hours**: ${hours} (${tz})
-- **Policies/Notes**: ${policies}
+    const nRespond = {
+      parameters: {
+        response: 'json',
+        responseBody: '={{ $json.available !== undefined ? $json : { available: $branch === "main" } }}',
+        options: { responseCode: 200 }
+      },
+      id: 5,
+      name: 'Respond',
+      type: 'n8n-nodes-base.respondToWebhook',
+      typeVersion: 1,
+      position: [1380, 300]
+    };
 
-# High-Level Flow
-1) **Greet** and clarify intent in 1 sentence.
-2) If user mentions a time but not ISO, **interpret** it in ${tz}.
-   - Normalize to ISO 8601 and call **check_availability(timeISO)**.
-3) If **available**:
-   - Collect any missing required fields (full name, email, phone, service type).
-   - Confirm the time back to the user in ${tz}.
-   - Call **book_appointment(...)** with ISO time.
-4) If **unavailable**:
-   - Offer **2–3 nearby alternatives** within working hours on the same day; if none, move to the next working day.
-   - After the user picks one, continue to booking.
-5) **Close** with a brief confirmation and inform them that a confirmation will be sent from **${emailFrom}**.
+    const nMapTrue = {
+      parameters: {
+        functionCode: `return [{ available: true }];`
+      },
+      id: 6,
+      name: 'Map Available',
+      type: 'n8n-nodes-base.function',
+      typeVersion: 2,
+      position: [1300, 160]
+    };
 
-# Data Handling
-- If time is vague (e.g., “tomorrow afternoon”), clarify by proposing options (e.g., “2:00 PM or 3:30 PM ${tz}?”).
-- Never guess contact info; always ask.
-- If user asks for price/policy info not supplied, answer briefly (or say you’re not sure and keep it concise).
+    const nMapFalse = {
+      parameters: {
+        functionCode: `return [{ available: false }];`
+      },
+      id: 7,
+      name: 'Map Unavailable',
+      type: 'n8n-nodes-base.function',
+      typeVersion: 2,
+      position: [1300, 440]
+    };
 
-# Tool Usage Rules
-- **check_availability**:
-  - Inputs: \`timeISO\` (duration assumed 60 minutes unless user states otherwise).
-  - Only tell the user the slot is free **after** the tool confirms it.
-- **book_appointment**:
-  - Inputs: \`full_name\`, \`email\`, \`phone_number\`, \`service_type\`, \`timeISO\`.
-  - Confirm the appointment details back to the user in natural language.
-
-# Do & Don’t
-**Do**
-- Keep replies short (1–2 sentences).
-- Use ${tz} for human-readable times, ISO for tools.
-- Confirm spelling of emails when unclear.
-- Offer alternatives proactively if the slot is busy.
-
-**Don’t**
-- Don’t disclose tool internals (“I’m calling a function”).
-- Don’t book without required fields.
-- Don’t return past times or outside working hours.
-
-# Examples (concise)
-**Example 1 — Check availability**
-User: “Can you do Friday at 3pm?”
-You: “Sure — one moment while I check Friday 3:00 PM ${tz}. If that’s taken, I can suggest nearby times.”
-*(Call \`check_availability("2025-05-16T15:00:00-04:00")\` and proceed.)*
-
-**Example 2 — Book**
-User: “Friday at 3pm works. Name is Jordan Lee, 555-212-8787, jordan@example.com. Full detail.”
-You: “Perfect — booking Friday 3:00–4:00 PM for a Full Detail. I’ll use jordan@example.com for confirmation. One sec.”
-*(Call \`book_appointment\` with collected fields.)*
-
-**Example 3 — Unavailable → Alternatives**
-You: “3:00 PM is booked. I can do 2:30 PM or 4:00 PM ${tz}. Which works better?”
-
-# Final Confirmation
-After a successful booking:
-“Done — you’re booked for **{date/time ${tz}}**. You’ll get an email from **${emailFrom}** shortly. Anything else I can help with?”
-
-# Tone & Style
-- Short, warm, and professional. Natural phrasing.
-- No long paragraphs or bullet dumps to the user.
-- Use light transitions (“Got it”, “No problem”, “Happy to help”).`;
+    return {
+      name: 'checkAvailability',
+      nodes: [nWebhook, nNormalize, nGcalGet, nIf, nRespond, nMapTrue, nMapFalse],
+      connections: {
+        'Webhook (check_availability)': { main: [[ { node: 'Normalize Time', type: 'main', index: 0 } ]] },
+        'Normalize Time': { main: [[ { node: 'Google Calendar: Get Many', type: 'main', index: 0 } ]] },
+        'Google Calendar: Get Many': { main: [[ { node: 'IF (No Events)', type: 'main', index: 0 } ]] },
+        'IF (No Events)': {
+          main: [
+            [ { node: 'Map Available', type: 'main', index: 0 } ],   // true
+            [ { node: 'Map Unavailable', type: 'main', index: 0 } ]  // false
+          ]
+        },
+        'Map Available': { main: [[ { node: 'Respond', type: 'main', index: 0 } ]] },
+        'Map Unavailable': { main: [[ { node: 'Respond', type: 'main', index: 0 } ]] }
+      },
+      pinData: {},
+      staticData: {},
+      meta: { instanceId: wfId, version: '1.119.x' },
+      settings: { timezone: tz },
+      active: false,
+      id: wfId
+    };
   }
 
-  // expose AOS, preserving your existing builders
+  // ---------- BOOK APPOINTMENT WORKFLOW ----------
+  function buildBookAppointment(v = {}) {
+    const tz = v.timezone || 'America/New_York';
+    const calendarId = v.calendarId || 'primary';
+    const biz = v.bizName || 'Your Business';
+
+    const wfId = uuid();
+    const webhookPath = 'book_appointment';
+
+    const nWebhook = {
+      parameters: {
+        httpMethod: 'POST',
+        path: webhookPath,
+        responseMode: 'responseNode',
+        options: { responseData: 'allEntries' }
+      },
+      id: 10,
+      name: 'Webhook (book_appointment)',
+      type: 'n8n-nodes-base.webhook',
+      typeVersion: 1,
+      position: [300, 300]
+    };
+
+    const nBuildEvent = {
+      parameters: {
+        functionCode: `
+const b = $json;
+const required = ['full_name','email','phone_number','service_type','timeISO'];
+for (const k of required) {
+  if (!b[k]) return [{ error: 'Missing ' + k }];
+}
+const start = new Date(b.timeISO);
+if (isNaN(start.getTime())) return [{ error: 'Invalid timeISO' }];
+const end = new Date(start.getTime() + 60*60*1000);
+return [{
+  summary: (b.service_type || 'Appointment') + ' — ${biz}',
+  description: \`Client: \${b.full_name}\\nEmail: \${b.email}\\nPhone: \${b.phone_number}\\nService: \${b.service_type}\`,
+  start: start.toISOString(),
+  end: end.toISOString(),
+  calendarId: ${JSON.stringify(calendarId)}
+}];
+        `.trim()
+      },
+      id: 11,
+      name: 'Build Event',
+      type: 'n8n-nodes-base.function',
+      typeVersion: 2,
+      position: [580, 300]
+    };
+
+    const nGcalCreate = {
+      parameters: {
+        operation: 'create',
+        calendar: calendarId,
+        start: '={{$json["start"]}}',
+        end: '={{$json["end"]}}',
+        additionalFields: {
+          summary: '={{$json["summary"]}}',
+          description: '={{$json["description"]}}',
+        }
+      },
+      id: 12,
+      name: 'Google Calendar: Create Event',
+      type: 'n8n-nodes-base.googleCalendar',
+      typeVersion: 3,
+      position: [860, 300],
+      credentials: {}
+    };
+
+    const nRespond = {
+      parameters: {
+        response: 'json',
+        responseBody: `={{ { booked: true, start: $json.start, end: $json.end, summary: $json.summary } }}`,
+        options: { responseCode: 200 }
+      },
+      id: 13,
+      name: 'Respond',
+      type: 'n8n-nodes-base.respondToWebhook',
+      typeVersion: 1,
+      position: [1120, 300]
+    };
+
+    return {
+      name: 'bookAppointment',
+      nodes: [nWebhook, nBuildEvent, nGcalCreate, nRespond],
+      connections: {
+        'Webhook (book_appointment)': { main: [[ { node: 'Build Event', type: 'main', index: 0 } ]] },
+        'Build Event': { main: [[ { node: 'Google Calendar: Create Event', type: 'main', index: 0 } ]] },
+        'Google Calendar: Create Event': { main: [[ { node: 'Respond', type: 'main', index: 0 } ]] }
+      },
+      pinData: {},
+      staticData: {},
+      meta: { instanceId: wfId, version: '1.119.x' },
+      settings: { timezone: tz },
+      active: false,
+      id: wfId
+    };
+  }
+
+  // expose (preserve other helpers like buildPrompt/truncate if already defined)
   const AOS = {
-    truncate: prev.truncate || truncate,
-    buildPrompt,                                   // NEW detailed prompt
-    buildCheckAvailability: prev.buildCheckAvailability,
-    buildBookAppointment:  prev.buildBookAppointment,
+    truncate: prev.truncate || ((s,n=900)=> s && s.length>n ? s.slice(0,n) + "\n\n…(preview truncated)" : (s||"")),
+    buildPrompt: prev.buildPrompt,
+    buildCheckAvailability,
+    buildBookAppointment
   };
-
-  // if those builders were never defined (first load), keep them as-is (no-ops won’t break buttons)
-  if (!AOS.buildCheckAvailability) {
-    AOS.buildCheckAvailability = function(v){ console.warn('buildCheckAvailability not found'); return {}; };
-  }
-  if (!AOS.buildBookAppointment) {
-    AOS.buildBookAppointment = function(v){ console.warn('buildBookAppointment not found'); return {}; };
-  }
 
   if (typeof window !== 'undefined') window.AOS = AOS;
 })();
