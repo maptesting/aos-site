@@ -1,6 +1,5 @@
 // /js/builders.js
-// Robust builders with: immutable templates, allowlisted injection, token-guarded prompt,
-// deterministic init, and regression checks for connections.
+// Immutable templates + allowlisted injection + token-guarded prompt + graph validation.
 
 (function () {
   const AOS = (window.AOS = window.AOS || {});
@@ -10,13 +9,9 @@
   const log  = (...a) => console.log('[AOS-builders]', ...a);
   const warn = (...a) => console.warn('[AOS-builders]', ...a);
   const err  = (...a) => console.error('[AOS-builders]', ...a);
-
   const deepClone = (o) => JSON.parse(JSON.stringify(o || {}));
   const freezeDeep = (o) => (Object.freeze(o), o);
-  const slug = (s) => String(s || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
   async function loadJSON(url) {
     const res = await fetch(url, { cache: 'no-cache' });
@@ -29,12 +24,12 @@
       return new Date().toLocaleString('en-US', {
         timeZone: tz || 'America/New_York',
         weekday: 'long', year: 'numeric', month: 'long', day: '2-digit',
-        hour: '2-digit', minute: '2-digit',
+        hour: '2-digit', minute: '2-digit'
       });
     } catch { return new Date().toLocaleString(); }
   }
 
-  // ---------- LONG prompt (rich, sectioned). Only inserted where %%SYSTEM_PROMPT%% exists.
+  // ---------- Long, operational prompt (only inserted where %%SYSTEM_PROMPT%% exists) ----------
   function buildLongPrompt(v = {}) {
     const tz        = v.timezone  || 'America/New_York';
     const biz       = v.bizName   || 'the business';
@@ -45,8 +40,7 @@
     const location  = v.location  || 'Local area';
     const policies  = v.policies  || 'Standard policies apply.';
     const emailFrom = v.email     || 'no-reply@example.com';
-
-    const l = (val, label) => `${label}: ${val || 'N/A'}`;
+    const L = (val, label) => `${label}: ${val || 'N/A'}`;
 
     return [
 `# ROLE
@@ -55,22 +49,22 @@ You are ${agent}, a friendly, efficient, and professional AI receptionist for **
 # CURRENT TIME
 - Current time: **${safeNow(tz)}**
 - Timezone: **${tz}**
-Use ISO 8601 for tool calls (e.g. 2025-11-06T15:30:00-05:00).
+Use ISO 8601 for tool calls.
 
 # BUSINESS CONTEXT
-${l(biz,'Business')}
-${l(location,'Location / Service area')}
-${l(industry,'Industry')}
-${l(services,'Services')}
-${l(hours,'Hours')}
-${l(policies,'Policies')}
+${L(biz,'Business')}
+${L(location,'Location / Service')}
+${L(industry,'Industry')}
+${L(services,'Services')}
+${L(hours,'Hours')}
+${L(policies,'Policies')}
 
 # TASK
 Answer questions and book appointments quickly.
 
 # BOOKING FLOW
 1) Ask for preferred date/time within ${hours}.
-2) Run checkAvailability (workflow) with ISO time.
+2) Run checkAvailability with ISO time.
 3) If unavailable, propose up to 3 close alternatives (same day; else next business day).
 4) Collect full name, email, phone.
 5) Run bookAppointment with ISO start; default duration per service.
@@ -87,19 +81,20 @@ Get the user a suitable time with minimal back-and-forth.
 - Never invent availability outside ${hours}.
 - Ask one clarifying question when needed; then act.
 - Confirm final date/time + contact details before booking.
-- Don’t mention internal tools/functions to the user.
+- Don’t mention internal tools to the user.
 
 # EXAMPLE
 User: “Can I come tomorrow at 3 for ${services.split(',')[0].trim()}?”
-You: “Happy to help — is **tomorrow 3:00 PM** still the time you want? What’s your **name and email**?”
+You: “Happy to help — is **tomorrow 3:00 PM** still best? What’s your **name and email**?”
 (then use workflows)
-You: “All set, [Name] — booked for **tomorrow 3:00–4:00 PM**. You’ll get a confirmation from **${emailFrom}**.”`
+You: “All set, [Name] — booked **tomorrow 3:00–4:00 PM**. You’ll get a confirmation shortly.”`
     ].join('\n');
   }
 
-  // ---------- allowlisted injection helpers ----------
+  // ---------- Strict, allowlisted injection (no global replace, no name changes) ----------
   function injectAllowlisted(graph, values, kind) {
-    const g = deepClone(graph); // never mutate the master
+    const g = deepClone(graph); // never mutate masters
+
     const tz   = values.timezone   || 'America/New_York';
     const cal  = values.calendarId || 'primary';
     const mail = values.email      || '';
@@ -109,38 +104,36 @@ You: “All set, [Name] — booked for **tomorrow 3:00–4:00 PM**. You’ll get
 
     const nodes = Array.isArray(g.nodes) ? g.nodes : [];
     for (const n of nodes) {
-      // 1) Webhook path (strict)
-      if (String(n.type).includes('webhook') && n.parameters && typeof n.parameters.path === 'string') {
-        n.parameters.path = hook;
+      const p = n.parameters || {};
+
+      // 1) Webhook path if present
+      if (String(n.type).includes('webhook') && typeof p.path === 'string') {
+        p.path = hook;
       }
 
-      // 2) Google Calendar tool (strict)
-      const isCalTool =
+      // 2) Google Calendar tool/calendar id/timezone if present
+      const isCal =
         n.type === 'n8n-nodes-base.googleCalendar' ||
         n.type === 'n8n-nodes-base.googleCalendarTool' ||
         (n.name && n.name.toLowerCase().includes('calendar'));
 
-      if (isCalTool && n.parameters) {
-        // calendar id formats can differ per node type; handle common shapes
-        if (n.parameters.calendar && typeof n.parameters.calendar === 'object') {
-          n.parameters.calendar.value = cal;
-          n.parameters.calendar.cachedResultName = cal;
+      if (isCal) {
+        if (p.calendar && typeof p.calendar === 'object') {
+          p.calendar.value = cal;
+          p.calendar.cachedResultName = cal;
         }
-        if (typeof n.parameters.calendarId === 'string') {
-          n.parameters.calendarId = cal;
+        if (typeof p.calendarId === 'string') {
+          p.calendarId = cal;
         }
-        // timezone may live under options or parameters directly
-        if (!n.parameters.options) n.parameters.options = {};
-        if (typeof n.parameters.options.timezone === 'string') {
-          n.parameters.options.timezone = tz;
-        } else if (typeof n.parameters.timezone === 'string') {
-          n.parameters.timezone = tz;
+        if (!p.options) p.options = {};
+        if (typeof p.options.timezone === 'string') {
+          p.options.timezone = tz;
+        } else if (typeof p.timezone === 'string') {
+          p.timezone = tz;
         }
       }
 
-      // 3) Only inject SYSTEM_PROMPT where an explicit token exists
-      //    (prevents overwriting your crafted agent text)
-      const p = n.parameters || {};
+      // 3) Only inject SYSTEM_PROMPT where the explicit token exists
       const promptKeys = ['systemMessage','systemPrompt','system','prompt','text'];
       for (const k of promptKeys) {
         if (typeof p[k] === 'string' && p[k].includes('%%SYSTEM_PROMPT%%')) {
@@ -148,21 +141,30 @@ You: “All set, [Name] — booked for **tomorrow 3:00–4:00 PM**. You’ll get
         }
       }
 
-      // 4) Email fields (only if present and tokenized)
+      // 4) Email token if present
       if (typeof p.email === 'string' && p.email.includes('%%EMAIL%%')) {
         p.email = p.email.replace('%%EMAIL%%', mail);
       }
-      n.parameters = p;
+
+      n.parameters = p; // write back
     }
 
-    // regression guard: ensure connections exist
-    if (!g.connections || typeof g.connections !== 'object' || !Object.keys(g.connections).length) {
-      throw new Error('[AOS] Template connections missing after injection – aborting to prevent a broken download.');
+    // ---- Graph validation (prevents exporting broken workflows)
+    const nodeCount = nodes.length;
+    const conn = g.connections && typeof g.connections === 'object' ? g.connections : {};
+    const connCount = Object.keys(conn).length;
+
+    if (!nodeCount) {
+      throw new Error('[AOS] Template has no nodes.');
+    }
+    if (!connCount) {
+      // Keep the error explicit so you see it immediately if something strips connections
+      throw new Error('[AOS] Template connections are empty after injection. Aborting to prevent a broken download.');
     }
     return g;
   }
 
-  // ---------- public API ----------
+  // ---------- Public API ----------
   let readyResolve;
   const readyPromise = new Promise((res) => (readyResolve = res));
 
@@ -172,7 +174,6 @@ You: “All set, [Name] — booked for **tomorrow 3:00–4:00 PM**. You’ll get
       loadJSON('/templates/checkAvailability.json'),
       loadJSON('/templates/bookAppointment.json'),
     ]);
-    // Freeze masters to prevent accidental mutation
     state.tpl.avail = freezeDeep(avail);
     state.tpl.book  = freezeDeep(book);
     state.ready = true;
@@ -180,26 +181,34 @@ You: “All set, [Name] — booked for **tomorrow 3:00–4:00 PM**. You’ll get
     log('✅ Templates loaded & frozen');
   };
 
-  AOS.ready = function ready() { return readyPromise; };
+  AOS.ready = () => readyPromise;
 
-  AOS.buildPrompt = function buildPrompt(values) {
-    return buildLongPrompt(values || {});
-  };
+  AOS.buildPrompt = (v) => buildLongPrompt(v || {});
 
-  AOS.buildCheckAvailability = async function buildCheckAvailability(values) {
+  AOS.buildCheckAvailability = async (v) => {
     if (!state.ready) await AOS.ready();
-    return injectAllowlisted(state.tpl.avail, values || {}, 'avail');
+    return injectAllowlisted(state.tpl.avail, v || {}, 'avail');
   };
 
-  AOS.buildBookAppointment = async function buildBookAppointment(values) {
+  AOS.buildBookAppointment = async (v) => {
     if (!state.ready) await AOS.ready();
-    return injectAllowlisted(state.tpl.book, values || {}, 'book');
+    return injectAllowlisted(state.tpl.book, v || {}, 'book');
   };
 
-  AOS.truncate = function truncate(s, n = 1200) {
-    return s && s.length > n ? s.slice(0, n) + ' …' : (s || '');
+  // Expose a debug helper so the UI can assert connections before enabling downloads
+  AOS.debugBuild = async (kind, v) => {
+    const graph = kind === 'avail'
+      ? await AOS.buildCheckAvailability(v || {})
+      : await AOS.buildBookAppointment(v || {});
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const conn  = graph.connections || {};
+    return {
+      nodes: nodes.length,
+      connections: Object.keys(conn).length,
+      names: nodes.map(n => n.name)
+    };
   };
 
-  // start loading immediately
+  // preload
   AOS.init().catch((e) => err('Template preload failed:', e));
 })();
