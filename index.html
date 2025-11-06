@@ -19,7 +19,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Plausible Analytics -->
+  <!-- Plausible Analytics (kept) -->
   <script async src="https://plausible.io/js/pa-Q4KaToxxaS4kAgA27RHba.js"></script>
   <script>
     window.plausible = window.plausible || function(){(plausible.q = plausible.q || []).push(arguments)};
@@ -180,17 +180,20 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- (Optional) load your external builders; if they fail/are slow, fallbacks below take over -->
+  <!-- Load external builders (no fallbacks here) -->
   <script src="/js/builders.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 
-  <!-- Bulletproof event-delegation binder for Preview & TTS -->
+  <!-- Async-aware binder + strict delegation (NO fallback builders) -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
     const log = (...a) => console.log('[AOS-Binder]', ...a);
     const warn = (...a) => console.warn('[AOS-Binder]', ...a);
     const err = (...a) => console.error('[AOS-Binder]', ...a);
+
+    // Local preview truncation only — FULL prompt is used for the download
+    const previewTruncate = (s, n = 1200) => (s && s.length > n ? s.slice(0, n) + ' …' : (s || ''));
 
     function getValues() {
       const form = $('aiForm');
@@ -202,38 +205,30 @@
       return v;
     }
 
-    function wireDownloads(v, fullPrompt) {
-      const success = (msg) => {
-        const el = $('successMsg'); if (!el) return;
-        el.textContent = msg || 'Downloaded ✅';
-        el.classList.remove('hidden');
-        clearTimeout(success._t); success._t = setTimeout(()=>el.classList.add('hidden'), 2000);
-      };
-
-      const setDL = (id, dataFactory, name, type) => {
-        const btn = $(id); if (!btn) return;
-        btn.onclick = () => {
-          try {
-            const data = typeof dataFactory === 'function' ? dataFactory() : dataFactory;
-            const text = (typeof data === 'string') ? data : JSON.stringify(data, null, 2);
-            if (!text || text.length < 20 || text === '{}') {
-              alert('Could not generate ' + name + '. Click “Generate Preview” again.');
-              return;
-            }
-            const url = URL.createObjectURL(new Blob([text], { type }));
-            const a = Object.assign(document.createElement('a'), { href: url, download: name });
-            a.click(); URL.revokeObjectURL(url);
-            success(name + ' downloaded ✅');
-          } catch (e) {
-            err('Download failed for', name, e);
-            alert('Download error for ' + name);
+    // Async-aware downloader (disables button, handles errors)
+    function setDL(id, factory, filename, mime) {
+      const btn = $(id); if (!btn) return;
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        btn.disabled = true; btn.classList.add('opacity-50');
+        try {
+          const data = (typeof factory === 'function') ? await factory() : factory;
+          const text = (typeof data === 'string') ? data : JSON.stringify(data, null, 2);
+          if (!text || text.length < 20 || text === '{}') {
+            alert('Could not generate ' + filename + '. Click “Generate Preview” again.');
+            return;
           }
-        };
-      };
-
-      setDL('downloadPromptBtn', fullPrompt, `${(v.bizName||'AI_Receptionist')}_prompt.txt`, 'text/plain;charset=utf-8');
-      setDL('downloadAvailBtn', () => window.AOS.buildCheckAvailability(v), 'checkAvailability.json', 'application/json');
-      setDL('downloadBookBtn',  () => window.AOS.buildBookAppointment(v),  'bookAppointment.json',  'application/json');
+          const url = URL.createObjectURL(new Blob([text], { type: mime }));
+          const a = Object.assign(document.createElement('a'), { href: url, download: filename });
+          a.click(); URL.revokeObjectURL(url);
+          const ok = $('successMsg'); if (ok) { ok.textContent = filename + ' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
+        } catch (e) {
+          err('Download failed for', filename, e);
+          alert('Download error for ' + filename);
+        } finally {
+          btn.disabled = false; btn.classList.remove('opacity-50');
+        }
+      });
     }
 
     async function doPreview() {
@@ -242,22 +237,36 @@
       const out = $('promptOut');
       if (!btn || !out) { warn('Preview elements missing'); return; }
 
+      // Hard require external builders — no fallbacks here
+      if (!window.AOS || typeof window.AOS.buildPrompt !== 'function' ||
+          typeof window.AOS.buildCheckAvailability !== 'function' ||
+          typeof window.AOS.buildBookAppointment !== 'function') {
+        alert('Builders not loaded. Make sure /js/builders.js exports AOS.buildPrompt / buildCheckAvailability / buildBookAppointment.');
+        return;
+      }
+
       btn.disabled = true;
       spinner && spinner.classList.remove('hidden');
       const minWait = new Promise(r=>setTimeout(r,300));
 
       try {
-        // ensure AOS fallbacks exist (covers late/missing builders.js)
-        window.AOS = window.AOS || {};
-        if (typeof window.AOS.buildPrompt !== 'function') {
-          warn('AOS.buildPrompt missing — using fallback.');
-        }
         const v = getValues();
-        const full = window.AOS.buildPrompt(v);
-        out.textContent = window.AOS.truncate(full);
+
+        // Get full LONG prompt from builders.js
+        const fullPrompt = await window.AOS.buildPrompt(v);
+
+        // Show a truncated preview ONLY in the UI
+        out.textContent = previewTruncate(fullPrompt);
+
+        // Enable buttons after successful build
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => { const el=$(id); if (el) el.disabled = false; });
         const n = $('notice'); if (n) n.textContent = 'Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.';
-        wireDownloads(v, full);
+
+        // Wire async-aware downloads
+        setDL('downloadPromptBtn', () => fullPrompt, `${(v.bizName||'AI_Receptionist')}_prompt.txt`, 'text/plain;charset=utf-8');
+        setDL('downloadAvailBtn', () => window.AOS.buildCheckAvailability(v), 'checkAvailability.json', 'application/json');
+        setDL('downloadBookBtn',  () => window.AOS.buildBookAppointment(v),  'bookAppointment.json',  'application/json');
+
         log('Preview generated.');
       } catch (e) {
         err('Preview failed:', e);
@@ -297,7 +306,7 @@
       }
     }
 
-    // Event delegation: works even if buttons are re-rendered/replaced
+    // Event delegation (works through re-renders)
     document.addEventListener('click', (ev) => {
       const previewBtn = ev.target.closest && ev.target.closest('#previewBtn');
       if (previewBtn) { ev.preventDefault(); doPreview(); return; }
@@ -305,7 +314,7 @@
       if (ttsBtn) { ev.preventDefault(); doTTS(); return; }
     });
 
-    // Sanity log
+    // Quick sanity check (no fallback wiring)
     function sanity() {
       const need = ['aiForm','previewBtn','ttsBtn','promptOut','downloadPromptBtn','downloadAvailBtn','downloadBookBtn'];
       const missing = need.filter(id => !$(id));
@@ -316,4 +325,3 @@
   </script>
 </body>
 </html>
-
