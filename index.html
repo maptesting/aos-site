@@ -84,12 +84,13 @@
   <!-- Builder -->
   <section id="builder" class="py-24 md:py-32 scroll-mt-28">
     <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-center text-3xl font-bold mb-10 text-white">Build your AI Receptionist here 👇</h2>
       <div class="glass rounded-2xl p-6 md:p-10">
         <div class="flex items-start justify-between gap-12 flex-col lg:flex-row">
           <!-- Form -->
           <div class="w-full lg:w-1/2">
-            <h2 class="text-3xl font-bold tracking-tight">Your Business</h2>
-            <form id="aiForm" class="grid gap-4 mt-6">
+            <h3 class="text-2xl font-semibold mb-4">Your Business</h3>
+            <form id="aiForm" class="grid gap-4 mt-4">
               <input name="bizName" placeholder="Business Name" required>
               <input name="location" placeholder="Location / Service area" required>
               <input name="industry" placeholder="Industry (e.g., salon, rentals, clinic)" required>
@@ -151,13 +152,10 @@
 
   <footer class="py-10 text-center text-white/40 text-sm">© <span id="year"></span> AOS — AI Optimization Solutions</footer>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <script src="/js/builders.js"></script>
   <script src="/js/wireBuilder.js" defer></script>
   <script src="/js/demoChat.js" defer></script>
 </body>
 </html>
-
