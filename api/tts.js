@@ -1,15 +1,13 @@
-// api/tts.js  (Vercel Serverless Function)
+// /api/tts.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
-
   try {
     const { text, voice_id, model_id = 'eleven_multilingual_v2', voice_settings } = req.body || {};
     if (!text) return res.status(400).send('Missing text');
 
-    const xiKey = process.env.ELEVENLABS_API_KEY; // 🔒 read from env var
+    const voiceId = voice_id || '21m00Tcm4TlvDq8ikWAM';
+    const xiKey = process.env.ELEVENLABS_API_KEY; // set in your hosting env
     if (!xiKey) return res.status(500).send('Server missing ELEVENLABS_API_KEY');
-
-    const voiceId = voice_id || 'UgBBYS2sOqTuMpoF3BR0'; // default voice (you can replace with your fave)
 
     const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
       method: 'POST',
@@ -29,7 +27,7 @@ export default async function handler(req, res) {
     });
 
     if (!resp.ok) {
-      const errTxt = await resp.text().catch(() => '');
+      const errTxt = await resp.text().catch(()=> '');
       return res.status(resp.status).send(errTxt || 'TTS failed');
     }
 
