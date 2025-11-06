@@ -1,8 +1,7 @@
-// js/wireBuilder.js
+// js/wireBuilder.js — retry until AOS is ready
 (function () {
   const $ = (id) => document.getElementById(id);
 
-  // keep the latest values + prompt in memory (so we never read from preview DOM)
   let lastValues = null;
   let lastFullPrompt = "";
 
@@ -24,17 +23,13 @@
   }
 
   function enableDownloads(v, fullPrompt) {
-    // always use the full prompt kept in memory
     $('downloadPromptBtn').onclick = () => {
       const blob = new Blob([fullPrompt], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement('a'), {
-        href: url,
-        download: `${(v.bizName||'AI_Receptionist')}_prompt.txt`
+        href: url, download: `${(v.bizName||'AI_Receptionist')}_prompt.txt`
       });
-      a.click();
-      URL.revokeObjectURL(url);
-      // show toast
+      a.click(); URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('Prompt downloaded ✅'), 0);
     };
 
@@ -42,8 +37,7 @@
       const json = window.AOS.buildCheckAvailability(v);
       const url = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: "application/json" }));
       const a = Object.assign(document.createElement('a'), { href: url, download: "checkAvailability.json" });
-      a.click();
-      URL.revokeObjectURL(url);
+      a.click(); URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('checkAvailability.json downloaded ✅'), 0);
     };
 
@@ -51,8 +45,7 @@
       const json = window.AOS.buildBookAppointment(v);
       const url = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: "application/json" }));
       const a = Object.assign(document.createElement('a'), { href: url, download: "bookAppointment.json" });
-      a.click();
-      URL.revokeObjectURL(url);
+      a.click(); URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('bookAppointment.json downloaded ✅'), 0);
     };
   }
@@ -69,12 +62,9 @@
         voice_settings: { stability: 0.5, similarity_boost: 0.7 }
       })
     });
-    if (!res.ok) {
-      alert('TTS error: ' + (await res.text()).slice(0, 200));
-      return;
-    }
+    if (!res.ok) { alert('TTS error: ' + (await res.text()).slice(0, 200)); return; }
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+    const url  = URL.createObjectURL(blob);
     $('audio').src = url;
     $('audioWrap').classList.remove('hidden');
     $('audio').play().catch(()=>{});
@@ -82,7 +72,10 @@
   }
 
   function wire() {
-    if (!window.AOS) return;
+    // wait until builders.js has defined window.AOS
+    if (!window.AOS || !window.AOS.buildPrompt) {
+      return setTimeout(wire, 50);
+    }
 
     const form = $('aiForm');
     const previewBtn = $('previewBtn');
@@ -90,25 +83,19 @@
     const spinner = $('previewSpinner');
 
     previewBtn.addEventListener('click', async () => {
-      // show spinner, and keep it visible at least 400ms
       previewBtn.disabled = true;
       spinner?.classList.remove('hidden');
       const minWait = new Promise(res => setTimeout(res, 400));
 
       try {
-        // compute full prompt (not truncated)
         lastValues = getValues(form);
         lastFullPrompt = window.AOS.buildPrompt(lastValues);
-
-        // preview shows truncated version only
         $('promptOut').textContent = window.AOS.truncate(lastFullPrompt);
-
-        // enable download buttons
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => $(id).disabled = false);
         enableDownloads(lastValues, lastFullPrompt);
         $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
       } finally {
-        await minWait; // ensure spinner is perceivable
+        await minWait;
         spinner?.classList.add('hidden');
         previewBtn.disabled = false;
       }
