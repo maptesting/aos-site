@@ -1,23 +1,68 @@
 // /js/builders.js
-// LangChain-style n8n workflows (connected correctly) + long production prompt.
+// Uses your exact n8n blueprints as templates and injects business fields.
+// Keep templates at: /templates/checkAvailability.json and /templates/bookAppointment.json
 
 (function () {
   const prev = (typeof window !== 'undefined' ? window.AOS : null) || {};
+  const truncate = prev.truncate || ((s, n = 900) => (!s || typeof s !== 'string') ? '' : (s.length > n ? s.slice(0, n) + "\n\n…(preview truncated)" : s));
+  const slugify = (s = '') => (s || '').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,40) || 'biz';
 
-  // ---------- helpers ----------
-  const truncate = prev.truncate || function (s, n = 900) {
-    if (!s || typeof s !== 'string') return '';
-    return s.length > n ? s.slice(0, n) + "\n\n…(preview truncated)" : s;
-  };
+  let TPL_CHECK = null;
+  let TPL_BOOK  = null;
 
-  const uuid = () =>
-    Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+  async function fetchTemplate(url){
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed to load template ${url}: ${res.status}`);
+    return await res.json();
+  }
 
-  const slugify = (s = '') =>
-    (s || '').toString().trim().toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 40) || 'biz';
+  async function ensureTemplates() {
+    if (!TPL_CHECK) TPL_CHECK = await fetchTemplate('/templates/checkAvailability.json');
+    if (!TPL_BOOK)  TPL_BOOK  = await fetchTemplate('/templates/bookAppointment.json');
+  }
 
-  // ---------- LONG production prompt ----------
+  const clone = (obj) => JSON.parse(JSON.stringify(obj));
+
+  function findNodeByType(nodes, type) {
+    return nodes.find(n => n.type === type) || null;
+  }
+  function findNodeByNameStarts(nodes, starts){
+    return nodes.find(n => String(n.name || '').startsWith(starts)) || null;
+  }
+
+  function personalizeWorkflow(template, {
+    kind, bizName, calendarId, timezone, email, systemPrompt
+  }) {
+    const wf = clone(template);
+
+    // 1) Webhook path + visible name
+    const slug = slugify(bizName);
+    const path = (kind === 'check')
+      ? `check_availability_${slug}`
+      : `book_appointment_${slug}`;
+
+    const webhookNode = findNodeByType(wf.nodes, 'n8n-nodes-base.webhook') ||
+                        findNodeByNameStarts(wf.nodes, 'Webhook (');
+    if (webhookNode && webhookNode.parameters) {
+      webhookNode.parameters.path = path;
+      webhookNode.name = `Webhook (${kind === 'check' ? 'check_availability' : 'book_appointment'})`;
+    }
+
+    // 2) Agent system prompt
+    const agentNode = findNodeByType(wf.nodes, '@n8n/n8n-nodes-langchain.agent') ||
+                      findNodeByNameStarts(wf.nodes, 'AI Agent');
+    if (agentNode?.parameters) agentNode.parameters.systemMessage = systemPrompt;
+
+    // 3) Keep graph connections 100% as in template (no touching)
+    wf.settings = wf.settings || {};
+    wf.settings.timezone = timezone || wf.settings.timezone || 'America/New_York';
+    wf.meta = wf.meta || {};
+    wf.meta.version = '1.119.x';
+
+    return wf;
+  }
+
+  // ---------------- Long production prompt (for .txt download) ----------------
   function buildPrompt(v = {}) {
     const agent     = v.agentName || "Alex";
     const biz       = v.bizName || "Your Business";
@@ -80,154 +125,50 @@ You: “Perfect — booking Friday 3:00–4:00 PM for a Full Detail. I’ll send
 *(Use ${calTool} to create the event with the collected details.)*`;
   }
 
-  // ---------- Agent flow builder (with proper 'ai' connections) ----------
-  function baseNodesForAgentFlow({ name, path, systemPrompt }) {
-    const idWebhook = 1;
-    const idLLM     = 2;
-    const idGCal    = 3;
-    const idAgent   = 4;
-    const idResp    = 5;
-
-    const nodes = [
-      {
-        parameters: {
-          httpMethod: 'POST',
-          path,
-          responseMode: 'responseNode',
-          options: { responseData: 'allEntries' }
-        },
-        id: idWebhook,
-        name: `Webhook (${name})`,
-        type: 'n8n-nodes-base.webhook',
-        typeVersion: 1,
-        position: [300, 300]
-      },
-      {
-        parameters: {
-          model: 'gpt-4o',
-          temperature: 0.2
-        },
-        id: idLLM,
-        name: 'OpenAI Chat (LLM)',
-        type: '@n8n/n8n-nodes-langchain.lmChatOpenAi',
-        typeVersion: 1,
-        position: [560, 160],
-        credentials: {} // attach in n8n
-      },
-      {
-        parameters: {},
-        id: idGCal,
-        name: 'Google Calendar Tool',
-        type: 'n8n-nodes-base.googleCalendarTool',
-        typeVersion: 1,
-        position: [560, 440],
-        credentials: {} // attach in n8n
-      },
-      {
-        parameters: {
-          agentType: 'openAiFunctions',
-          systemMessage: systemPrompt || 'You are a helpful scheduling assistant.'
-        },
-        id: idAgent,
-        name: 'AI Agent',
-        type: '@n8n/n8n-nodes-langchain.agent',
-        typeVersion: 1,
-        position: [820, 300]
-      },
-      {
-        parameters: {
-          response: 'json',
-          responseBody: '={{$json}}',
-          options: { responseCode: 200 }
-        },
-        id: idResp,
-        name: 'Respond',
-        type: 'n8n-nodes-base.respondToWebhook',
-        typeVersion: 1,
-        position: [1080, 300]
-      }
-    ];
-
-    // IMPORTANT: use 'ai' bus for model/tools connections
-    const connections = {
-      [`Webhook (${name})`]: { main: [[ { node: 'AI Agent', type: 'main', index: 0 } ]] },
-      'OpenAI Chat (LLM)':   { ai:   [[ { node: 'AI Agent', type: 'model', index: 0 } ]] },
-      'Google Calendar Tool':{ ai:   [[ { node: 'AI Agent', type: 'tools', index: 0 } ]] },
-      'AI Agent':            { main: [[ { node: 'Respond', type: 'main', index: 0 } ]] }
-    };
-
-    return { nodes, connections };
-  }
-
-  function buildCheckAvailability(v = {}) {
-    const tz = v.timezone || 'America/New_York';
-    const calendarId = v.calendarId || 'primary';
-    const biz = v.bizName || 'Your Business';
-    const slug = slugify(biz);
-    const wfId = uuid();
-
+  // ---------------- Build from templates (async) ----------------
+  async function buildCheckAvailability(v = {}) {
+    await ensureTemplates();
     const systemPrompt = [
-      `You are the receptionist for "${biz}". Timezone: ${tz}.`,
-      `Task: Interpret user date/time in ${tz}, convert to ISO 8601 with offset, and use Google Calendar Tool to CHECK whether that slot is free in calendar "${calendarId}".`,
+      `You are the receptionist for "${v.bizName || 'Your Business'}". Timezone: ${v.timezone || 'America/New_York'}.`,
+      `Task: Interpret user date/time in local timezone, convert to ISO 8601 with offset, and use Google Calendar Tool to CHECK whether that slot is free in calendar "${v.calendarId || 'primary'}".`,
       `If free, say it's available and ask for any missing required fields for booking. If not free, propose 2–3 nearby slots within business hours.`,
       `Keep replies short (1–2 sentences).`
     ].join(' ');
-
-    const { nodes, connections } = baseNodesForAgentFlow({
-      name: 'check_availability',
-      path: `check_availability_${slug}`,
+    return personalizeWorkflow(TPL_CHECK, {
+      kind: 'check',
+      bizName: v.bizName,
+      calendarId: v.calendarId,
+      timezone: v.timezone,
+      email: v.email,
       systemPrompt
     });
-
-    return {
-      name: 'checkAvailability',
-      nodes,
-      connections,
-      settings: { timezone: tz },
-      pinData: {},
-      staticData: {},
-      meta: { instanceId: wfId, version: '1.119.x' },
-      active: false,
-      id: wfId
-    };
   }
 
-  function buildBookAppointment(v = {}) {
-    const tz = v.timezone || 'America/New_York';
-    const calendarId = v.calendarId || 'primary';
-    const biz = v.bizName || 'Your Business';
-    const emailFrom = v.email || 'support@yourdomain.com';
-    const slug = slugify(biz);
-    const wfId = uuid();
-
+  async function buildBookAppointment(v = {}) {
+    await ensureTemplates();
     const systemPrompt = [
-      `You are the receptionist for "${biz}". Timezone: ${tz}.`,
+      `You are the receptionist for "${v.bizName || 'Your Business'}". Timezone: ${v.timezone || 'America/New_York'}.`,
       `Task: Ask for and confirm required fields: full name, email, phone number, service type, and preferred date/time (ISO).`,
-      `Use Google Calendar Tool to CREATE an event in "${calendarId}" for 60 minutes at the selected time.`,
-      `After creation, confirm the exact booking time (${tz}) and mention a confirmation will be sent from ${emailFrom}.`,
+      `Use Google Calendar Tool to CREATE an event in "${v.calendarId || 'primary'}" for 60 minutes at the selected time.`,
+      `After creation, confirm the exact booking time (${v.timezone || 'America/New_York'}) and mention a confirmation will be sent from ${v.email || 'support@yourdomain.com'}.`,
       `Keep replies short (1–2 sentences).`
     ].join(' ');
-
-    const { nodes, connections } = baseNodesForAgentFlow({
-      name: 'book_appointment',
-      path: `book_appointment_${slug}`,
+    return personalizeWorkflow(TPL_BOOK, {
+      kind: 'book',
+      bizName: v.bizName,
+      calendarId: v.calendarId,
+      timezone: v.timezone,
+      email: v.email,
       systemPrompt
     });
-
-    return {
-      name: 'bookAppointment',
-      nodes,
-      connections,
-      settings: { timezone: tz },
-      pinData: {},
-      staticData: {},
-      meta: { instanceId: wfId, version: '1.119.x' },
-      active: false,
-      id: wfId
-    };
   }
 
-  // ---------- expose ----------
-  const AOS = { truncate, buildPrompt, buildCheckAvailability, buildBookAppointment };
+  // Expose
+  const AOS = {
+    truncate,
+    buildPrompt,                 // string
+    buildCheckAvailability,      // Promise<object>
+    buildBookAppointment         // Promise<object>
+  };
   if (typeof window !== 'undefined') window.AOS = AOS;
 })();
