@@ -35,11 +35,9 @@
       const blob = new Blob([fullPrompt], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = Object.assign(document.createElement('a'), {
-        href: url,
-        download: `${(v.bizName || 'AI_Receptionist')}_prompt.txt`
+        href: url, download: `${(v.bizName || 'AI_Receptionist')}_prompt.txt`
       });
-      a.click();
-      URL.revokeObjectURL(url);
+      a.click(); URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('Prompt downloaded ✅'), 0);
     };
 
@@ -57,8 +55,7 @@
       const a = Object.assign(document.createElement('a'), {
         href: url, download: "checkAvailability.json"
       });
-      a.click();
-      URL.revokeObjectURL(url);
+      a.click(); URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('checkAvailability.json downloaded ✅'), 0);
     };
 
@@ -76,8 +73,7 @@
       const a = Object.assign(document.createElement('a'), {
         href: url, download: "bookAppointment.json"
       });
-      a.click();
-      URL.revokeObjectURL(url);
+      a.click(); URL.revokeObjectURL(url);
       setTimeout(() => showSuccess('bookAppointment.json downloaded ✅'), 0);
     };
   }
@@ -106,10 +102,21 @@
     $('audioDownload').href = url;
   }
 
-  function wire() {
-    // wait until builders.js has defined window.AOS + buildPrompt
-    if (!window.AOS || !window.AOS.buildPrompt) {
-      return setTimeout(wire, 50);
+  // Wait until BOTH DOM elements and AOS builders exist
+  function readyChecksOk() {
+    return (
+      $('aiForm') && $('previewBtn') && $('ttsBtn') &&
+      $('promptOut') && $('downloadPromptBtn') && $('downloadAvailBtn') && $('downloadBookBtn') &&
+      window.AOS && typeof window.AOS.buildPrompt === 'function'
+    );
+  }
+
+  function wire(attempt = 0) {
+    if (!readyChecksOk()) {
+      if (attempt < 100) return setTimeout(() => wire(attempt + 1), 50); // retry up to ~5s
+      // hard stop fallback
+      console.warn('AOS or DOM not ready — wiring aborted.');
+      return;
     }
 
     const form = $('aiForm');
@@ -117,37 +124,44 @@
     const ttsBtn = $('ttsBtn');
     const spinner = $('previewSpinner');
 
-    // Generate Preview (with spinner + save full prompt for downloads)
-    previewBtn.addEventListener('click', async () => {
-      previewBtn.disabled = true;
+    // prevent double-binding
+    previewBtn.replaceWith(previewBtn.cloneNode(true));
+    ttsBtn.replaceWith(ttsBtn.cloneNode(true));
+
+    const previewBtnFresh = $('previewBtn');
+    const ttsBtnFresh = $('ttsBtn');
+
+    // Generate Preview (with spinner + store full prompt)
+    previewBtnFresh.addEventListener('click', async () => {
+      previewBtnFresh.disabled = true;
       spinner?.classList.remove('hidden');
 
-      const minWait = new Promise(res => setTimeout(res, 400)); // ensure spinner is visible
+      const minWait = new Promise(res => setTimeout(res, 300)); // ensure spinner visible
       try {
         lastValues = getValues(form);
-        lastFullPrompt = window.AOS.buildPrompt(lastValues);   // full text
+        lastFullPrompt = window.AOS.buildPrompt(lastValues);        // full text
         $('promptOut').textContent = window.AOS.truncate(lastFullPrompt); // preview only
 
-        // enable download buttons
+        // enable download buttons and wire them
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => $(id).disabled = false);
         enableDownloads(lastValues, lastFullPrompt);
-        $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
+        if ($('notice')) $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
       } finally {
         await minWait;
         spinner?.classList.add('hidden');
-        previewBtn.disabled = false;
+        previewBtnFresh.disabled = false;
       }
     });
 
     // Hear AI Greeting (TTS)
-    ttsBtn.addEventListener('click', async () => {
+    ttsBtnFresh.addEventListener('click', async () => {
       const v = getValues(form);
       await previewTTS(v);
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wire);
+    document.addEventListener('DOMContentLoaded', () => wire());
   } else {
     wire();
   }
