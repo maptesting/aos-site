@@ -2,6 +2,10 @@
 (function () {
   const $ = (id) => document.getElementById(id);
 
+  // keep the latest values + prompt in memory (so we never read from preview DOM)
+  let lastValues = null;
+  let lastFullPrompt = "";
+
   function getValues(form) {
     const v = Object.fromEntries(new FormData(form).entries());
     if (!v.timezone) { try { v.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {} }
@@ -19,30 +23,37 @@
     showSuccess._t = setTimeout(()=> el.classList.add('hidden'), 2500);
   }
 
-  function enableDownloads(v, prompt) {
-    const availJSON = window.AOS.buildCheckAvailability(v);
-    const bookJSON  = window.AOS.buildBookAppointment(v);
-
+  function enableDownloads(v, fullPrompt) {
+    // always use the full prompt kept in memory
     $('downloadPromptBtn').onclick = () => {
-      const blob = new Blob([prompt], { type: "text/plain;charset=utf-8" });
+      const blob = new Blob([fullPrompt], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
-      const a = Object.assign(document.createElement('a'), { href: url, download: `${(v.bizName||'AI_Receptionist')}_prompt.txt` });
-      a.click(); URL.revokeObjectURL(url);
-      showSuccess('Prompt downloaded ✅');
+      const a = Object.assign(document.createElement('a'), {
+        href: url,
+        download: `${(v.bizName||'AI_Receptionist')}_prompt.txt`
+      });
+      a.click();
+      URL.revokeObjectURL(url);
+      // show toast
+      setTimeout(() => showSuccess('Prompt downloaded ✅'), 0);
     };
 
     $('downloadAvailBtn').onclick = () => {
-      const url = URL.createObjectURL(new Blob([JSON.stringify(availJSON, null, 2)], { type: "application/json" }));
+      const json = window.AOS.buildCheckAvailability(v);
+      const url = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: "application/json" }));
       const a = Object.assign(document.createElement('a'), { href: url, download: "checkAvailability.json" });
-      a.click(); URL.revokeObjectURL(url);
-      showSuccess('checkAvailability.json downloaded ✅');
+      a.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => showSuccess('checkAvailability.json downloaded ✅'), 0);
     };
 
     $('downloadBookBtn').onclick = () => {
-      const url = URL.createObjectURL(new Blob([JSON.stringify(bookJSON, null, 2)], { type: "application/json" }));
+      const json = window.AOS.buildBookAppointment(v);
+      const url = URL.createObjectURL(new Blob([JSON.stringify(json, null, 2)], { type: "application/json" }));
       const a = Object.assign(document.createElement('a'), { href: url, download: "bookAppointment.json" });
-      a.click(); URL.revokeObjectURL(url);
-      showSuccess('bookAppointment.json downloaded ✅');
+      a.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => showSuccess('bookAppointment.json downloaded ✅'), 0);
     };
   }
 
@@ -79,21 +90,25 @@
     const spinner = $('previewSpinner');
 
     previewBtn.addEventListener('click', async () => {
-      // spinner on
+      // show spinner, and keep it visible at least 400ms
       previewBtn.disabled = true;
       spinner?.classList.remove('hidden');
+      const minWait = new Promise(res => setTimeout(res, 400));
 
       try {
-        const v = getValues(form);
-        const prompt = window.AOS.buildPrompt(v);
-        $('promptOut').textContent = window.AOS.truncate(prompt);
+        // compute full prompt (not truncated)
+        lastValues = getValues(form);
+        lastFullPrompt = window.AOS.buildPrompt(lastValues);
 
-        // enable buttons
+        // preview shows truncated version only
+        $('promptOut').textContent = window.AOS.truncate(lastFullPrompt);
+
+        // enable download buttons
         ['downloadPromptBtn','downloadAvailBtn','downloadBookBtn'].forEach(id => $(id).disabled = false);
-        enableDownloads(v, prompt);
+        enableDownloads(lastValues, lastFullPrompt);
         $('notice').textContent = "Downloads ready. Import into n8n → connect Google Calendar Tool + OpenAI creds.";
       } finally {
-        // spinner off
+        await minWait; // ensure spinner is perceivable
         spinner?.classList.add('hidden');
         previewBtn.disabled = false;
       }
