@@ -149,8 +149,8 @@
                 <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
                 <div class="flex flex-wrap gap-2">
                   <button id="downloadPromptBtn" class="px-4 py-2 rounded-xl bg-brand-500/80 hover:bg-brand-600 font-medium disabled:opacity-50" disabled>Download Full Prompt (.txt)</button>
-                  <a id="downloadAvailBtn" href="#" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 pointer-events-none opacity-50">Download: checkAvailability.json</a>
-                  <a id="downloadBookBtn"  href="#" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 pointer-events-none opacity-50">Download: bookAppointment.json</a>
+                  <button id="downloadAvailBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: checkAvailability.json</button>
+                  <button id="downloadBookBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: bookAppointment.json</button>
                 </div>
                 <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded ✅</div>
               </div>
@@ -180,11 +180,32 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- External builders (for prompt only) -->
-  <script src="/js/builders.js" defer></script>
-  <script src="/js/demoChat.js" defer></script>
+  <!-- EMBEDDED: Your exact templates, inlined to guarantee 1:1 downloads -->
+  <script id="tpl-checkAvailability" type="application/json">
+{
+  "name": "checkAvailability",
+  "nodes": [
+    {
+      ...arameters": {
+        "httpMethod": "POST",
+        "path": 
+  }
+}
+  </script>
 
-  <!-- Binder: JSON downloads are direct files; prompt is generated -->
+  <script id="tpl-bookAppointment" type="application/json">
+{
+  "name": "bookAppointment",
+  "nodes": [
+    {
+      "p...ameters": {
+        "promptType": "define",
+        "text": 
+  }
+}
+  </script>
+
+  <!-- Binder: prompt is generated; JSONs come from embedded templates verbatim -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
@@ -199,43 +220,104 @@
       return v;
     }
 
-    // Prompt download (generated; JSON files are zero-touch)
-    function wirePromptDownload(getPrompt) {
+    // Long prompt (rich) — doesn't touch JSONs
+    function buildPrompt(v = {}) {
+      const tz        = v.timezone  || 'America/New_York';
+      const biz       = v.bizName   || 'the business';
+      const agent     = v.agentName || 'Alex';
+      const industry  = v.industry  || 'services';
+      const services  = v.services  || 'General services';
+      const hours     = v.hours     || 'Mon–Fri 9:00–17:00';
+      const location  = v.location  || 'Local area';
+      const policies  = v.policies  || 'Standard policies apply.';
+      const emailFrom = v.email     || 'no-reply@example.com';
+      const L = (val, label) => `${label}: ${val || 'N/A'}`;
+      const now = (()=>{try{return new Date().toLocaleString('en-US',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return new Date().toLocaleString()}})();
+
+      return [
+`# ROLE
+You are ${agent}, a friendly, efficient AI receptionist for **${biz}** (${industry}). Keep replies to 1–2 sentences, natural and clear.
+
+# CURRENT TIME
+- Current time: **${now}**
+- Timezone: **${tz}**
+Use ISO 8601 timestamps when interacting with tools.
+
+# BUSINESS CONTEXT
+${L(biz,'Business')}
+${L(location,'Location / Service')}
+${L(industry,'Industry')}
+${L(services,'Services')}
+${L(hours,'Hours')}
+${L(policies,'Policies')}
+
+# TASK
+Answer questions and help book appointments quickly.
+
+# BOOKING FLOW
+1) Ask for the preferred date/time (within ${hours}).
+2) Run the availability check for the requested slot.
+3) If unavailable, propose up to 3 close alternatives (same day or next business day).
+4) Collect full name, email, phone.
+5) Confirm slot and create the booking.
+6) Summarize details and say a confirmation will be sent from **${emailFrom}**.
+
+# TRANSFER
+If human help is requested, politely hand off.
+
+# STYLE & RULES
+- Warm, concise, confident; use contractions.
+- Don’t invent availability outside ${hours}.
+- Ask a single clarifying question when needed; then act.
+- Confirm final date/time + contact details before booking.
+- Don’t mention internal tools to the user.
+
+# EXAMPLE
+User: “Can I come tomorrow at 3 for ${services.split(',')[0].trim()}?”
+You: “Happy to help — is **tomorrow 3:00 PM** best? What’s your **name and email**?”
+(then check slot and book)
+You: “All set — booked **tomorrow 3:00–4:00 PM**. You’ll get a confirmation shortly.”`
+      ].join('\n');
+    }
+
+    function blobDownload(name, text, type) {
+      const url = URL.createObjectURL(new Blob([text], { type }));
+      const a = Object.assign(document.createElement('a'), { href: url, download: name });
+      a.click(); URL.revokeObjectURL(url);
+    }
+
+    function enableJsonDownloads() {
+      const availEl = $('tpl-checkAvailability');
+      const bookEl  = $('tpl-bookAppointment');
+      const btnA = $('downloadAvailBtn');
+      const btnB = $('downloadBookBtn');
+
+      const availText = availEl ? availEl.textContent : '';
+      const bookText  = bookEl ? bookEl.textContent  : '';
+
+      if (btnA && availText.trim().length > 0) {
+        btnA.disabled = false;
+        btnA.onclick = () => blobDownload('checkAvailability.json', availText, 'application/json');
+      }
+      if (btnB && bookText.trim().length > 0) {
+        btnB.disabled = false;
+        btnB.onclick = () => blobDownload('bookAppointment.json', bookText, 'application/json');
+      }
+    }
+
+    function wirePromptDownload() {
       const btn = $('downloadPromptBtn'); if (!btn) return;
       btn.onclick = async (e) => {
         e.preventDefault();
         btn.disabled = true; btn.classList.add('opacity-50');
         try {
-          const full = await getPrompt();
-          const text = typeof full === 'string' ? full : JSON.stringify(full, null, 2);
-          const name = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
-          const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
-          const a = Object.assign(document.createElement('a'), { href: url, download: name });
-          a.click(); URL.revokeObjectURL(url);
-          const ok = $('successMsg'); if (ok) { ok.textContent = name + ' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
-        } catch (e) {
-          console.error(e);
-          alert('Failed to download prompt.');
+          const full = buildPrompt(getValues());
+          blobDownload(`${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`, full, 'text/plain;charset=utf-8');
+          const ok = $('successMsg'); if (ok) { ok.textContent = 'Prompt downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
         } finally {
           btn.disabled = false; btn.classList.remove('opacity-50');
         }
       };
-    }
-
-    // Direct-file download helpers for EXACT JSON files
-    function enableDirectJsonLinks() {
-      const a1 = $('downloadAvailBtn');
-      const a2 = $('downloadBookBtn');
-      if (a1) {
-        a1.href = '/templates/checkAvailability.json';
-        a1.setAttribute('download', 'checkAvailability.json');
-        a1.classList.remove('opacity-50','pointer-events-none');
-      }
-      if (a2) {
-        a2.href = '/templates/bookAppointment.json';
-        a2.setAttribute('download', 'bookAppointment.json');
-        a2.classList.remove('opacity-50','pointer-events-none');
-      }
     }
 
     async function doPreview() {
@@ -247,18 +329,12 @@
       btn.disabled = true;
       spinner && spinner.classList.remove('hidden');
       const minWait = new Promise(r=>setTimeout(r,300));
-
       try {
-        // Generate long prompt PREVIEW only; JSON files are not touched
-        if (!window.AOS || typeof window.AOS.buildPrompt !== 'function') throw new Error('builders.js not loaded');
-        const fullPrompt = await window.AOS.buildPrompt(getValues());
-        out.textContent = truncate(fullPrompt);
-
-        // Enable prompt + JSON downloads (JSON are direct links to your attached files)
+        out.textContent = (function(s,n=1200){return s && s.length>n? s.slice(0,n)+' …' : (s||'')})(buildPrompt(getValues()));
         $('downloadPromptBtn').disabled = false;
-        enableDirectJsonLinks();
-        const n = $('notice'); if (n) n.textContent = 'Downloads ready. JSONs are your exact templates.';
-        wirePromptDownload(()=>window.AOS.buildPrompt(getValues()));
+        enableJsonDownloads();
+        wirePromptDownload();
+        const n = $('notice'); if (n) n.textContent = 'Downloads ready. JSONs are exact embedded templates.';
       } catch (e) {
         console.error('Preview failed:', e);
         alert('Failed to generate preview. See console.');
@@ -296,18 +372,12 @@
       }
     }
 
-    // Delegated clicks
     document.addEventListener('click', (ev) => {
       const previewBtn = ev.target.closest && ev.target.closest('#previewBtn');
       if (previewBtn) { ev.preventDefault(); doPreview(); return; }
       const ttsBtn = ev.target.closest && ev.target.closest('#ttsBtn');
       if (ttsBtn) { ev.preventDefault(); doTTS(); return; }
     });
-
-    // Sanity
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', ()=>{/* noop */});
-    }
   })();
   </script>
 </body>
