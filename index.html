@@ -159,7 +159,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ====== EMBEDDED TEMPLATES (exact copies) ====== -->
+  <!-- ====== EMBEDDED TEMPLATES (EXACT COPIES YOU PROVIDED) ====== -->
   <script id="tplCheckAvailability" type="application/json">
 {
   "name": "checkAvailability",
@@ -229,7 +229,7 @@
         "calendar": {
           "__rl": true,
           "value": "razerrtrading@gmail.com",
-          "mode": "list",
+        "mode": "list",
           "cachedResultName": "razerrtrading@gmail.com"
         },
         "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
@@ -249,7 +249,20 @@
       }
     }
   ],
-  "pinData": { "Webhook": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {},
+          "params": {},
+          "query": {},
+          "body": {}
+        },
+        "webhookUrl": "",
+        "executionMode": "test"
+      }
+    ]
+  },
   "connections": {
     "Webhook": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] },
     "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
@@ -357,7 +370,15 @@
       "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
     }
   ],
-  "pinData": { "Webhook1": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
+  "pinData": {
+    "Webhook1": [
+      {
+        "json": { "headers": {}, "params": {}, "query": {}, "body": {} },
+        "webhookUrl": "",
+        "executionMode": "test"
+      }
+    ]
+  },
   "connections": {
     "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
     "Create an event in Google Calendar": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] },
@@ -374,17 +395,16 @@
   </script>
   <!-- ====== /EMBEDDED TEMPLATES ====== -->
 
-  <!-- Binder: prompt + exact template download -->
+  <!-- Binder: uses embedded JSON bytes as-is; prompt is independent -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
 
-    function readTpl(id){
+    function readTplBytes(id){
       const node = $(id);
       if(!node) throw new Error('Missing template node: '+id);
-      const text = node.textContent || node.innerText || '';
+      const text = node.textContent ?? '';
       if(!text.trim()) throw new Error('Empty template: '+id);
-      // Return the exact bytes user embedded — as text, not parsed+restringified.
       return new Blob([text], { type: 'application/json' });
     }
 
@@ -450,27 +470,30 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       ].join('\n');
     }
 
+    function wirePromptDownload(){
+      const btn = $('downloadPromptBtn'); if(!btn) return;
+      btn.disabled = false;
+      btn.onclick = (e)=>{
+        e.preventDefault();
+        const txt = buildPrompt(getValues());
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain;charset=utf-8' }));
+        a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        const ok = $('successMsg'); if (ok){ ok.textContent = 'Prompt downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
+      };
+    }
+
     async function doPreview(){
       const spinner = $('previewSpinner'); const btn=$('previewBtn'); const out=$('promptOut');
       btn.disabled = true; spinner && spinner.classList.remove('hidden');
       try{
         out.textContent = truncate(buildPrompt(getValues()));
-        $('downloadPromptBtn').disabled = false;
-        $('downloadPromptBtn').onclick = (e)=>{
-          e.preventDefault();
-          const txt = buildPrompt(getValues());
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain;charset=utf-8' }));
-          a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
-          a.click(); URL.revokeObjectURL(a.href);
-          const ok = $('successMsg'); if (ok){ ok.textContent = 'Prompt downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
-        };
-
-        // Use embedded templates exactly as provided
-        enableDownload('downloadAvailBtn', readTpl('tplCheckAvailability'), 'checkAvailability.json');
-        enableDownload('downloadBookBtn',  readTpl('tplBookAppointment'),  'bookAppointment.json');
-
-        const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs are embedded exact templates.';
+        wirePromptDownload();
+        enableDownload('downloadAvailBtn', readTplBytes('tplCheckAvailability'), 'checkAvailability.json');
+        enableDownload('downloadBookBtn',  readTplBytes('tplBookAppointment'),  'bookAppointment.json');
+        const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs are the exact embedded templates.';
       }catch(e){
         console.error(e); alert('Error preparing downloads: '+e.message);
       }finally{
