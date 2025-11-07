@@ -1,7 +1,5 @@
 const ALLOW_ORIGINS = [
-  "https://yourdomain.com",
-  "https://your-vercel-deployment.vercel.app",
-  "http://localhost:3000"
+  "aos-ai.com"
 ];
 
 export function withCORS(res, req) {
