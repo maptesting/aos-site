@@ -1,9 +1,11 @@
-// /api/tts.js  — self-contained, no external imports
+// /api/tts.js — self-contained, robust ElevenLabs proxy (no external imports)
+// Always returns JSON (even on errors) so the client never tries to parse HTML.
+
 export default async function handler(req, res) {
-  // --- CORS (same-site + local dev) ---
+  // --- CORS for your domains (adjust if needed) ---
   const origin = req.headers.origin;
-  const allow = ["https://aos-ai.com", "https://*.vercel.app", "http://localhost:3000"];
-  if (origin && (allow.includes(origin) || origin?.endsWith(".vercel.app"))) {
+  const allow = ["https://aos-ai.com", "https://aos-ai.vercel.app", "http://localhost:3000"];
+  if (origin && (allow.includes(origin) || origin.endsWith(".vercel.app"))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
   }
@@ -11,31 +13,25 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") return res.status(204).end();
 
-  // --- Helpers to send consistent JSON ---
+  // Helpers
   const ok = (data, status = 200) => res.status(status).json({ ok: true, data });
   const fail = (message, code = "UNKNOWN", status = 400) =>
     res.status(status).json({ ok: false, code, message });
 
   if (req.method !== "POST") return fail("Method not allowed", "METHOD", 405);
 
-  // --- Read & parse body robustly (works on Vercel) ---
+  // Read & parse JSON body safely
   async function readBody() {
-    // If Vercel already parsed JSON:
-    if (req.body && typeof req.body === "object") return req.body;
-    // Else, read raw stream:
+    if (req.body && typeof req.body === "object") return req.body; // already parsed
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
     const raw = Buffer.concat(chunks).toString("utf8") || "";
-    try {
-      return JSON.parse(raw);
-    } catch {
-      throw new Error("Body must be valid JSON");
-    }
+    try { return JSON.parse(raw); } catch { throw new Error("Body must be valid JSON"); }
   }
 
   try {
     const body = await readBody();
-    const text = (body?.text ?? "").toString();
+    const text = (body?.text ?? "").toString().trim();
     if (!text) return fail("Text is required", "VALIDATION", 400);
     if (text.length > 1000) return fail("Text too long (max 1000 chars)", "VALIDATION", 400);
 
@@ -48,7 +44,7 @@ export default async function handler(req, res) {
       );
     }
 
-    const voiceId = (body?.voice_id || "UgBBYS2sOqTuMpoF3BR0").toString();
+    const voiceId = (body?.voice_id || "UgBBYS2sOqTuMpoF3BR0").toString(); // safe default
     const modelId = (body?.model_id || "eleven_multilingual_v2").toString();
     const voice_settings = body?.voice_settings;
 
@@ -69,7 +65,6 @@ export default async function handler(req, res) {
     );
 
     if (!upstream.ok) {
-      // Try JSON first; fall back to text; always return JSON to client
       let detail = "";
       try {
         const j = await upstream.json();
@@ -83,7 +78,6 @@ export default async function handler(req, res) {
     const buf = Buffer.from(await upstream.arrayBuffer());
     return ok({ audioBase64: `data:audio/mpeg;base64,${buf.toString("base64")}` });
   } catch (e) {
-    // If our code threw, still return JSON (prevents your UI from seeing HTML)
     return fail(e?.message || "Unexpected server error", "EXCEPTION", 500);
   }
 }
