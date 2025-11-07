@@ -19,7 +19,7 @@
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Plausible Analytics (optional) -->
+  <!-- (Optional) Plausible -->
   <script async src="https://plausible.io/js/pa-Q4KaToxxaS4kAgA27RHba.js"></script>
   <script>
     window.plausible = window.plausible || function(){(plausible.q = plausible.q || []).push(arguments)};
@@ -67,7 +67,6 @@
   <section class="relative gradient overflow-hidden">
     <div class="mx-auto max-w-7xl px-4 pt-20 pb-16 md:pt-24 md:pb-24">
       <div class="grid md:grid-cols-2 gap-16 items-start">
-        <!-- Left side -->
         <div>
           <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
             AI Receptionist Prompt Pack — <span class="text-brand-500">Free Builder</span>
@@ -82,18 +81,18 @@
           </div>
         </div>
 
-        <!-- Live Demo Chat (placeholder UI) -->
-        <div class="glass rounded-2xl p-6 md:p-8 shadow-soft mt-6 md:mt-0" id="demoChat">
+        <!-- Demo chat (placeholder) -->
+        <div class="glass rounded-2xl p-6 md:p-8 shadow-soft mt-6 md:mt-0">
           <div class="text-sm text-white/60 mb-2">Talk to Ava — Receptionist at BrightSmile Dental Clinic</div>
-          <div id="chatBox" class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
+          <div class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
             <div class="flex gap-3">
               <div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center">🤖</div>
               <div>Hi! This is Ava from BrightSmile Dental — how can I help you today?</div>
             </div>
           </div>
-          <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
-            <input id="chatInput" type="text" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
-            <button id="chatSend" type="button" class="bg-brand-500 hover:bg-brand-600 rounded-xl px-4 py-2 text-sm font-medium">Send</button>
+          <form class="mt-3 flex gap-2" action="javascript:void(0)">
+            <input type="text" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm">
+            <button type="button" class="bg-brand-500 hover:bg-brand-600 rounded-xl px-4 py-2 text-sm font-medium">Send</button>
           </form>
         </div>
       </div>
@@ -138,7 +137,7 @@
             </form>
           </div>
 
-          <!-- Preview -->
+          <!-- Preview + Downloads -->
           <div class="w-full lg:w-1/2">
             <div class="glass rounded-2xl p-5 h-full">
               <h3 class="text-xl font-semibold">System Prompt — Preview</h3>
@@ -165,6 +164,7 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -180,33 +180,30 @@
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ======= Binder: Prompt generation is separate; JSONs download raw from /templates ======= -->
+  <!-- Binder: validates JSON files, then downloads exact bytes; prompt is separate -->
   <script>
   (function () {
     const $ = (id) => document.getElementById(id);
-
-    // 1) EXACT template file locations (must exist in your public /templates folder)
     const TPLS = {
       avail: '/templates/checkAvailability.json',
       book:  '/templates/bookAppointment.json',
     };
 
-    // 2) Build the LONG prompt (does not touch JSON)
-    function buildPrompt(v = {}) {
-      const tz        = v.timezone  || 'America/New_York';
-      const biz       = v.bizName   || 'the business';
-      const agent     = v.agentName || 'Alex';
-      const industry  = v.industry  || 'services';
-      const services  = v.services  || 'General services';
-      const hours     = v.hours     || 'Mon–Fri 9:00–17:00';
-      const location  = v.location  || 'Local area';
-      const policies  = v.policies  || 'Standard policies apply.';
-      const emailFrom = v.email     || 'no-reply@example.com';
-      const now = (()=>{ try {
-        return new Date().toLocaleString('en-US',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-      } catch { return new Date().toLocaleString(); } })();
-      const L = (val, label) => `${label}: ${val || 'N/A'}`;
+    function getValues() {
+      const form = $('aiForm'); if (!form) return {};
+      const v = Object.fromEntries(new FormData(form).entries());
+      try { v.timezone ||= Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
+      v.agentName ||= 'Alex'; v.language ||= 'English';
+      return v;
+    }
+    function truncate(s, n=1200){ return s && s.length>n ? s.slice(0,n)+' …' : (s||''); }
 
+    function buildPrompt(v = {}) {
+      const tz=v.timezone||'America/New_York', biz=v.bizName||'the business', agent=v.agentName||'Alex';
+      const industry=v.industry||'services', services=v.services||'General services', hours=v.hours||'Mon–Fri 9:00–17:00';
+      const location=v.location||'Local area', policies=v.policies||'Standard policies apply.', emailFrom=v.email||'no-reply@example.com';
+      const now=(()=>{try{return new Date().toLocaleString('en-US',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return new Date().toLocaleString()}})();
+      const L=(x,l)=>`${l}: ${x||'N/A'}`;
       return [
 `# ROLE
 You are ${agent}, a friendly, efficient AI receptionist for **${biz}** (${industry}). Keep replies to 1–2 sentences, natural and clear.
@@ -236,98 +233,91 @@ Answer questions and help book appointments quickly.
 6) Summarize details and say a confirmation will be sent from **${emailFrom}**.
 
 # STYLE & RULES
-- Warm, concise, confident; use contractions.
-- Don’t invent availability outside ${hours}.
-- Ask one clarifying question when needed; then act.
-- Confirm final date/time + contact details before booking.
-- Don’t mention internal tools to the user.
-
-# EXAMPLE
-User: “Can I come tomorrow at 3 for ${services.split(',')[0].trim()}?”
-You: “Happy to help — is **tomorrow 3:00 PM** best? What’s your **name and email**?”
-(then check slot and book)
-You: “All set — booked **tomorrow 3:00–4:00 PM**. You’ll get a confirmation shortly.”`
+Warm, concise, confident; use contractions. Don’t invent availability outside ${hours}. Confirm final date/time + contact details.`
       ].join('\n');
     }
 
-    // 3) Helpers
-    function getValues() {
-      const form = $('aiForm'); if (!form) return {};
-      const v = Object.fromEntries(new FormData(form).entries());
-      try { v.timezone ||= Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch {}
-      v.agentName ||= 'Alex';
-      v.language  ||= 'English';
-      return v;
-    }
-    function truncate(s, n=1200) { return s && s.length>n ? s.slice(0,n)+' …' : (s||''); }
-
-    async function downloadRaw(url, filename) {
+    async function fetchAndValidate(url) {
       const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) {
-        console.error('Template fetch failed:', url, res.status);
-        alert(`Could not find template at ${url} (HTTP ${res.status}). Ensure the file is in /public/templates on your host.`);
-        return;
+      if (!res.ok) throw new Error(`HTTP ${res.status} at ${url}`);
+      const ct = (res.headers.get('content-type') || '').toLowerCase();
+      if (!ct.includes('application/json')) {
+        throw new Error(`Bad content-type at ${url}: ${ct || 'missing'} (your host is probably serving HTML fallback)`);
       }
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(a.href);
-      const ok = $('successMsg'); if (ok) { ok.textContent = `${filename} downloaded ✅`; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
+      const text = await res.text();
+      // quick validation: must contain "connections" with at least one entry
+      try {
+        const obj = JSON.parse(text);
+        if (!obj || typeof obj !== 'object' || !obj.connections || !Object.keys(obj.connections).length) {
+          throw new Error('JSON has no connections');
+        }
+      } catch (e) {
+        // show the first ~200 chars if it wasn't JSON
+        const sample = (text||'').slice(0,200).replace(/\s+/g,' ');
+        throw new Error(`Invalid JSON from ${url}: ${e.message}. Sample: ${sample}`);
+      }
+      // return raw bytes as a Blob for 1:1 download
+      return new Blob([text], { type: 'application/json' });
+    }
+
+    function enableDownload(btnId, blob, filename) {
+      const btn = $(btnId); if (!btn) return;
+      btn.disabled = false;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        const ok = $('successMsg'); if (ok) { ok.textContent = `${filename} downloaded ✅`; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
+      };
     }
 
     function wirePromptDownload() {
       const btn = $('downloadPromptBtn'); if (!btn) return;
-      btn.onclick = async (e) => {
+      btn.disabled = false;
+      btn.onclick = (e)=>{
         e.preventDefault();
-        btn.disabled = true; btn.classList.add('opacity-50');
-        try {
-          const text = buildPrompt(getValues());
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
-          a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
-          a.click(); URL.revokeObjectURL(a.href);
-          const ok = $('successMsg'); if (ok) { ok.textContent = 'Prompt downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t = setTimeout(()=>ok.classList.add('hidden'), 2000); }
-        } finally {
-          btn.disabled = false; btn.classList.remove('opacity-50');
-        }
+        const txt = buildPrompt(getValues());
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+        a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        const ok = $('successMsg'); if (ok) { ok.textContent = 'Prompt downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
       };
     }
 
-    function wireJsonDownloads() {
-      const a = $('downloadAvailBtn');
-      const b = $('downloadBookBtn');
-      if (a) { a.disabled = false; a.onclick = (e)=>{ e.preventDefault(); downloadRaw(TPLS.avail, 'checkAvailability.json'); }; }
-      if (b) { b.disabled = false; b.onclick = (e)=>{ e.preventDefault(); downloadRaw(TPLS.book,  'bookAppointment.json');  }; }
-    }
-
-    // 4) Preview + wiring
     async function doPreview() {
-      const spinner = $('previewSpinner');
-      const btn = $('previewBtn');
-      const out = $('promptOut');
+      const spinner = $('previewSpinner'); const btn = $('previewBtn'); const out = $('promptOut');
       if (!btn || !out) return;
-
       btn.disabled = true; spinner && spinner.classList.remove('hidden');
-      const minWait = new Promise(r=>setTimeout(r,300));
+
       try {
+        // 1) Prompt preview
         out.textContent = truncate(buildPrompt(getValues()));
-        $('downloadPromptBtn').disabled = false;
+
+        // 2) Validate templates live on your host and enable 1:1 downloads
+        const [blobAvail, blobBook] = await Promise.all([
+          fetchAndValidate(TPLS.avail),
+          fetchAndValidate(TPLS.book),
+        ]);
+
+        enableDownload('downloadAvailBtn', blobAvail, 'checkAvailability.json');
+        enableDownload('downloadBookBtn',  blobBook,  'bookAppointment.json');
         wirePromptDownload();
-        wireJsonDownloads();
-        const n = $('notice'); if (n) n.textContent = 'Downloads ready. JSONs are the exact files from /templates.';
+
+        const n = $('notice'); if (n) n.textContent = 'Downloads ready. JSONs validated (connections present).';
       } catch (e) {
-        console.error('Preview failed:', e);
-        alert('Failed to generate preview. See console.');
+        console.error('Template validation failed:', e);
+        alert('Template download is blocked:\n' + e.message + '\n\nFix the file paths under /templates and try again.');
       } finally {
-        await minWait;
         spinner && spinner.classList.add('hidden');
         btn.disabled = false;
       }
     }
 
-    // 5) TTS demo
     async function doTTS() {
       const v = getValues();
       const text = `Hey, this is ${v.agentName || 'Alex'} with ${v.bizName || 'your business'}. How can I help you today?`;
@@ -355,7 +345,6 @@ You: “All set — booked **tomorrow 3:00–4:00 PM**. You’ll get a confirmat
       }
     }
 
-    // Delegated clicks
     document.addEventListener('click', (ev) => {
       const previewBtn = ev.target.closest && ev.target.closest('#previewBtn');
       if (previewBtn) { ev.preventDefault(); doPreview(); return; }
