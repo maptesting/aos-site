@@ -1,42 +1,53 @@
-// /api/tts.js
+import { withCORS } from "./_utils/cors";
+import { rateLimit } from "./_utils/rateLimit";
+import { ok, fail } from "./_utils/respond";
+import { TTSRequestSchema } from "./_utils/validation";
+// import { verifyCsrf } from "./_utils/csrf";
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+  if (withCORS(res, req)) return; // OPTIONS
+
+  if (req.method !== "POST") return fail(res, "Method not allowed", "METHOD", 405);
+
+  // If you want CSRF for POSTs, uncomment next line and add header on client:
+  // if (!verifyCsrf(req)) return fail(res, "CSRF check failed", "CSRF", 403);
+
+  const { allowed } = await rateLimit(req);
+  if (!allowed) return fail(res, "Too many requests", "RATE_LIMIT", 429);
+
   try {
-    const { text, voice_id, model_id = 'eleven_multilingual_v2', voice_settings } = req.body || {};
-    if (!text) return res.status(400).send('Missing text');
+    const parsed = TTSRequestSchema.parse(req.body || {});
+    const xiKey = process.env.ELEVENLABS_API_KEY;
+    if (!xiKey) return fail(res, "Server missing ELEVENLABS_API_KEY", "CONFIG", 500);
 
-    const voiceId = voice_id || '21m00Tcm4TlvDq8ikWAM';
-    const xiKey = process.env.ELEVENLABS_API_KEY; // set in your hosting env
-    if (!xiKey) return res.status(500).send('Server missing ELEVENLABS_API_KEY');
+    const voiceId = parsed.voice_id || "UgBBYS2sOqTuMpoF3BR0";
+    const modelId = parsed.model_id || "eleven_multilingual_v2";
 
-    const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
-      method: 'POST',
-      headers: {
-        'xi-api-key': xiKey,
-        'Content-Type': 'application/json',
-        'Accept': 'audio/mpeg'
-      },
-      body: JSON.stringify({
-        model_id,
-        text,
-        voice_settings: {
-          stability: voice_settings?.stability ?? 0.5,
-          similarity_boost: voice_settings?.similarity_boost ?? 0.7
-        }
-      })
-    });
+    const upstream = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": xiKey,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          text: parsed.text,
+          model_id: modelId,
+          voice_settings: parsed.voice_settings
+        })
+      }
+    );
 
-    if (!resp.ok) {
-      const errTxt = await resp.text().catch(()=> '');
-      return res.status(resp.status).send(errTxt || 'TTS failed');
+    if (!upstream.ok) {
+      const errText = await upstream.text().catch(() => "");
+      return fail(res, `TTS upstream error: ${errText.slice(0, 200)}`, "UPSTREAM", 502);
     }
 
-    res.setHeader('Content-Type', 'audio/mpeg');
-    res.setHeader('Cache-Control', 'no-store');
-    const arrayBuf = await resp.arrayBuffer();
-    res.send(Buffer.from(arrayBuf));
+    const buf = Buffer.from(await upstream.arrayBuffer());
+    const b64 = buf.toString("base64");
+    return ok(res, { audioBase64: `data:audio/mpeg;base64,${b64}` });
   } catch (e) {
-    console.error(e);
-    res.status(500).send('Server error');
+    return fail(res, e.message || "Unexpected", "EXCEPTION", 500);
   }
 }
