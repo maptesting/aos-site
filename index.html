@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AOS — AI Receptionist Prompt Pack (Free Builder)</title>
 
+  <!-- SEO -->
   <meta name="description" content="Build your own AI Receptionist in 30 seconds — free. Generate prompts, workflows, and voice previews for any business.">
   <meta property="og:title" content="AOS — Free AI Receptionist Builder">
   <meta property="og:description" content="Generate a custom AI receptionist instantly — prompt, workflows, and voice demo included.">
@@ -12,7 +13,10 @@
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Favicon -->
   <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>'>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: {
@@ -30,6 +34,9 @@
     input,textarea{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.9rem 1rem}
     input::placeholder,textarea::placeholder{color:rgba(255,255,255,.4)}
     input:focus,textarea:focus{outline:none;box-shadow:0 0 0 2px rgba(85,109,255,.5)}
+    /* audio progress */
+    .range {appearance:none;height:6px;border-radius:9999px;background:linear-gradient(to right,#556dff var(--pct,0%),rgba(255,255,255,.2) 0)}
+    .range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:9999px;background:#fff;border:2px solid #556dff;box-shadow:0 0 0 3px rgba(85,109,255,.25)}
   </style>
 </head>
 <body>
@@ -50,6 +57,7 @@
   <section class="relative gradient overflow-hidden">
     <div class="mx-auto max-w-7xl px-4 pt-20 pb-16 md:pt-24 md:pb-24">
       <div class="grid md:grid-cols-2 gap-16 items-start">
+        <!-- Left -->
         <div>
           <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
             AI Receptionist Prompt Pack — <span class="text-brand-500">Free Builder</span>
@@ -57,24 +65,24 @@
           <p class="mt-6 text-white/70 max-w-2xl leading-relaxed">
             Answer a few questions about your business. Get a production-ready System Prompt (preview) and
             download two <b>n8n</b> workflows — <em>checkAvailability</em> and <em>bookAppointment</em>.
-            Works with any industry, anywhere.
           </p>
           <div class="mt-8">
             <a href="#builder" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600">Start Building</a>
           </div>
         </div>
 
+        <!-- Live Demo Chat (now functional) -->
         <div class="glass rounded-2xl p-6 md:p-8 shadow-soft mt-6 md:mt-0">
           <div class="text-sm text-white/60 mb-2">Talk to Ava — Receptionist at BrightSmile Dental Clinic</div>
-          <div class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
+          <div id="chatBox" class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
             <div class="flex gap-3">
               <div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center">🤖</div>
               <div>Hi! This is Ava from BrightSmile Dental — how can I help you today?</div>
             </div>
           </div>
-          <form class="mt-3 flex gap-2" action="javascript:void(0)">
-            <input type="text" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm">
-            <button type="button" class="bg-brand-500 hover:bg-brand-600 rounded-xl px-4 py-2 text-sm font-medium">Send</button>
+          <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
+            <input id="chatInput" type="text" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
+            <button id="chatSend" type="submit" class="bg-brand-500 hover:bg-brand-600 rounded-xl px-4 py-2 text-sm font-medium">Send</button>
           </form>
         </div>
       </div>
@@ -87,6 +95,7 @@
       <h2 class="text-center text-3xl font-bold mb-10 text-white">Build your AI Receptionist here 👇</h2>
       <div class="glass rounded-2xl p-6 md:p-10">
         <div class="flex items-start justify-between gap-12 flex-col lg:flex-row">
+          <!-- Form -->
           <div class="w-full lg:w-1/2">
             <h3 class="text-2xl font-semibold mb-4">Your Business</h3>
             <form id="aiForm" class="grid gap-4 mt-4">
@@ -118,6 +127,7 @@
             </form>
           </div>
 
+          <!-- Preview + Downloads -->
           <div class="w-full lg:w-1/2">
             <div class="glass rounded-2xl p-5 h-full">
               <h3 class="text-xl font-semibold">System Prompt — Preview</h3>
@@ -134,17 +144,42 @@
                 <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded ✅</div>
               </div>
 
+              <!-- Custom Audio Player -->
               <div class="mt-6">
-                <div id="audioWrap" class="hidden">
-                  <audio id="audio" controls class="w-full"></audio>
-                  <a id="audioDownload" download="ai-greeting.mp3" class="inline-block mt-2 text-sm underline decoration-blue-400">Download audio</a>
+                <audio id="audio" class="hidden"></audio>
+                <div id="audioUI" class="hidden glass rounded-xl p-4">
+                  <div class="flex items-center gap-3">
+                    <button id="audioPlay" class="w-10 h-10 rounded-full bg-brand-500 hover:bg-brand-600 grid place-items-center text-black font-bold">▶</button>
+                    <div class="flex-1">
+                      <input id="audioSeek" type="range" min="0" max="100" value="0" class="w-full range">
+                      <div class="flex justify-between text-xs text-white/60 mt-1">
+                        <span id="audioTime">0:00</span>
+                        <span id="audioDur">0:00</span>
+                      </div>
+                    </div>
+                    <a id="audioDownload" download="ai-greeting.mp3" class="text-sm underline decoration-blue-400">Download</a>
+                  </div>
                 </div>
                 <div id="notice" class="mt-2 text-xs text-white/60"></div>
                 <div id="debug" class="mt-2 text-xs text-red-400"></div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      <!-- Tutorial video -->
+      <div class="mt-10">
+        <h3 class="text-xl font-semibold mb-3">How to use this builder (video)</h3>
+        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-soft aspect-video">
+          <iframe
+            class="w-full h-full"
+            src="https://www.youtube.com/embed/Akwe5h3CQKo?si=Q-Uto-rIMjTar1vv"
+            title="AOS — How to use the AI Receptionist Builder"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
         </div>
       </div>
 
@@ -159,7 +194,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ====== EMBEDDED TEMPLATES (EXACT COPIES YOU PROVIDED) ====== -->
+  <!-- ====== EMBEDDED TEMPLATES (your exact graphs) ====== -->
   <script id="tplCheckAvailability" type="application/json">
 {
   "name": "checkAvailability",
@@ -362,11 +397,39 @@
   </script>
   <!-- ====== /EMBEDDED TEMPLATES ====== -->
 
-  <!-- Binder: personalize JSON on download (calendarId, timezone, webhook path). Prompt is separate. -->
+  <!-- Binder: chat send, TTS player, personalized JSON downloads, prompt -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
 
+    /* ---------------- DEMO CHAT ---------------- */
+    function addMsg(role, text){
+      const wrap = $('chatBox'); if(!wrap) return;
+      const row = document.createElement('div');
+      row.className = 'flex gap-3';
+      if(role==='user'){ row.className += ' justify-end'; }
+      row.innerHTML = role==='user'
+        ? `<div class="max-w-[75%] bg-brand-500/20 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`
+        : `<div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center">🤖</div><div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
+      wrap.appendChild(row);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+    function escapeHtml(s){return (s||'').replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]))}
+    function wireChat(){
+      const form=$('chatForm'), input=$('chatInput');
+      if(!form || !input) return;
+      form.addEventListener('submit',(e)=>{
+        e.preventDefault();
+        const t=input.value.trim(); if(!t) return;
+        addMsg('user', t);
+        input.value='';
+        // simple demo reply
+        setTimeout(()=>addMsg('bot', "Thanks! (Demo chat only) — the real receptionist runs in your n8n workflows."), 400);
+      });
+      $('chatSend')?.addEventListener('click',()=>form.requestSubmit());
+    }
+
+    /* -------------- FORM & PROMPT -------------- */
     function getValues(){
       const form = $('aiForm'); if(!form) return {};
       const v = Object.fromEntries(new FormData(form).entries());
@@ -376,7 +439,6 @@
     }
     const truncate=(s,n=1200)=> s && s.length>n ? s.slice(0,n)+' …' : (s||'');
 
-    // ---- Prompt generator stays independent and already uses bizName/email/etc.
     function buildPrompt(v={}){
       const tz=v.timezone||'America/New_York', biz=v.bizName||'the business', agent=v.agentName||'Alex';
       const industry=v.industry||'services', services=v.services||'General services', hours=v.hours||'Mon–Fri 9:00–17:00';
@@ -415,69 +477,6 @@ Answer questions and help book appointments quickly.
 Warm, concise, confident; use contractions. Don’t invent availability outside ${hours}. Confirm final date/time + contact details.`
       ].join('\n');
     }
-
-    // ---------- JSON templating helpers ----------
-    function readTplObject(id){
-      const node = $(id);
-      if(!node) throw new Error('Missing template node: '+id);
-      const text = node.textContent ?? '';
-      if(!text.trim()) throw new Error('Empty template: '+id);
-      return JSON.parse(text);
-    }
-
-    const slug = (s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
-
-    function setWorkflowTimezone(obj, tz){
-      obj.settings = obj.settings || {};
-      obj.settings.timezone = tz || obj.settings.timezone || 'America/New_York';
-    }
-
-    function patchCalendarToolNode(obj, newCalendarId){
-      const nodes = obj.nodes || [];
-      for(const n of nodes){
-        if(n && n.type === 'n8n-nodes-base.googleCalendarTool' && n.parameters && n.parameters.calendar){
-          if (typeof n.parameters.calendar === 'object') {
-            n.parameters.calendar.value = newCalendarId;
-            n.parameters.calendar.cachedResultName = newCalendarId;
-          }
-        }
-      }
-    }
-
-    function patchWebhookPath(obj, newPath, which='check'){
-      const nodes = obj.nodes || [];
-      for(const n of nodes){
-        if(n && n.type === 'n8n-nodes-base.webhook' && n.parameters){
-          // Only change the path; n8n will assign webhookId on import.
-          n.parameters.path = newPath || n.parameters.path;
-        }
-      }
-    }
-
-    function renderWorkflow(templateId, v, kind){
-      const obj = readTplObject(templateId);
-      setWorkflowTimezone(obj, v.timezone);
-      patchCalendarToolNode(obj, v.calendarId || 'primary');
-      const base = 'aos-'+slug(v.bizName);
-      const path = kind==='book' ? `${base}-book` : `${base}-check`;
-      patchWebhookPath(obj, path, kind);
-      return JSON.stringify(obj, null, 2);
-    }
-
-    function enableDownload(btnId, text, filename){
-      const btn = $(btnId); if(!btn) return;
-      btn.disabled = false;
-      btn.onclick = (e)=>{
-        e.preventDefault();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        const ok = $('successMsg'); if (ok){ ok.textContent = filename+' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
-      };
-    }
-
     function wirePromptDownload(){
       const btn = $('downloadPromptBtn'); if(!btn) return;
       btn.disabled = false;
@@ -487,35 +486,99 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain;charset=utf-8' }));
         a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        const ok = $('successMsg'); if (ok){ ok.textContent = 'Prompt downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
+        a.click(); URL.revokeObjectURL(a.href);
+        flashOk('Prompt downloaded ✅');
+      };
+    }
+    function flashOk(msg){
+      const ok=$('successMsg'); if(!ok) return;
+      ok.textContent = msg; ok.classList.remove('hidden');
+      clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000);
+    }
+
+    /* -------------- JSON TEMPLATING -------------- */
+    function readTplObject(id){
+      const node=$(id); if(!node) throw new Error('Missing template node: '+id);
+      const text=node.textContent??''; if(!text.trim()) throw new Error('Empty template: '+id);
+      return JSON.parse(text);
+    }
+    const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
+    function setWorkflowTimezone(obj, tz){ obj.settings=obj.settings||{}; obj.settings.timezone = tz || obj.settings.timezone || 'America/New_York'; }
+    function patchCalendarToolNode(obj, idOrPrimary){
+      (obj.nodes||[]).forEach(n=>{
+        if(n?.type==='n8n-nodes-base.googleCalendarTool' && n.parameters?.calendar && typeof n.parameters.calendar==='object'){
+          n.parameters.calendar.value = idOrPrimary;
+          n.parameters.calendar.cachedResultName = idOrPrimary;
+        }
+      });
+    }
+    function patchWebhookPath(obj, newPath){
+      (obj.nodes||[]).forEach(n=>{
+        if(n?.type==='n8n-nodes-base.webhook' && n.parameters){ n.parameters.path = newPath || n.parameters.path; }
+      });
+    }
+    function renderWorkflow(tplId, v, kind){
+      const obj=readTplObject(tplId);
+      setWorkflowTimezone(obj, v.timezone);
+      patchCalendarToolNode(obj, v.calendarId || 'primary');
+      const base = 'aos-'+slug(v.bizName);
+      patchWebhookPath(obj, kind==='book' ? `${base}-book` : `${base}-check`);
+      return JSON.stringify(obj, null, 2);
+    }
+    function enableDownload(btnId, text, name){
+      const btn=$(btnId); if(!btn) return;
+      btn.disabled=false; btn.onclick=(e)=>{
+        e.preventDefault();
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+        a.download=name; a.click(); URL.revokeObjectURL(a.href);
+        flashOk(name+' downloaded ✅');
       };
     }
 
-    async function doPreview(){
-      const spinner = $('previewSpinner'); const btn=$('previewBtn'); const out=$('promptOut');
-      btn.disabled = true; spinner && spinner.classList.remove('hidden');
-      try{
-        const v = getValues();
-
-        // Prompt preview (already uses email/bizName/hours/etc.)
-        out.textContent = truncate(buildPrompt(v));
-        wirePromptDownload();
-
-        // Render personalized JSON from your embedded templates
-        const availJson = renderWorkflow('tplCheckAvailability', v, 'check');
-        const bookJson  = renderWorkflow('tplBookAppointment',  v, 'book');
-
-        enableDownload('downloadAvailBtn', availJson, 'checkAvailability.json');
-        enableDownload('downloadBookBtn',  bookJson,  'bookAppointment.json');
-
-        const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
-      }catch(e){
-        console.error(e); alert('Error preparing downloads: '+e.message);
-      }finally{
-        spinner && spinner.classList.add('hidden'); btn.disabled=false;
+    /* -------------- CUSTOM AUDIO PLAYER -------------- */
+    function fmt(s){ s = Math.max(0, s|0); const m=(s/60)|0, sec=(s%60)|0; return m+':'+(sec<10?'0':'')+sec; }
+    function wireAudioUI(){
+      const a=$('audio'), box=$('audioUI'); if(!a || !box) return;
+      const btn=$('audioPlay'), seek=$('audioSeek'), t=$('audioTime'), d=$('audioDur');
+      function sync(){
+        if(!isFinite(a.duration)) return;
+        d.textContent = fmt(a.duration);
+        t.textContent = fmt(a.currentTime);
+        const pct = a.currentTime / Math.max(1, a.duration) * 100;
+        seek.value = pct;
+        seek.style.setProperty('--pct', pct+'%');
+        btn.textContent = a.paused ? '▶' : '⏸';
       }
+      btn.addEventListener('click',()=>{ a.paused ? a.play() : a.pause(); });
+      a.addEventListener('play', sync);
+      a.addEventListener('pause', sync);
+      a.addEventListener('timeupdate', sync);
+      a.addEventListener('loadedmetadata', ()=>{ box.classList.remove('hidden'); sync(); });
+      seek.addEventListener('input', ()=>{
+        const pct = parseFloat(seek.value||'0')/100;
+        if(isFinite(a.duration)) a.currentTime = a.duration*pct;
+        seek.style.setProperty('--pct', seek.value+'%');
+      });
+    }
+
+    /* -------------- ACTIONS -------------- */
+    async function doPreview(){
+      const spinner=$('previewSpinner'), btn=$('previewBtn'), out=$('promptOut');
+      btn.disabled=true; spinner?.classList.remove('hidden');
+      try{
+        const v=getValues();
+        // prompt
+        out.textContent = (truncate(buildPrompt(v)));
+        wirePromptDownload();
+        // personalized JSON
+        const avail = renderWorkflow('tplCheckAvailability', v, 'check');
+        const book  = renderWorkflow('tplBookAppointment',  v, 'book');
+        enableDownload('downloadAvailBtn', avail, 'checkAvailability.json');
+        enableDownload('downloadBookBtn',  book,  'bookAppointment.json');
+        const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
+      }catch(e){ console.error(e); alert('Error preparing downloads: '+e.message); }
+      finally{ spinner?.classList.add('hidden'); btn.disabled=false; }
     }
 
     async function doTTS(){
@@ -525,14 +588,24 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
         const res=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voice_id:'21m00Tcm4TlvDq8ikWAM',model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.7}})});
         if(!res.ok) throw new Error(await res.text());
         const blob=await res.blob(); const url=URL.createObjectURL(blob);
-        $('audio').src=url; $('audioWrap').classList.remove('hidden'); $('audio').play().catch(()=>{}); $('audioDownload').href=url;
+        const a=$('audio'); a.src=url; a.load(); // triggers UI show
+        $('audioDownload').href=url;
+        a.play().catch(()=>{});
       }catch(e){ console.error(e); alert('TTS error — check /api/tts & ELEVENLABS_API_KEY.'); }
     }
 
+    // Event delegation
     document.addEventListener('click',(ev)=>{
       if(ev.target.closest('#previewBtn')){ ev.preventDefault(); doPreview(); }
       if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
     });
+
+    // init
+    function init(){
+      wireChat();
+      wireAudioUI();
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
   </script>
 </body>
