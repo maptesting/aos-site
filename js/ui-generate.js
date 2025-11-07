@@ -7,8 +7,14 @@ export async function generateFlows(cfg, { csrfToken } = {}) {
     });
     return data; // { checkAvailability, bookAppointment }
   } catch (err) {
-    console.warn("[generateFlows] failed:", err.code, err.message);
-    alert(`Couldn't generate flows: ${err.message}`);
+    console.warn("[generate-flows] failed:", err.code, err.message);
+    // Minimal user feedback:
+    const msg = (err.code === "RATE_LIMIT")
+      ? "Too many requests — try again in a minute."
+      : (err.code === "CSRF")
+        ? "Security check failed — refresh the page and try again."
+        : `Couldn't generate flows: ${err.message}`;
+    alert(msg);
     return null;
   }
 }
