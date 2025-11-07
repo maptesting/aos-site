@@ -229,7 +229,7 @@
         "calendar": {
           "__rl": true,
           "value": "razerrtrading@gmail.com",
-        "mode": "list",
+          "mode": "list",
           "cachedResultName": "razerrtrading@gmail.com"
         },
         "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
@@ -249,20 +249,7 @@
       }
     }
   ],
-  "pinData": {
-    "Webhook": [
-      {
-        "json": {
-          "headers": {},
-          "params": {},
-          "query": {},
-          "body": {}
-        },
-        "webhookUrl": "",
-        "executionMode": "test"
-      }
-    ]
-  },
+  "pinData": { "Webhook": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
   "connections": {
     "Webhook": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] },
     "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
@@ -307,13 +294,7 @@
       "typeVersion": 1.2,
       "position": [-912,384],
       "id": "c1c61458-8e97-4e7c-ab54-d395e74ae84a",
-      "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "exm7lxhShqpiglPn",
-          "name": "n8n free OpenAI API credits"
-        }
-      }
+      "name": "OpenAI Chat Model"
     },
     {
       "parameters": {
@@ -335,13 +316,7 @@
       "typeVersion": 1.3,
       "position": [-672,384],
       "id": "7b5d02c2-e5e4-4609-ad6c-4ba402a9a757",
-      "name": "Create an event in Google Calendar",
-      "credentials": {
-        "googleCalendarOAuth2Api": {
-          "id": "VyBLeoRYD28XxnYS",
-          "name": "Google Calendar account"
-        }
-      }
+      "name": "Create an event in Google Calendar"
     },
     {
       "parameters": {
@@ -370,15 +345,7 @@
       "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
     }
   ],
-  "pinData": {
-    "Webhook1": [
-      {
-        "json": { "headers": {}, "params": {}, "query": {}, "body": {} },
-        "webhookUrl": "",
-        "executionMode": "test"
-      }
-    ]
-  },
+  "pinData": { "Webhook1": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
   "connections": {
     "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
     "Create an event in Google Calendar": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] },
@@ -395,32 +362,10 @@
   </script>
   <!-- ====== /EMBEDDED TEMPLATES ====== -->
 
-  <!-- Binder: uses embedded JSON bytes as-is; prompt is independent -->
+  <!-- Binder: personalize JSON on download (calendarId, timezone, webhook path). Prompt is separate. -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
-
-    function readTplBytes(id){
-      const node = $(id);
-      if(!node) throw new Error('Missing template node: '+id);
-      const text = node.textContent ?? '';
-      if(!text.trim()) throw new Error('Empty template: '+id);
-      return new Blob([text], { type: 'application/json' });
-    }
-
-    function enableDownload(btnId, blob, filename){
-      const btn = $(btnId); if(!btn) return;
-      btn.disabled = false;
-      btn.onclick = (e)=>{
-        e.preventDefault();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        const ok = $('successMsg'); if (ok){ ok.textContent = filename+' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
-      };
-    }
 
     function getValues(){
       const form = $('aiForm'); if(!form) return {};
@@ -429,8 +374,9 @@
       v.agentName ||= 'Alex'; v.language ||= 'English';
       return v;
     }
-    function truncate(s,n=1200){ return s && s.length>n ? s.slice(0,n)+' …' : (s||''); }
+    const truncate=(s,n=1200)=> s && s.length>n ? s.slice(0,n)+' …' : (s||'');
 
+    // ---- Prompt generator stays independent and already uses bizName/email/etc.
     function buildPrompt(v={}){
       const tz=v.timezone||'America/New_York', biz=v.bizName||'the business', agent=v.agentName||'Alex';
       const industry=v.industry||'services', services=v.services||'General services', hours=v.hours||'Mon–Fri 9:00–17:00';
@@ -470,6 +416,68 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       ].join('\n');
     }
 
+    // ---------- JSON templating helpers ----------
+    function readTplObject(id){
+      const node = $(id);
+      if(!node) throw new Error('Missing template node: '+id);
+      const text = node.textContent ?? '';
+      if(!text.trim()) throw new Error('Empty template: '+id);
+      return JSON.parse(text);
+    }
+
+    const slug = (s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
+
+    function setWorkflowTimezone(obj, tz){
+      obj.settings = obj.settings || {};
+      obj.settings.timezone = tz || obj.settings.timezone || 'America/New_York';
+    }
+
+    function patchCalendarToolNode(obj, newCalendarId){
+      const nodes = obj.nodes || [];
+      for(const n of nodes){
+        if(n && n.type === 'n8n-nodes-base.googleCalendarTool' && n.parameters && n.parameters.calendar){
+          if (typeof n.parameters.calendar === 'object') {
+            n.parameters.calendar.value = newCalendarId;
+            n.parameters.calendar.cachedResultName = newCalendarId;
+          }
+        }
+      }
+    }
+
+    function patchWebhookPath(obj, newPath, which='check'){
+      const nodes = obj.nodes || [];
+      for(const n of nodes){
+        if(n && n.type === 'n8n-nodes-base.webhook' && n.parameters){
+          // Only change the path; n8n will assign webhookId on import.
+          n.parameters.path = newPath || n.parameters.path;
+        }
+      }
+    }
+
+    function renderWorkflow(templateId, v, kind){
+      const obj = readTplObject(templateId);
+      setWorkflowTimezone(obj, v.timezone);
+      patchCalendarToolNode(obj, v.calendarId || 'primary');
+      const base = 'aos-'+slug(v.bizName);
+      const path = kind==='book' ? `${base}-book` : `${base}-check`;
+      patchWebhookPath(obj, path, kind);
+      return JSON.stringify(obj, null, 2);
+    }
+
+    function enableDownload(btnId, text, filename){
+      const btn = $(btnId); if(!btn) return;
+      btn.disabled = false;
+      btn.onclick = (e)=>{
+        e.preventDefault();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        const ok = $('successMsg'); if (ok){ ok.textContent = filename+' downloaded ✅'; ok.classList.remove('hidden'); clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000); }
+      };
+    }
+
     function wirePromptDownload(){
       const btn = $('downloadPromptBtn'); if(!btn) return;
       btn.disabled = false;
@@ -489,11 +497,20 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       const spinner = $('previewSpinner'); const btn=$('previewBtn'); const out=$('promptOut');
       btn.disabled = true; spinner && spinner.classList.remove('hidden');
       try{
-        out.textContent = truncate(buildPrompt(getValues()));
+        const v = getValues();
+
+        // Prompt preview (already uses email/bizName/hours/etc.)
+        out.textContent = truncate(buildPrompt(v));
         wirePromptDownload();
-        enableDownload('downloadAvailBtn', readTplBytes('tplCheckAvailability'), 'checkAvailability.json');
-        enableDownload('downloadBookBtn',  readTplBytes('tplBookAppointment'),  'bookAppointment.json');
-        const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs are the exact embedded templates.';
+
+        // Render personalized JSON from your embedded templates
+        const availJson = renderWorkflow('tplCheckAvailability', v, 'check');
+        const bookJson  = renderWorkflow('tplBookAppointment',  v, 'book');
+
+        enableDownload('downloadAvailBtn', availJson, 'checkAvailability.json');
+        enableDownload('downloadBookBtn',  bookJson,  'bookAppointment.json');
+
+        const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
       }catch(e){
         console.error(e); alert('Error preparing downloads: '+e.message);
       }finally{
