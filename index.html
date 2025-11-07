@@ -31,9 +31,9 @@
       radial-gradient(1000px 600px at 100% 0%, rgba(34,42,130,.35), transparent 60%);}
     .glass{backdrop-filter:blur(10px);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
     .code{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace}
-    input,textarea{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.9rem 1rem}
+    input,textarea,select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.9rem 1rem}
     input::placeholder,textarea::placeholder{color:rgba(255,255,255,.4)}
-    input:focus,textarea:focus{outline:none;box-shadow:0 0 0 2px rgba(85,109,255,.5)}
+    input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 2px rgba(85,109,255,.5)}
     /* audio progress */
     .range {appearance:none;height:6px;border-radius:9999px;background:linear-gradient(to right,#556dff var(--pct,0%),rgba(255,255,255,.2) 0)}
     .range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:9999px;background:#fff;border:2px solid #556dff;box-shadow:0 0 0 3px rgba(85,109,255,.25)}
@@ -117,12 +117,21 @@
               </div>
               <textarea name="policies" rows="2" placeholder="Policies / deposits / refunds (optional)"></textarea>
 
-              <div class="mt-3 flex gap-3 flex-wrap">
-                <button type="button" id="previewBtn" class="px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium inline-flex items-center gap-2">
-                  <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                  <span>Generate Preview</span>
-                </button>
-                <button type="button" id="ttsBtn" class="px-4 py-3 rounded-xl border border-white/10 hover:bg-white/5 font-medium">▶ Hear AI Greeting</button>
+              <!-- NEW: Voice picker row -->
+              <div class="grid md:grid-cols-2 gap-4 items-end">
+                <div>
+                  <label class="block text-sm text-white/70 mb-1" for="voiceSelect">Voice</label>
+                  <select id="voiceSelect">
+                    <option>Loading voices…</option>
+                  </select>
+                </div>
+                <div class="mt-3 md:mt-0 flex gap-3 flex-wrap">
+                  <button type="button" id="previewBtn" class="px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium inline-flex items-center gap-2">
+                    <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <span>Generate Preview</span>
+                  </button>
+                  <button type="button" id="ttsBtn" class="px-4 py-3 rounded-xl border border-white/10 hover:bg-white/5 font-medium">▶ Hear AI Greeting</button>
+                </div>
               </div>
             </form>
           </div>
@@ -581,17 +590,83 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       finally{ spinner?.classList.add('hidden'); btn.disabled=false; }
     }
 
+    /* ---------- NEW: voices loader + robust TTS using JSON base64 ---------- */
+    async function loadVoices() {
+      const sel = $('voiceSelect');
+      if (!sel) return;
+      try {
+        // Try curated list from the server
+        const r = await fetch('/api/voices');
+        const j = await r.json();
+        sel.innerHTML = '';
+        if (j.ok && Array.isArray(j.data.voices) && j.data.voices.length) {
+          j.data.voices.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.id;          // '' = Default on server
+            opt.textContent = v.name;  // "Default", "Emma", "Mark"
+            sel.appendChild(opt);
+          });
+          return;
+        }
+      } catch {}
+      // Fallback: static list you wanted
+      sel.innerHTML = '';
+      [
+        { id:'', name:'Default' },
+        { id:'56bWURjYFHyYyVf490Dp', name:'Emma' },
+        { id:'UgBBYS2sOqTuMpoF3BR0', name:'Mark' }
+      ].forEach(v=>{
+        const opt=document.createElement('option');
+        opt.value=v.id; opt.textContent=v.name; sel.appendChild(opt);
+      });
+    }
+
     async function doTTS(){
       const v=getValues();
+      const sel = $('voiceSelect');
+      const voice_id = sel ? sel.value : '';
       const text=`Hey, this is ${v.agentName||'Alex'} with ${v.bizName||'your business'}. How can I help you today?`;
+
+      // Helper that expects JSON { ok, data: { audioBase64 } }
+      async function call(body){
+        const res = await fetch('/api/tts', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(body)
+        });
+        let data=null;
+        try{ data=await res.json(); }catch{}
+        if(!res.ok || !data?.ok){
+          const msg = data?.message || `HTTP ${res.status}`;
+          const code= data?.code || 'UNKNOWN';
+          throw new Error(`[${code}] ${msg}`);
+        }
+        return data.data.audioBase64;
+      }
+
       try{
-        const res=await fetch('/api/tts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,voice_id:'21m00Tcm4TlvDq8ikWAM',model_id:'eleven_multilingual_v2',voice_settings:{stability:0.5,similarity_boost:0.7}})});
-        if(!res.ok) throw new Error(await res.text());
-        const blob=await res.blob(); const url=URL.createObjectURL(blob);
-        const a=$('audio'); a.src=url; a.load(); // triggers UI show
-        $('audioDownload').href=url;
+        let audioB64;
+        try{
+          const body = { text };
+          if (voice_id) body.voice_id = voice_id; // Emma/Mark/Default
+          audioB64 = await call(body);
+        }catch(e){
+          // If upstream rejects the selected voice, retry with default
+          if(String(e.message).includes('[UPSTREAM]')){
+            audioB64 = await call({ text });
+          } else {
+            throw e;
+          }
+        }
+        const a=$('audio');
+        a.src = audioB64; // base64 data URL
+        a.load();
+        $('audioDownload').href = audioB64;
         a.play().catch(()=>{});
-      }catch(e){ console.error(e); alert('TTS error — check /api/tts & ELEVENLABS_API_KEY.'); }
+      }catch(e){
+        console.error(e);
+        alert('TTS failed: '+ e.message);
+      }
     }
 
     // Event delegation
@@ -604,6 +679,7 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
     function init(){
       wireChat();
       wireAudioUI();
+      loadVoices();
     }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
