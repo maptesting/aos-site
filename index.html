@@ -56,6 +56,7 @@
   <section class="relative gradient overflow-hidden">
     <div class="mx-auto max-w-7xl px-4 pt-20 pb-16 md:pt-24 md:pb-24">
       <div class="grid md:grid-cols-2 gap-16 items-start">
+        <!-- Left -->
         <div>
           <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
             AI Receptionist Prompt Pack — <span class="text-brand-500">Free Builder</span>
@@ -69,7 +70,7 @@
           </div>
         </div>
 
-        <!-- Demo chat -->
+        <!-- Live Demo Chat -->
         <div class="glass rounded-2xl p-6 md:p-8 shadow-soft mt-6 md:mt-0">
           <div class="text-sm text-white/60 mb-2">Talk to Ava — Receptionist at BrightSmile Dental Clinic</div>
           <div id="chatBox" class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
@@ -202,17 +203,215 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ====== EMBEDDED TEMPLATES (unchanged) ====== -->
-  <!-- tplCheckAvailability & tplBookAppointment blocks here EXACTLY as you had them -->
-  <!-- (kept for brevity) -->
+  <!-- ====== EMBEDDED TEMPLATES (DO NOT MOVE OR RENAME) ====== -->
+  <script id="tplCheckAvailability" type="application/json">
+{
+  "name": "checkAvailability",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0635b597-12bc-4601-87d9-530c58e028ff",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-640,432],
+      "id": "09e7f082-cfac-4027-80a6-9edeb64ef87d",
+      "name": "Webhook",
+      "webhookId": "0635b597-12bc-4601-87d9-530c58e028ff"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role: \n\nYou are an appointment availability checker. Your job is to get the requested time and use the calendar to check availability for the customer.\n\nThe current date and time is: {{ $now }}\n\nCustomer requested time is:\n{{ $json.body.message.toolCallList[0].function.arguments.time }}\n\nCalendar data:\nWorking hours 8am - 9pm\nLength of each slot: 1 hour\n\nBooking Process\n\n-Check if the customer’s requested time is available using the calendar\n-If the time is available let the AI model know & confirm\n-If the time is unavailable, suggest up to 2 alternative slots close to the requested time, by checking the availability again\n-If there are no slots upon rechecking within that day, search the next weekday from the current time and provide alternative slots. \n\nResponse & output:\n\n-If the requested time is available confirm it by saying:\nE.g: The requested time of 10am on June 22nd is available, just to confirm would you like to book this?\n-If you have found no availability or unavailable in the requested time, suggest up to 3 alternative slots closest to the requested time.\n-If no slots exist within the day suggest 3 more times the next weekday.\n-Your output must be natural and conversational e.g. “Hey there, the time that you requested of 10am on June 22nd is available, just to confirm would you like to book this?”\n\nImportant notes:\n\n- You must not output your result in the past, aways check availability in the future, use the current time you have received and the requested data to help make that decision.\n-Your ability to follow these steps precisely is very crucial and can impact the business’s reputation.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [-336,368],
+      "id": "75f18a8b-f48d-4027-8872-98ce8cbd7ecd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [-416,608],
+      "id": "bde217d0-c5bb-412f-9b56-b50967ddcbee",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "exm7lxhShqpiglPn",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [64,416],
+      "id": "ffe1fcc9-82a3-4284-9069-897621ab7d13",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "razerrtrading@gmail.com",
+          "mode": "list",
+          "cachedResultName": "razerrtrading@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [-144,624],
+      "id": "fe54952b-15ca-4f28-a9b3-476ca9858ae4",
+      "name": "check availability",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "VyBLeoRYD28XxnYS",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": { "Webhook": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
+  "connections": {
+    "Webhook": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] },
+    "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
+    "AI Agent": { "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ] },
+    "check availability": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "6244fb20-f4d2-4e76-bc7b-bfbcc2e69ffb",
+  "meta": { "templateCredsSetupCompleted": true, "instanceId": "7f9d..." },
+  "id": "s2Oz4PD8hi3d8dXJ",
+  "tags": []
+}
+  </script>
+
+  <script id="tplBookAppointment" type="application/json">
+{
+  "name": "bookAppointment",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a appointment booking AI Agent your job is to use the \"Create an event in Google Calendar\" tool to get the details of the customer and create a event/ booking in the calendar. \n\nThe confirmed time:  {{ $json.body.message.toolCalls[0].function.arguments.time }}\n\nTime now (use for bookings) : {{ $now }}\n\nAppointment duration will be one hour. Simply add one hour on to the confirm time, use the confirm time as the start time and then simply just add one hour on to the confirm time to get the end time. \n\nIf the event has been schedualed please provide your output in this format:\n\nOutput: \n\nHey there the appointment at July 18th 2025 for a message has been schedualed we will see you there. ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [-832,144],
+      "id": "b4d922ad-2b69-49d5-a2da-17c1ecbe345f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [-912,384],
+      "id": "c1c61458-8e97-4e7c-ab54-d395e74ae84a",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "razerrtrading@gmail.com",
+          "mode": "list",
+          "cachedResultName": "razerrtrading@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [ "={{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}" ],
+          "description": "=Details of the Appointment: \nname:{{ $json.body.message.toolCallList[0].function.arguments.full_name }} \nService Type: {{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.service_type }}\nTime::{{ $json.body.message.toolCallList[0].function.arguments.time }} \nEmail:{{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}",
+          "summary": "=New Appointment For  {{ $json.body.message.toolCallList[0].function.arguments.full_name }} at {{ $json.body.message.toolCallList[0].function.arguments.time }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [-672,384],
+      "id": "7b5d02c2-e5e4-4609-ad6c-4ba402a9a757",
+      "name": "Create an event in Google Calendar"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [-368,224],
+      "id": "57b1eac0-b482-4a59-9228-a6cc5cd30025",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test77823457892345879245",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1104,208],
+      "id": "a5013f1c-24ed-4d41-8d36-e9a579100421",
+      "name": "Webhook1",
+      "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
+    }
+  ],
+  "pinData": { "Webhook1": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
+  "connections": {
+    "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
+    "Create an event in Google Calendar": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] },
+    "AI Agent": { "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ] },
+    "Webhook1": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1204e689-05e3-4059-82cc-e6e5cac9d410",
+  "meta": { "instanceId": "7f9d..." },
+  "id": "rk03nuO44WQh49bc",
+  "tags": []
+}
+  </script>
   <!-- ====== /EMBEDDED TEMPLATES ====== -->
 
-  <!-- Logic -->
+  <!-- Binder: chat send, TTS player, personalized JSON downloads, prompt -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
 
-    /* Chat (unchanged) */
+    /* ---------------- DEMO CHAT ---------------- */
     function addMsg(role, text){
       const wrap = $('chatBox'); if(!wrap) return;
       const row = document.createElement('div');
@@ -233,12 +432,13 @@
         const t=input.value.trim(); if(!t) return;
         addMsg('user', t);
         input.value='';
+        // simple demo reply
         setTimeout(()=>addMsg('bot', "Thanks! (Demo chat only) — the real receptionist runs in your n8n workflows."), 400);
       });
       $('chatSend')?.addEventListener('click',()=>form.requestSubmit());
     }
 
-    /* Form values + prompt (unchanged) */
+    /* -------------- FORM & PROMPT -------------- */
     function getValues(){
       const form = $('aiForm'); if(!form) return {};
       const v = Object.fromEntries(new FormData(form).entries());
@@ -286,7 +486,6 @@ Answer questions and help book appointments quickly.
 Warm, concise, confident; use contractions. Don’t invent availability outside ${hours}. Confirm final date/time + contact details.`
       ].join('\n');
     }
-
     function wirePromptDownload(){
       const btn = $('downloadPromptBtn'); if(!btn) return;
       btn.disabled = false;
@@ -297,14 +496,27 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
         a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain;charset=utf-8' }));
         a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
         a.click(); URL.revokeObjectURL(a.href);
-        const ok=$('successMsg'); if(ok){ ok.textContent='Prompt downloaded ✅'; ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),2000); }
+        flashOk('Prompt downloaded ✅');
       };
     }
+    function flashOk(msg){
+      const ok=$('successMsg'); if(!ok) return;
+      ok.textContent = msg; ok.classList.remove('hidden');
+      clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000);
+    }
 
-    /* Workflows (unchanged) */
+    /* -------------- JSON TEMPLATING -------------- */
     function readTplObject(id){
-      const node=$(id); if(!node) throw new Error('Missing template node: '+id);
-      const text=node.textContent??''; if(!text.trim()) throw new Error('Empty template: '+id);
+      const node=$(id);
+      if(!node){
+        const n=$('notice'); if(n) n.textContent=`Template "${id}" is missing — make sure the <script id="${id}" type="application/json"> block is present above the main script.`;
+        throw new Error('Missing template node: '+id);
+      }
+      const text=node.textContent??'';
+      if(!text.trim()){
+        const n=$('notice'); if(n) n.textContent=`Template "${id}" is empty.`;
+        throw new Error('Empty template: '+id);
+      }
       return JSON.parse(text);
     }
     const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
@@ -337,11 +549,11 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
         const a=document.createElement('a');
         a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));
         a.download=name; a.click(); URL.revokeObjectURL(a.href);
-        const ok=$('successMsg'); if(ok){ ok.textContent=name+' downloaded ✅'; ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),2000); }
+        flashOk(name+' downloaded ✅');
       };
     }
 
-    /* Audio player */
+    /* -------------- CUSTOM AUDIO PLAYER -------------- */
     function fmt(s){ s = Math.max(0, s|0); const m=(s/60)|0, sec=(s%60)|0; return m+':'+(sec<10?'0':'')+sec; }
     function wireAudioUI(){
       const a=$('audio'), box=$('audioUI'); if(!a || !box) return;
@@ -367,14 +579,16 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       });
     }
 
-    /* Preview action */
+    /* -------------- ACTIONS -------------- */
     async function doPreview(){
       const spinner=$('previewSpinner'), btn=$('previewBtn'), out=$('promptOut');
       btn.disabled=true; spinner?.classList.remove('hidden');
       try{
         const v=getValues();
+        // prompt
         out.textContent = (truncate(buildPrompt(v)));
         wirePromptDownload();
+        // personalized JSON
         const avail = renderWorkflow('tplCheckAvailability', v, 'check');
         const book  = renderWorkflow('tplBookAppointment',  v, 'book');
         enableDownload('downloadAvailBtn', avail, 'checkAvailability.json');
@@ -384,7 +598,7 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       finally{ spinner?.classList.add('hidden'); btn.disabled=false; }
     }
 
-    /* Voices + TTS */
+    /* ---------- Voices + TTS ---------- */
     async function loadVoices() {
       const sel = $('voiceSelect'); if (!sel) return;
       try {
@@ -394,14 +608,13 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
         if (j.ok && Array.isArray(j.data.voices) && j.data.voices.length) {
           j.data.voices.forEach(v => {
             const opt = document.createElement('option');
-            opt.value = v.id;
-            opt.textContent = v.name;
+            opt.value = v.id; opt.textContent = v.name;
             sel.appendChild(opt);
           });
           return;
         }
       } catch {}
-      // fallback if API missing
+      // Fallback static list
       sel.innerHTML = '';
       [
         { id:'', name:'Default' },
@@ -414,8 +627,7 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
     }
 
     async function doTTS(){
-      const ttsBtn = $('ttsBtn');
-      if (ttsBtn) ttsBtn.disabled = true;          // prevent double-clicks (avoids 429)
+      const ttsBtn = $('ttsBtn'); if (ttsBtn) ttsBtn.disabled = true;
       const v=getValues();
       const voice_id = ($('voiceSelect')?.value)||'';
       const text=`Hey, this is ${v.agentName||'Alex'} with ${v.bizName||'your business'}. How can I help you today?`;
@@ -434,39 +646,33 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       try{
         let audioB64;
         try{
-          const body = { text };
-          if (voice_id) body.voice_id = voice_id;
+          const body = { text }; if (voice_id) body.voice_id = voice_id;
           audioB64 = await call(body);
         }catch(e){
-          // ElevenLabs concurrency or voice perms: retry once with default
+          // concurrency/voice perms: retry once with default
           if(String(e.message).includes('[UPSTREAM]')){
             audioB64 = await call({ text });
-          } else {
-            throw e;
-          }
+          } else { throw e; }
         }
         const a=$('audio');
-        a.src = audioB64;
-        a.load();
+        a.src = audioB64; a.load();
         $('audioDownload').href = audioB64;
         await a.play().catch(()=>{});
       }catch(e){
-        console.error(e);
-        alert('TTS failed: '+ e.message);
+        console.error(e); alert('TTS failed: '+ e.message);
       } finally {
         if (ttsBtn) ttsBtn.disabled = false;
       }
     }
 
-    // Wire events
+    // Events
     document.addEventListener('click',(ev)=>{
       if(ev.target.closest('#previewBtn')){ ev.preventDefault(); doPreview(); }
       if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
     });
 
-    function init(){
-      wireChat(); wireAudioUI(); loadVoices();
-    }
+    // init
+    function init(){ wireChat(); wireAudioUI(); loadVoices(); }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
   </script>
