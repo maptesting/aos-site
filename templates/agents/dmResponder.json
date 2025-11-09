@@ -1,0 +1,27 @@
+{
+  "name": "AI DM Responder",
+  "nodes": [
+    { "parameters": { "path": "dm-responder", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (DM)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{\"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.5,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_DM_RESPONDER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - DM Reply", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const s=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(s);}catch(e){p={reply:s,suggestedTag:\"lead\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "url": "{{PLATFORM_REPLY_WEBHOOK}}", "jsonParameters": true, "options": {}, "sendBody": true, "bodyParametersJson": "={\"conversationId\": $json.conversationId || \"\", \"reply\": $json.reply }" }, "id": "5", "name": "HTTP - Send Reply to Platform", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [1180, 220] },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "ConversationId", "fieldValue": "={{$json.conversationId}}" }, { "fieldId": "Reply", "fieldValue": "={{$json.reply}}" }, { "fieldId": "Tag", "fieldValue": "={{$json.suggestedTag}}" } ] } }, "id": "6", "name": "Airtable - Log", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1180, 380], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "7", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1400, 300] }
+  ],
+  "connections": {
+    "Webhook (DM)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - DM Reply", "type": "main", "index": 0 } ] ] },
+    "OpenAI - DM Reply": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [ { "node": "HTTP - Send Reply to Platform", "type": "main", "index": 0 } ],
+        [ { "node": "Airtable - Log", "type": "main", "index": 0 } ],
+        [ { "node": "Return", "type": "main", "index": 0 } ]
+      ]
+    },
+    "HTTP - Send Reply to Platform": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Airtable - Log": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
