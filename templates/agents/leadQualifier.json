@@ -1,0 +1,32 @@
+{
+  "name": "AI Lead Qualifier",
+  "nodes": [
+    { "parameters": { "path": "lead", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (Lead In)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{ \"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.2,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_LEAD_QUALIFIER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - Qualify", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const t=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(t);}catch(e){p={score:50,tier:\"B\",reason:t,recommendedNext:\"nurture\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{$json.recommendedNext}}", "operation": "equal", "value2": "book_call" } ] } }, "id": "5", "name": "IF Book Call", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [1180, 240] },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.emailToLead?.to || $json.lead?.email || \"\"}}", "subject": "={{$json.emailToLead.subject}}", "text": "={{$json.emailToLead.textBody}}" }, "id": "6", "name": "Email Lead", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 140], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "{{BIZ_EMAIL}}", "subject": "={{$json.emailToOwner.subject}}", "text": "={{$json.emailToOwner.textBody}}" }, "id": "7", "name": "Email Owner", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 300], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "Score", "fieldValue": "={{$json.score}}" }, { "fieldId": "Tier", "fieldValue": "={{$json.tier}}" }, { "fieldId": "Reason", "fieldValue": "={{$json.reason}}" }, { "fieldId": "Next", "fieldValue": "={{$json.recommendedNext}}" } ] } }, "id": "8", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1620, 240], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "9", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1840, 240] }
+  ],
+  "connections": {
+    "Webhook (Lead In)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - Qualify", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Qualify": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [ { "node": "IF Book Call", "type": "main", "index": 0 } ],
+        [ { "node": "Email Owner", "type": "main", "index": 0 } ],
+        [ { "node": "Log to Airtable", "type": "main", "index": 0 } ],
+        [ { "node": "Return", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF Book Call": { "main": [ [ { "node": "Email Lead", "type": "main", "index": 0 } ] ] },
+    "Email Lead": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Email Owner": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
