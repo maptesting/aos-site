@@ -1,0 +1,27 @@
+{
+  "name": "AI Invoice & Follow-ups",
+  "nodes": [
+    { "parameters": { "path": "invoice", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (Create/Reminder)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "const b=$json; return [{payload:b}];" }, "id": "2", "name": "Normalize", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "authentication": "none", "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "responseFormat": "json", "sendBody": true, "headerParametersJson": "{ \"Authorization\": \"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\n  \"model\":\"{{OPENAI_MODEL}}\",\n  \"temperature\":0.3,\n  \"messages\":[\n    {\"role\":\"system\",\"content\":`YOU_ARE_INVOICE_ASSISTANT`},\n    {\"role\":\"user\",\"content\": JSON.stringify($json.payload) }\n  ]\n}" }, "id": "3", "name": "OpenAI - Draft Invoice/Reminder", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const c=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(c);}catch(e){p={intent:\"invoice\",toEmail:\"\",subject:\"Invoice\",textBody:c,total:0};} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.toEmail}}", "subject": "={{$json.subject}}", "text": "={{$json.textBody}}" }, "id": "5", "name": "Send Email", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1180, 200], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "Client", "fieldValue": "={{$json.toEmail}}" }, { "fieldId": "Subject", "fieldValue": "={{$json.subject}}" }, { "fieldId": "Total", "fieldValue": "={{$json.total}}" }, { "fieldId": "DueISO", "fieldValue": "={{$json.dueISO}}" }, { "fieldId": "PaymentLink", "fieldValue": "={{$json.paymentLink}}" } ] } }, "id": "6", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1180, 400], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "7", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1400, 300] }
+  ],
+  "connections": {
+    "Webhook (Create/Reminder)": { "main": [ [ { "node": "Normalize", "type": "main", "index": 0 } ] ] },
+    "Normalize": { "main": [ [ { "node": "OpenAI - Draft Invoice/Reminder", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Draft Invoice/Reminder": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [ { "node": "Send Email", "type": "main", "index": 0 } ],
+        [ { "node": "Log to Airtable", "type": "main", "index": 0 } ],
+        [ { "node": "Return", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Send Email": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
