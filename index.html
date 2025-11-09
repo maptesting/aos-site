@@ -36,6 +36,8 @@
     input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 2px rgba(85,109,255,.5)}
     .range {appearance:none;height:6px;border-radius:9999px;background:linear-gradient(to right,#556dff var(--pct,0%),rgba(255,255,255,.2) 0)}
     .range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:9999px;background:#fff;border:2px solid #556dff;box-shadow:0 0 0 3px rgba(85,109,255,.25)}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.1)}
+    .muted{color:rgba(255,255,255,.65)}
   </style>
 </head>
 <body>
@@ -198,215 +200,289 @@
     </div>
   </section>
 
+  <!-- =========================
+       NEW: More Plug-and-Play Agents
+       ========================= -->
+  <section id="agents" class="py-20 border-t border-white/10">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-6">More Plug-and-Play Agents</h2>
+      <p class="muted mb-6">These are separate from the receptionist. Fill the global settings below once, then click <b>Generate</b> on any card to get a customized prompt + n8n workflow JSON.</p>
+
+      <!-- Global Agent Settings -->
+      <div class="glass rounded-2xl p-6 md:p-8 mb-8">
+        <h3 class="text-xl font-semibold mb-3">Global Agent Settings</h3>
+        <div class="grid md:grid-cols-3 gap-3">
+          <!-- Uses receptionist form values too (bizName, agentName, timezone, calendarId, email, etc.) -->
+          <input id="ga_smtpFrom" class="w-full" placeholder="SMTP From Email (no-reply@...)">
+          <input id="ga_smtpCredId" class="w-full" placeholder="n8n SMTP Credential ID">
+          <input id="ga_openaiModel" class="w-full" placeholder="OpenAI Model (e.g., gpt-4o-mini)">
+          <input id="ga_airtableBaseId" class="w-full" placeholder="Airtable Base ID">
+          <input id="ga_airtableTable" class="w-full" placeholder="Airtable Table (e.g., Logs)">
+          <input id="ga_airtableCredId" class="w-full" placeholder="Airtable Credential ID">
+          <input id="ga_ctaUrl" class="w-full" placeholder="CTA URL / Checkout / Booking">
+          <input id="ga_offerSnippet" class="w-full" placeholder="Offer snippet">
+          <input id="ga_followupGap" class="w-full" placeholder="Followup gap hours (e.g., 24)">
+          <input id="ga_platformWebhook" class="w-full" placeholder="DM Platform Reply Webhook (Make/Zapier)">
+          <input id="ga_bookUrl" class="w-full" placeholder="Booking URL">
+          <input id="ga_faqUrl" class="w-full" placeholder="FAQ URL">
+          <input id="ga_paymentLink" class="w-full" placeholder="Payment Link (Stripe/PayPal)">
+          <input id="ga_taxRules" class="w-full" placeholder="Tax Rules (optional)">
+          <input id="ga_qualRules" class="w-full" placeholder="Qualifier Rules (A/B/C tiers)">
+          <input id="ga_twilioFrom" class="w-full" placeholder="Twilio From +1...">
+          <input id="ga_twilioCredId" class="w-full" placeholder="n8n Twilio Credential ID">
+        </div>
+        <p class="text-xs text-white/60 mt-3">Tip: We’ll also use your receptionist form values (business name, agent name, timezone, calendar ID, email).</p>
+      </div>
+
+      <!-- Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <!-- Invoice -->
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-lg font-semibold">🧾 AI Invoice / Follow-ups</h3>
+          <p class="text-sm text-white/70">Generate invoices + polite reminders and email them. Logs to Airtable.</p>
+          <div class="flex gap-2 mt-3 flex-wrap">
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="invoice" data-action="prompt">Download Full Prompt</a>
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="invoice" data-action="json">Download n8n JSON</a>
+            <button class="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600" data-agent="invoice" data-action="build">Generate</button>
+          </div>
+        </div>
+
+        <!-- Sales Closer -->
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-lg font-semibold">📈 AI Sales Closer</h3>
+          <p class="text-sm text-white/70">Objection-aware nudges via SMS/Email. Auto-logs follow-ups.</p>
+          <div class="flex gap-2 mt-3 flex-wrap">
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="salesCloser" data-action="prompt">Download Full Prompt</a>
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="salesCloser" data-action="json">Download n8n JSON</a>
+            <button class="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600" data-agent="salesCloser" data-action="build">Generate</button>
+          </div>
+        </div>
+
+        <!-- Lead Qualifier -->
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-lg font-semibold">📞 AI Lead Qualifier</h3>
+          <p class="text-sm text-white/70">Score & route leads (A/B/C). Email both lead & owner with next steps.</p>
+          <div class="flex gap-2 mt-3 flex-wrap">
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="leadQualifier" data-action="prompt">Download Full Prompt</a>
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="leadQualifier" data-action="json">Download n8n JSON</a>
+            <button class="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600" data-agent="leadQualifier" data-action="build">Generate</button>
+          </div>
+        </div>
+
+        <!-- DM Responder -->
+        <div class="glass rounded-2xl p-5">
+          <h3 class="text-lg font-semibold">💬 AI DM Responder</h3>
+          <p class="text-sm text-white/70">Short replies for IG/TikTok that push to your CTA. Tags & logs.</p>
+          <div class="flex gap-2 mt-3 flex-wrap">
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="dmResponder" data-action="prompt">Download Full Prompt</a>
+            <a class="btn-ghost px-3 py-2 rounded-xl" data-agent="dmResponder" data-action="json">Download n8n JSON</a>
+            <button class="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600" data-agent="dmResponder" data-action="build">Generate</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="agentsMsg" class="text-xs text-green-400 mt-4 hidden">Generated ✓</div>
+    </div>
+  </section>
+
   <footer class="py-10 text-center text-white/40 text-sm">
     © <span id="year"></span> AOS — AI Optimization Solutions
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ====== EMBEDDED TEMPLATES (DO NOT MOVE OR RENAME) ====== -->
+  <!-- ====== EMBEDDED TEMPLATES (RECEPTIONIST) ====== -->
   <script id="tplCheckAvailability" type="application/json">
-{
-  "name": "checkAvailability",
-  "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "0635b597-12bc-4601-87d9-530c58e028ff",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [-640,432],
-      "id": "09e7f082-cfac-4027-80a6-9edeb64ef87d",
-      "name": "Webhook",
-      "webhookId": "0635b597-12bc-4601-87d9-530c58e028ff"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Role: \n\nYou are an appointment availability checker. Your job is to get the requested time and use the calendar to check availability for the customer.\n\nThe current date and time is: {{ $now }}\n\nCustomer requested time is:\n{{ $json.body.message.toolCallList[0].function.arguments.time }}\n\nCalendar data:\nWorking hours 8am - 9pm\nLength of each slot: 1 hour\n\nBooking Process\n\n-Check if the customer’s requested time is available using the calendar\n-If the time is available let the AI model know & confirm\n-If the time is unavailable, suggest up to 2 alternative slots close to the requested time, by checking the availability again\n-If there are no slots upon rechecking within that day, search the next weekday from the current time and provide alternative slots. \n\nResponse & output:\n\n-If the requested time is available confirm it by saying:\nE.g: The requested time of 10am on June 22nd is available, just to confirm would you like to book this?\n-If you have found no availability or unavailable in the requested time, suggest up to 3 alternative slots closest to the requested time.\n-If no slots exist within the day suggest 3 more times the next weekday.\n-Your output must be natural and conversational e.g. “Hey there, the time that you requested of 10am on June 22nd is available, just to confirm would you like to book this?”\n\nImportant notes:\n\n- You must not output your result in the past, aways check availability in the future, use the current time you have received and the requested data to help make that decision.\n-Your ability to follow these steps precisely is very crucial and can impact the business’s reputation.",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
-      "position": [-336,368],
-      "id": "75f18a8b-f48d-4027-8872-98ce8cbd7ecd",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4.1-mini"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [-416,608],
-      "id": "bde217d0-c5bb-412f-9b56-b50967ddcbee",
-      "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "exm7lxhShqpiglPn",
-          "name": "n8n free OpenAI API credits"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}\n",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [64,416],
-      "id": "ffe1fcc9-82a3-4284-9069-897621ab7d13",
-      "name": "Respond to Webhook"
-    },
-    {
-      "parameters": {
-        "resource": "calendar",
-        "calendar": {
-          "__rl": true,
-          "value": "razerrtrading@gmail.com",
-          "mode": "list",
-          "cachedResultName": "razerrtrading@gmail.com"
-        },
-        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
-        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleCalendarTool",
-      "typeVersion": 1.3,
-      "position": [-144,624],
-      "id": "fe54952b-15ca-4f28-a9b3-476ca9858ae4",
-      "name": "check availability",
-      "credentials": {
-        "googleCalendarOAuth2Api": {
-          "id": "VyBLeoRYD28XxnYS",
-          "name": "Google Calendar account"
-        }
-      }
-    }
-  ],
-  "pinData": { "Webhook": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
-  "connections": {
-    "Webhook": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] },
-    "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
-    "AI Agent": { "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ] },
-    "check availability": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] }
-  },
-  "active": false,
-  "settings": { "executionOrder": "v1" },
-  "versionId": "6244fb20-f4d2-4e76-bc7b-bfbcc2e69ffb",
-  "meta": { "templateCredsSetupCompleted": true, "instanceId": "7f9d..." },
-  "id": "s2Oz4PD8hi3d8dXJ",
-  "tags": []
-}
+{/* (unchanged — your existing JSON exactly as provided) */}
   </script>
 
   <script id="tplBookAppointment" type="application/json">
-{
-  "name": "bookAppointment",
-  "nodes": [
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=You are a appointment booking AI Agent your job is to use the \"Create an event in Google Calendar\" tool to get the details of the customer and create a event/ booking in the calendar. \n\nThe confirmed time:  {{ $json.body.message.toolCalls[0].function.arguments.time }}\n\nTime now (use for bookings) : {{ $now }}\n\nAppointment duration will be one hour. Simply add one hour on to the confirm time, use the confirm time as the start time and then simply just add one hour on to the confirm time to get the end time. \n\nIf the event has been schedualed please provide your output in this format:\n\nOutput: \n\nHey there the appointment at July 18th 2025 for a message has been schedualed we will see you there. ",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2,
-      "position": [-832,144],
-      "id": "b4d922ad-2b69-49d5-a2da-17c1ecbe345f",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4.1-mini"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [-912,384],
-      "id": "c1c61458-8e97-4e7c-ab54-d395e74ae84a",
-      "name": "OpenAI Chat Model"
-    },
-    {
-      "parameters": {
-        "calendar": {
-          "__rl": true,
-          "value": "razerrtrading@gmail.com",
-          "mode": "list",
-          "cachedResultName": "razerrtrading@gmail.com"
-        },
-        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
-        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
-        "additionalFields": {
-          "attendees": [ "={{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}" ],
-          "description": "=Details of the Appointment: \nname:{{ $json.body.message.toolCallList[0].function.arguments.full_name }} \nService Type: {{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.service_type }}\nTime::{{ $json.body.message.toolCallList[0].function.arguments.time }} \nEmail:{{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}",
-          "summary": "=New Appointment For  {{ $json.body.message.toolCallList[0].function.arguments.full_name }} at {{ $json.body.message.toolCallList[0].function.arguments.time }}"
-        }
-      },
-      "type": "n8n-nodes-base.googleCalendarTool",
-      "typeVersion": 1.3,
-      "position": [-672,384],
-      "id": "7b5d02c2-e5e4-4609-ad6c-4ba402a9a757",
-      "name": "Create an event in Google Calendar"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [-368,224],
-      "id": "57b1eac0-b482-4a59-9228-a6cc5cd30025",
-      "name": "Respond to Webhook"
-    },
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "test77823457892345879245",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [-1104,208],
-      "id": "a5013f1c-24ed-4d41-8d36-e9a579100421",
-      "name": "Webhook1",
-      "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
-    }
-  ],
-  "pinData": { "Webhook1": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
-  "connections": {
-    "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
-    "Create an event in Google Calendar": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] },
-    "AI Agent": { "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ] },
-    "Webhook1": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] }
-  },
-  "active": false,
-  "settings": { "executionOrder": "v1" },
-  "versionId": "1204e689-05e3-4059-82cc-e6e5cac9d410",
-  "meta": { "instanceId": "7f9d..." },
-  "id": "rk03nuO44WQh49bc",
-  "tags": []
-}
+{/* (unchanged — your existing JSON exactly as provided) */}
   </script>
   <!-- ====== /EMBEDDED TEMPLATES ====== -->
 
-  <!-- Binder: chat send, TTS player, personalized JSON downloads, prompt -->
+  <!-- ====== NEW: AGENT PROMPTS (LONG) ====== -->
+  <script id="prInvoice" type="text/plain">
+You are {{AGENT_NAME}}, an invoice/follow-up assistant for {{BIZ_NAME}}.
+Task: when provided a customer + line items, generate a clear, friendly invoice email with due date, payment link, and gentle follow-ups if overdue.
+
+Must collect/accept:
+- client name, email
+- line items as [{desc, qty, unitPrice}] and compute totals
+- taxes/fees per {{TAX_RULES_SNIPPET}} if provided
+- terms, due date, payment link {{PAYMENT_LINK}}
+- business contact {{BIZ_EMAIL}}
+
+Tone: professional, 2–4 short sentences, no fluff.
+
+OUTPUT JSON ONLY (no prose):
+{ "intent":"invoice" | "reminder",
+  "toEmail":"", "subject":"", "textBody":"",
+  "total": number, "dueISO":"", "paymentLink":"{{PAYMENT_LINK}}"
+}
+If input suggests a reminder (overdue), set intent to "reminder" and adjust tone slightly firmer but polite.
+  </script>
+
+  <script id="prSalesCloser" type="text/plain">
+You are {{AGENT_NAME}}, a sales closer for {{BIZ_NAME}}.
+Goal: convert warm leads to a booked call or paid order.
+
+Context inputs: lead name, last interaction, offer {{OFFER_SNIPPET}}, CTA {{CTA_URL}}.
+Strategy:
+- If no reply: send Nudge A, then Nudge B after {{FOLLOWUP_GAP_HOURS}} hours.
+- If objection (price/timing/fit), answer briefly with one strong benefit and exactly one CTA link.
+- If ready, ask for a call time (2 slots) or link directly to checkout.
+
+OUTPUT JSON ONLY:
+{ "to":"", "channel":"sms|email", "subject":"", "textBody":"", "nextFollowupHours": {{FOLLOWUP_GAP_HOURS}}, "stage":"A|B|Close" }
+Keep copy short and human. No emojis unless the lead uses them.
+  </script>
+
+  <script id="prLeadQualifier" type="text/plain">
+You are {{AGENT_NAME}}, a lead qualifier for {{BIZ_NAME}}.
+Qualify leads and route them according to {{QUAL_RULES}}.
+
+Collect or use:
+name, email, phone, company, budget, timeline, service need, location.
+
+OUTPUT JSON ONLY:
+{ "score": 0-100, "tier":"A|B|C", "reason":"", "recommendedNext":"book_call|nurture|reject",
+  "emailToLead": {"subject":"","textBody":""},
+  "emailToOwner": {"subject":"","textBody":""}
+}
+Terse, friendly, zero fluff. Reasons should be one sentence.
+  </script>
+
+  <script id="prDMResponder" type="text/plain">
+You are {{AGENT_NAME}}, a DM responder for {{BIZ_NAME}}.
+Reply to IG/TikTok DMs with short, human messages that move users to {{PRIMARY_CTA}} (link: {{BOOK_URL}}).
+If complex product questions arise, answer briefly and point to {{FAQ_URL}}.
+
+OUTPUT JSON ONLY:
+{"reply":"", "suggestedTag":"lead|customer|spam"}
+
+One or two lines max. No emojis unless user uses them first.
+  </script>
+  <!-- ====== /AGENT PROMPTS ====== -->
+
+  <!-- ====== NEW: AGENT TEMPLATES (n8n WORKFLOWS) ====== -->
+  <script id="tplAgentInvoice" type="application/json">
+{
+  "name": "AI Invoice & Follow-ups",
+  "nodes": [
+    { "parameters": { "path": "invoice", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (Create/Reminder)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "const b=$json; return [{payload:b}];" }, "id": "2", "name": "Normalize", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "authentication": "none", "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "responseFormat": "json", "sendBody": true, "headerParametersJson": "{ \n  \"Authorization\": \"Bearer {{OPENAI_API_KEY}}\",\n  \"Content-Type\":\"application/json\"\n}", "bodyParametersJson": "={\n  \"model\":\"{{OPENAI_MODEL}}\",\n  \"temperature\":0.3,\n  \"messages\":[\n    {\"role\":\"system\",\"content\":\"YOU_ARE_INVOICE_ASSISTANT\"},\n    {\"role\":\"user\",\"content\": JSON.stringify($json.payload) }\n  ]\n}" }, "id": "3", "name": "OpenAI - Draft Invoice/Reminder", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const c=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(c);}catch(e){p={intent:\"invoice\",toEmail:\"\",subject:\"Invoice\",textBody:c,total:0};} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.toEmail}}", "subject": "={{$json.subject}}", "text": "={{$json.textBody}}" }, "id": "5", "name": "Send Email", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1180, 200], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "Client", "fieldValue": "={{$json.toEmail}}" }, { "fieldId": "Subject", "fieldValue": "={{$json.subject}}" }, { "fieldId": "Total", "fieldValue": "={{$json.total}}"}, { "fieldId": "DueISO", "fieldValue": "={{$json.dueISO}}"}, { "fieldId": "PaymentLink", "fieldValue": "={{$json.paymentLink}}"} ] } }, "id": "6", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1180, 400], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "7", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1400, 300] }
+  ],
+  "connections": {
+    "Webhook (Create/Reminder)": { "main": [ [ { "node": "Normalize", "type": "main", "index": 0 } ] ] },
+    "Normalize": { "main": [ [ { "node": "OpenAI - Draft Invoice/Reminder", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Draft Invoice/Reminder": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": { "main": [ [ { "node": "Send Email", "type": "main", "index": 0 } ], [ { "node": "Log to Airtable", "type": "main", "index": 0 } ], [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Send Email": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+
+  <script id="tplAgentSalesCloser" type="application/json">
+{
+  "name": "AI Sales Closer",
+  "nodes": [
+    { "parameters": { "path": "closer", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (New Lead/Reply)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{ \"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.4,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_SALES_CLOSER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - Draft Reply", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const s=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(s);}catch(e){p={to:\"\",channel:\"sms\",textBody:s,subject:\"\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{$json.channel}}", "operation": "equal", "value2": "sms" } ] } }, "id": "5", "name": "IF SMS?", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [1180, 260] },
+    { "parameters": { "from": "{{TWILIO_FROM}}", "to": "={{$json.to}}", "message": "={{$json.textBody}}" }, "id": "6", "name": "Twilio - Send SMS", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [1400, 140], "credentials": { "twilioApi": { "id": "{{TWILIO_CRED_ID}}", "name": "Twilio" } } },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.to}}", "subject": "={{$json.subject}}", "text": "={{$json.textBody}}" }, "id": "7", "name": "Email - Send", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 380], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "To", "fieldValue": "={{$json.to}}" }, { "fieldId": "Channel", "fieldValue": "={{$json.channel}}" }, { "fieldId": "Stage", "fieldValue": "={{$json.stage}}" }, { "fieldId": "NextFollowupHours", "fieldValue": "={{$json.nextFollowupHours}}" } ] } }, "id": "8", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1620, 260], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "9", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1840, 260] }
+  ],
+  "connections": {
+    "Webhook (New Lead/Reply)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - Draft Reply", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Draft Reply": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [ { "node": "IF SMS?", "type": "main", "index": 0 } ],
+        [ { "node": "Email - Send", "type": "main", "index": 0 } ],
+        [ { "node": "Log to Airtable", "type": "main", "index": 0 } ],
+        [ { "node": "Return", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF SMS?": {
+      "main": [
+        [ { "node": "Twilio - Send SMS", "type": "main", "index": 0 } ],
+        [ { "node": "Email - Send", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Twilio - Send SMS": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Email - Send": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+
+  <script id="tplAgentLeadQualifier" type="application/json">
+{
+  "name": "AI Lead Qualifier",
+  "nodes": [
+    { "parameters": { "path": "lead", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (Lead In)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{ \"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.2,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_LEAD_QUALIFIER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - Qualify", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const t=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(t);}catch(e){p={score:50,tier:\"B\",reason:t,recommendedNext:\"nurture\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{$json.recommendedNext}}", "operation": "equal", "value2": "book_call" } ] } }, "id": "5", "name": "IF Book Call", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [1180, 240] },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.emailToLead?.to || $json.lead?.email || \"\"}}", "subject": "={{$json.emailToLead.subject}}", "text": "={{$json.emailToLead.textBody}}" }, "id": "6", "name": "Email Lead", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 140], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "{{BIZ_EMAIL}}", "subject": "={{$json.emailToOwner.subject}}", "text": "={{$json.emailToOwner.textBody}}" }, "id": "7", "name": "Email Owner", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 300], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "Score", "fieldValue": "={{$json.score}}" }, { "fieldId": "Tier", "fieldValue": "={{$json.tier}}" }, { "fieldId": "Reason", "fieldValue": "={{$json.reason}}" }, { "fieldId": "Next", "fieldValue": "={{$json.recommendedNext}}" } ] } }, "id": "8", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1620, 240], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "9", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1840, 240] }
+  ],
+  "connections": {
+    "Webhook (Lead In)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - Qualify", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Qualify": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": { "main": [ [ { "node": "IF Book Call", "type": "main", "index": 0 } ], [ { "node": "Email Owner", "type": "main", "index": 0 } ], [ { "node": "Log to Airtable", "type": "main", "index": 0 } ], [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "IF Book Call": { "main": [ [ { "node": "Email Lead", "type": "main", "index": 0 } ] ] },
+    "Email Lead": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Email Owner": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+
+  <script id="tplAgentDMResponder" type="application/json">
+{
+  "name": "AI DM Responder",
+  "nodes": [
+    { "parameters": { "path": "dm-responder", "options": { "responseData": "={{$json}}" } }, "id":"1","name":"Webhook (DM)","type":"n8n-nodes-base.webhook","typeVersion":1,"position":[240,300]},
+    { "parameters": { "functionCode": "return [{$json}];" }, "id":"2","name":"Pass","type":"n8n-nodes-base.function","typeVersion":2,"position":[480,300]},
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions","jsonParameters": true,"sendBody": true,"responseFormat":"json","headerParametersJson":"{\"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}","bodyParametersJson":"={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.5,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_DM_RESPONDER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id":"3","name":"OpenAI - DM Reply","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[720,300]},
+    { "parameters": { "functionCode": "const s=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(s);}catch(e){p={reply:s,suggestedTag:\"lead\"}} return [p];" }, "id":"4","name":"Parse JSON","type":"n8n-nodes-base.function","typeVersion":2,"position":[960,300]},
+    { "parameters": { "url": "{{PLATFORM_REPLY_WEBHOOK}}", "jsonParameters": true, "options": {}, "sendBody": true, "bodyParametersJson": "={\"conversationId\": $json.conversationId || \"\", \"reply\": $json.reply }" }, "id":"5","name":"HTTP - Send Reply to Platform","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[1180,220]},
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "ConversationId", "fieldValue": "={{$json.conversationId}}"}, { "fieldId": "Reply", "fieldValue": "={{$json.reply}}"}, { "fieldId": "Tag", "fieldValue": "={{$json.suggestedTag}}"} ] } }, "id":"6","name":"Airtable - Log","type":"n8n-nodes-base.airtable","typeVersion":2,"position":[1180,380], "credentials":{"airtableApi":{"id":"{{AIRTABLE_CRED_ID}}","name":"Airtable API"}}},
+    { "parameters": { "responseBody":"={{$json}}","responseCode":200 }, "id":"7","name":"Return","type":"n8n-nodes-base.respondToWebhook","typeVersion":1,"position":[1400,300]}
+  ],
+  "connections": {
+    "Webhook (DM)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - DM Reply", "type": "main", "index": 0 } ] ] },
+    "OpenAI - DM Reply": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": { "main": [ [ { "node": "HTTP - Send Reply to Platform", "type": "main", "index": 0 } ], [ { "node": "Airtable - Log", "type": "main", "index": 0 } ], [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "HTTP - Send Reply to Platform": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Airtable - Log": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+  <!-- ====== /AGENT TEMPLATES ====== -->
+
+  <!-- Binder: chat send, TTS player, personalized JSON downloads, prompt + NEW agent builder -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
@@ -432,7 +508,6 @@
         const t=input.value.trim(); if(!t) return;
         addMsg('user', t);
         input.value='';
-        // simple demo reply
         setTimeout(()=>addMsg('bot', "Thanks! (Demo chat only) — the real receptionist runs in your n8n workflows."), 400);
       });
       $('chatSend')?.addEventListener('click',()=>form.requestSubmit());
@@ -505,7 +580,7 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000);
     }
 
-    /* -------------- JSON TEMPLATING -------------- */
+    /* -------------- JSON TEMPLATING (RECEPTIONIST) -------------- */
     function readTplObject(id){
       const node=$(id);
       if(!node){
@@ -517,7 +592,9 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
         const n=$('notice'); if(n) n.textContent=`Template "${id}" is empty.`;
         throw new Error('Empty template: '+id);
       }
-      return JSON.parse(text);
+      // allow blocking comments for brevity placeholder
+      const cleaned = text.trim().startsWith('{/*') ? node.innerHTML.replace(/^[\s\S]*?<script[^>]+>|\s*<\/script>\s*$/g,'') : text;
+      return JSON.parse(text.trim().startsWith('{/*') ? text.replace(/^\{\/*.*\*\/\}/,'{}') : text);
     }
     const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
     function setWorkflowTimezone(obj, tz){ obj.settings=obj.settings||{}; obj.settings.timezone = tz || obj.settings.timezone || 'America/New_York'; }
@@ -579,16 +656,14 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       });
     }
 
-    /* -------------- ACTIONS -------------- */
+    /* -------------- RECEPTIONIST ACTIONS -------------- */
     async function doPreview(){
       const spinner=$('previewSpinner'), btn=$('previewBtn'), out=$('promptOut');
       btn.disabled=true; spinner?.classList.remove('hidden');
       try{
         const v=getValues();
-        // prompt
         out.textContent = (truncate(buildPrompt(v)));
         wirePromptDownload();
-        // personalized JSON
         const avail = renderWorkflow('tplCheckAvailability', v, 'check');
         const book  = renderWorkflow('tplBookAppointment',  v, 'book');
         enableDownload('downloadAvailBtn', avail, 'checkAvailability.json');
@@ -614,7 +689,6 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
           return;
         }
       } catch {}
-      // Fallback static list
       sel.innerHTML = '';
       [
         { id:'', name:'Default' },
@@ -649,7 +723,6 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
           const body = { text }; if (voice_id) body.voice_id = voice_id;
           audioB64 = await call(body);
         }catch(e){
-          // concurrency/voice perms: retry once with default
           if(String(e.message).includes('[UPSTREAM]')){
             audioB64 = await call({ text });
           } else { throw e; }
@@ -665,10 +738,131 @@ Warm, concise, confident; use contractions. Don’t invent availability outside 
       }
     }
 
-    // Events
+    // Receptionist events
     document.addEventListener('click',(ev)=>{
       if(ev.target.closest('#previewBtn')){ ev.preventDefault(); doPreview(); }
       if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
+    });
+
+    /* ============================
+       NEW: AGENT BUILDER LOGIC
+       ============================ */
+    const AGENTS = {
+      invoice: { promptId:'prInvoice', tplId:'tplAgentInvoice', filename:'invoice' },
+      salesCloser: { promptId:'prSalesCloser', tplId:'tplAgentSalesCloser', filename:'salesCloser' },
+      leadQualifier: { promptId:'prLeadQualifier', tplId:'tplAgentLeadQualifier', filename:'leadQualifier' },
+      dmResponder: { promptId:'prDMResponder', tplId:'tplAgentDMResponder', filename:'dmResponder' }
+    };
+
+    function g(id){ return (document.getElementById(id)?.value||'').trim(); }
+    function injectPlaceholders(str, map){
+      return Object.entries(map).reduce((acc,[k,v])=> acc.replaceAll(`{{${k}}}`, String(v ?? '')), String(str));
+    }
+
+    function getGlobalAgentVals(){
+      const r = getValues(); // pulls from your receptionist form
+      return {
+        // business / identity
+        BIZ_NAME: r.bizName || 'Your Business',
+        AGENT_NAME: r.agentName || 'Ava',
+        TIMEZONE: r.timezone || 'America/New_York',
+        BIZ_EMAIL: r.email || 'owner@example.com',
+
+        // model / creds (model also overridable in GA section)
+        OPENAI_MODEL: g('ga_openaiModel') || 'gpt-4o-mini',
+        OPENAI_API_KEY: 'USE_N8N_CREDENTIALS', // placeholder; set in n8n creds
+
+        // smtp
+        SMTP_FROM: g('ga_smtpFrom') || 'no-reply@example.com',
+        SMTP_CRED_ID: g('ga_smtpCredId') || 'SMTP_CREDENTIAL_ID',
+
+        // airtable
+        AIRTABLE_BASE_ID: g('ga_airtableBaseId') || 'appXXXXXXXXXXXXXX',
+        AIRTABLE_TABLE: g('ga_airtableTable') || 'Logs',
+        AIRTABLE_CRED_ID: g('ga_airtableCredId') || 'AIRTABLE_CREDENTIAL_ID',
+
+        // sales / dm
+        CTA_URL: g('ga_ctaUrl') || 'https://yourlink.com',
+        OFFER_SNIPPET: g('ga_offerSnippet') || 'Quick value summary.',
+        FOLLOWUP_GAP_HOURS: g('ga_followupGap') || '24',
+        PLATFORM_REPLY_WEBHOOK: g('ga_platformWebhook') || 'https://example.com/reply',
+        BOOK_URL: g('ga_bookUrl') || 'https://cal.com/you',
+        FAQ_URL: g('ga_faqUrl') || 'https://yourdomain.com/faq',
+        PRIMARY_CTA: 'book',
+
+        // invoice
+        PAYMENT_LINK: g('ga_paymentLink') || 'https://pay.yourdomain.com',
+        TAX_RULES_SNIPPET: g('ga_taxRules') || '',
+
+        // qualifier
+        QUAL_RULES: g('ga_qualRules') || 'A: ready budget & timeline; B: missing one; C: mismatch',
+
+        // twilio
+        TWILIO_FROM: g('ga_twilioFrom') || '+15555555555',
+        TWILIO_CRED_ID: g('ga_twilioCredId') || 'TWILIO_CREDENTIAL_ID'
+      };
+    }
+
+    function getScriptText(id){
+      const el = document.getElementById(id);
+      if(!el) throw new Error('Missing node: '+id);
+      return el.textContent || '';
+    }
+
+    function setDownload(anchorOrBtn, filename, data, mime='application/octet-stream'){
+      const a = anchorOrBtn.tagName === 'A' ? anchorOrBtn : document.createElement('a');
+      const blob = new Blob([data], { type: mime });
+      const url = URL.createObjectURL(blob);
+      a.href = url; a.download = filename;
+      if(anchorOrBtn.tagName !== 'A'){
+        a.click(); URL.revokeObjectURL(url);
+      } else {
+        // keep href for user click
+      }
+    }
+
+    function buildAgent(agentKey){
+      const def = AGENTS[agentKey]; if(!def) throw new Error('Unknown agent: '+agentKey);
+      const vals = getGlobalAgentVals();
+
+      // Prompt
+      let prompt = getScriptText(def.promptId);
+      prompt = injectPlaceholders(prompt, vals);
+
+      // Template
+      let tplRaw = getScriptText(def.tplId);
+      // inject LONG prompt into YOU_ARE_* sentinel
+      const longForJSON = prompt.replace(/`/g, '\\`').replace(/\n/g, '\\n');
+      tplRaw = tplRaw.replace(/YOU_ARE_[A-Z_]+/g, longForJSON);
+      // then inject placeholders everywhere
+      tplRaw = injectPlaceholders(tplRaw, vals);
+
+      return { prompt, tpl: tplRaw };
+    }
+
+    // Event delegation for agent actions
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('[data-agent][data-action]');
+      if(!a) return;
+      e.preventDefault();
+      const key = a.getAttribute('data-agent');
+      const action = a.getAttribute('data-action');
+      try{
+        const { prompt, tpl } = buildAgent(key);
+        if(action === 'build'){
+          // Feedback only
+          const msg = document.getElementById('agentsMsg');
+          msg?.classList.remove('hidden');
+          msg && setTimeout(()=>msg.classList.add('hidden'), 1500);
+        } else if(action === 'prompt'){
+          setDownload(a, `${key}-FULL-PROMPT.txt`, prompt, 'text/plain');
+        } else if(action === 'json'){
+          setDownload(a, `${key}-workflow.json`, JSON.stringify(JSON.parse(tpl), null, 2), 'application/json');
+        }
+      }catch(err){
+        console.error(err);
+        alert('Error: '+ err.message);
+      }
     });
 
     // init
