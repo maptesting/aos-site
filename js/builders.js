@@ -178,3 +178,181 @@ You: “All set — booked **tomorrow 3:00–4:00 PM**. You’ll get a confirmat
   // start loading immediately
   AOS.init().catch((e) => err('Template preload failed:', e));
 })();
+
+// === [ADD] Utility: simple placeholder injection ===
+function injectPlaceholders(str, map) {
+  return Object.entries(map).reduce(
+    (acc, [k, v]) => acc.replaceAll(`{{${k}}}`, String(v ?? "")),
+    String(str)
+  );
+}
+
+// === [ADD] Async downloader (uses your existing async-aware setDL if present) ===
+async function setDL(el, filename, data, mime = "application/octet-stream") {
+  const blob = new Blob([data], { type: mime });
+  const url = URL.createObjectURL(blob);
+  el.setAttribute("href", url);
+  el.setAttribute("download", filename);
+}
+
+// === [ADD] Agent registry ===
+const AGENT_DEFS = {
+  invoice: {
+    title: "AI Invoice / Follow-ups",
+    promptPath: "/prompts/agents/invoice.txt",
+    templatePath: "/templates/agents/invoice.json"
+  },
+  salesCloser: {
+    title: "AI Sales Closer",
+    promptPath: "/prompts/agents/salesCloser.txt",
+    templatePath: "/templates/agents/salesCloser.json"
+  },
+  leadQualifier: {
+    title: "AI Lead Qualifier",
+    promptPath: "/prompts/agents/leadQualifier.txt",
+    templatePath: "/templates/agents/leadQualifier.json"
+  },
+  dmResponder: {
+    title: "AI DM Responder",
+    promptPath: "/prompts/agents/dmResponder.txt",
+    templatePath: "/templates/agents/dmResponder.json"
+  }
+};
+
+// === [ADD] Collect shared form fields (same pattern as your Receptionist builder) ===
+// Customize selectors to your existing inputs (ids below are shown in the HTML snippet)
+function getGlobalFields() {
+  return {
+    BIZ_NAME: document.querySelector("#bizName")?.value || "Your Business",
+    AGENT_NAME: document.querySelector("#agentName")?.value || "Ava",
+    TIMEZONE: document.querySelector("#timezone")?.value || "America/New_York",
+    BIZ_EMAIL: document.querySelector("#bizEmail")?.value || "owner@example.com",
+
+    // AI
+    OPENAI_API_KEY: document.querySelector("#openaiKey")?.value || "sk-***",
+    OPENAI_MODEL: document.querySelector("#openaiModel")?.value || "gpt-4o-mini",
+
+    // SMTP / Email logs
+    SMTP_FROM: document.querySelector("#smtpFrom")?.value || "no-reply@example.com",
+    SMTP_CRED_ID: document.querySelector("#smtpCredId")?.value || "SMTP_CREDENTIAL_ID",
+
+    // Airtable
+    AIRTABLE_BASE_ID: document.querySelector("#airtableBaseId")?.value || "appXXXXXXXXXXXXXX",
+    AIRTABLE_TABLE: document.querySelector("#airtableTable")?.value || "Logs",
+    AIRTABLE_CRED_ID: document.querySelector("#airtableCredId")?.value || "AIRTABLE_CREDENTIAL_ID",
+
+    // Calendar
+    GOOGLE_CALENDAR_ID: document.querySelector("#calendarId")?.value || "primary",
+    GOOGLE_CAL_OAUTH_ID: document.querySelector("#calOAuthId")?.value || "GOOGLE_CAL_OAUTH_CRED_ID",
+
+    // Offer/DM/Sales knobs
+    CTA_URL: document.querySelector("#ctaUrl")?.value || "https://yourlink.com",
+    OFFER_SNIPPET: document.querySelector("#offerSnippet")?.value || "Quick summary of your offer",
+    FOLLOWUP_GAP_HOURS: document.querySelector("#followupGap")?.value || "24",
+    PLATFORM_REPLY_WEBHOOK: document.querySelector("#platformWebhook")?.value || "https://example.com/reply",
+    BOOK_URL: document.querySelector("#bookUrl")?.value || "https://cal.com/you",
+    FAQ_URL: document.querySelector("#faqUrl")?.value || "https://yourdomain.com/faq",
+
+    // Invoicing
+    PAYMENT_LINK: document.querySelector("#paymentLink")?.value || "https://pay.yourdomain.com",
+    TAX_RULES_SNIPPET: document.querySelector("#taxRules")?.value || "",
+
+    // Scheduling
+    BUSINESS_HOURS: document.querySelector("#bizHours")?.value || "Mon-Fri 9:00-17:00",
+    BUFFER_MIN: document.querySelector("#bufferMin")?.value || "15",
+    DEFAULT_DURATION_MIN: document.querySelector("#defaultDuration")?.value || "30",
+
+    // Qualifier
+    QUAL_RULES: document.querySelector("#qualRules")?.value || "A: ready budget & timeline; B: missing one; C: mismatch",
+
+    // Twilio (Sales Closer SMS)
+    TWILIO_FROM: document.querySelector("#twilioFrom")?.value || "+15555555555",
+    TWILIO_CRED_ID: document.querySelector("#twilioCredId")?.value || "TWILIO_CREDENTIAL_ID",
+
+    // Owner
+    OWNER_NAME: document.querySelector("#ownerName")?.value || "Owner",
+
+    // Not used here but kept for parity:
+    BIZ_TYPE: document.querySelector("#bizType")?.value || "services",
+    UPSells: document.querySelector("#upsells")?.value || "",
+    POLICIES_SNIPPET: document.querySelector("#policies")?.value || ""
+  };
+}
+
+// === [ADD] Fetch text/JSON helpers ===
+async function fetchText(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`Failed to load ${path}`);
+  return r.text();
+}
+async function fetchJSON(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`Failed to load ${path}`);
+  return r.json();
+}
+
+// === [ADD] Core builder for agents ===
+async function buildAgent(agentKey, btnPrompt, btnJSON) {
+  const defs = AGENT_DEFS[agentKey];
+  if (!defs) throw new Error(`Unknown agent: ${agentKey}`);
+
+  const vals = getGlobalFields();
+
+  // 1) Get LONG prompt and inject placeholders
+  const rawPrompt = await fetchText(defs.promptPath);
+  const longPrompt = injectPlaceholders(rawPrompt, vals);
+
+  // 2) Get template JSON and inject placeholders, including prompt injection
+  const tpl = await fetchJSON(defs.templatePath);
+
+  // Replace the sentinel YOU_ARE_* in the OpenAI node with the actual long prompt
+  // Find httpRequest nodes and swap the system message content
+  (tpl.nodes || []).forEach(n => {
+    if (n.type === "n8n-nodes-base.httpRequest" && typeof n.parameters?.bodyParametersJson === "string") {
+      let body = n.parameters.bodyParametersJson;
+      body = body.replace(/YOU_ARE_[A-Z_]+/g, longPrompt.replace(/`/g, "\\`"));
+      body = injectPlaceholders(body, vals);
+      n.parameters.bodyParametersJson = body;
+    }
+    // Inject into headers and other string fields with placeholders
+    if (n.parameters?.headerParametersJson && typeof n.parameters.headerParametersJson === "string") {
+      n.parameters.headerParametersJson = injectPlaceholders(n.parameters.headerParametersJson, vals);
+    }
+    // Generic scan for common fields
+    const walk = (obj) => {
+      if (!obj || typeof obj !== "object") return;
+      for (const k in obj) {
+        if (typeof obj[k] === "string") obj[k] = injectPlaceholders(obj[k], vals);
+        else walk(obj[k]);
+      }
+    };
+    walk(n.parameters);
+  });
+
+  // 3) Prepare downloads
+  await setDL(btnPrompt, `${agentKey}-FULL-PROMPT.txt`, longPrompt, "text/plain");
+  await setDL(btnJSON, `${agentKey}-workflow.json`, JSON.stringify(tpl, null, 2), "application/json");
+}
+
+// === [ADD] Event delegation for agent buttons ===
+document.addEventListener("click", async (e) => {
+  const el = e.target.closest("[data-agent][data-action]");
+  if (!el) return;
+  e.preventDefault();
+  el.disabled = true;
+  const card = el.closest("[data-agent-card]");
+  const agentKey = el.getAttribute("data-agent");
+  try {
+    const promptBtn = card.querySelector('[data-action="prompt"]');
+    const jsonBtn = card.querySelector('[data-action="json"]');
+    await buildAgent(agentKey, promptBtn, jsonBtn);
+    el.textContent = "Ready ✓";
+    setTimeout(() => (el.textContent = el.getAttribute("data-label") || "Generate"), 1200);
+  } catch (err) {
+    console.error(err);
+    el.textContent = "Error";
+  } finally {
+    el.disabled = false;
+  }
+});
+
