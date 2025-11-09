@@ -1,0 +1,37 @@
+{
+  "name": "AI Sales Closer",
+  "nodes": [
+    { "parameters": { "path": "closer", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (New Lead/Reply)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{ \"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.4,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_SALES_CLOSER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - Draft Reply", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const s=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(s);}catch(e){p={to:\"\",channel:\"sms\",textBody:s,subject:\"\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{$json.channel}}", "operation": "equal", "value2": "sms" } ] } }, "id": "5", "name": "IF SMS?", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [1180, 260] },
+    { "parameters": { "from": "{{TWILIO_FROM}}", "to": "={{$json.to}}", "message": "={{$json.textBody}}" }, "id": "6", "name": "Twilio - Send SMS", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [1400, 140], "credentials": { "twilioApi": { "id": "{{TWILIO_CRED_ID}}", "name": "Twilio" } } },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.to}}", "subject": "={{$json.subject}}", "text": "={{$json.textBody}}" }, "id": "7", "name": "Email - Send", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 380], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "To", "fieldValue": "={{$json.to}}" }, { "fieldId": "Channel", "fieldValue": "={{$json.channel}}" }, { "fieldId": "Stage", "fieldValue": "={{$json.stage}}" }, { "fieldId": "NextFollowupHours", "fieldValue": "={{$json.nextFollowupHours}}" } ] } }, "id": "8", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1620, 260], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "9", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1840, 260] }
+  ],
+  "connections": {
+    "Webhook (New Lead/Reply)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - Draft Reply", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Draft Reply": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [ { "node": "IF SMS?", "type": "main", "index": 0 } ],
+        [ { "node": "Email - Send", "type": "main", "index": 0 } ],
+        [ { "node": "Log to Airtable", "type": "main", "index": 0 } ],
+        [ { "node": "Return", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF SMS?": {
+      "main": [
+        [ { "node": "Twilio - Send SMS", "type": "main", "index": 0 } ],
+        [ { "node": "Email - Send", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Twilio - Send SMS": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Email - Send": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
