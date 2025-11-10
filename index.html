@@ -40,7 +40,7 @@
     }
   </script>
 
-  <!-- Global Styles (revamped aesthetic) -->
+  <!-- Global Styles -->
   <style>
     :root { color-scheme: dark }
     body {
@@ -51,44 +51,37 @@
       color: #fff;
       font-feature-settings: "ss01" on, "cv05" on;
     }
-    /* Subtle grid layer */
-    .bg-grid {
-      position: absolute; inset: 0; pointer-events: none; mask-image: radial-gradient(70% 60% at 50% 20%, #000 60%, transparent 100%);
-    }
+    .bg-grid { position:absolute; inset:0; pointer-events:none; mask-image: radial-gradient(70% 60% at 50% 20%, #000 60%, transparent 100%); }
     .bg-grid:before {
-      content: ""; position: absolute; inset: 0;
+      content:""; position:absolute; inset:0;
       background-image:
         linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
-      background-size: 40px 40px;
-      opacity: .25;
+      background-size:40px 40px; opacity:.25;
     }
-    .glass { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px) }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px) }
+    .card { border:1px solid rgba(255,255,255,.1); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border-radius:16px; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.08); }
+    .badge { font-size:11px; letter-spacing:.02em; border:1px solid rgba(255,255,255,.18); padding:.25rem .5rem; border-radius:999px; background:rgba(255,255,255,.06) }
     .btn { border-radius: 14px; padding: .8rem 1.05rem; font-weight: 600 }
-    .btn-primary { background: linear-gradient(90deg, #2e66ff, #7c4dff); box-shadow: var(--btn-shadow, 0 10px 40px rgba(94,129,255,.35)); }
+    .btn-primary { background: linear-gradient(90deg, #2e66ff, #7c4dff); box-shadow: 0 10px 40px rgba(94,129,255,.35) }
     .btn-primary:hover { filter: brightness(1.05) saturate(1.02) }
     .btn-ghost { border: 1px solid rgba(255,255,255,.12); background: transparent }
     .code { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace }
-    input, textarea, select {
-      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: .85rem 1rem
-    }
+    input, textarea, select { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: .8rem 1rem }
     input::placeholder, textarea::placeholder { color: rgba(255,255,255,.45) }
     input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 2px rgba(94,129,255,.45) }
-
-    /* Audio range */
     .range { appearance:none; height: 6px; border-radius: 999px; background: linear-gradient(to right, #5a8aff var(--pct,0%), rgba(255,255,255,.22) 0) }
     .range::-webkit-slider-thumb{ appearance:none; width:14px; height:14px; border-radius:999px; background:#fff; border:2px solid #2e66ff; box-shadow:0 0 0 3px rgba(90,138,255,.25) }
-
-    /* Section spacing */
     .section { padding-block: clamp(56px, 10vw, 108px) }
     .muted { color: rgba(255,255,255,.66) }
+    .divider { height:1px; background:rgba(255,255,255,.08) }
+    .group-title { font-weight:600; font-size:13px; color:rgba(255,255,255,.7); letter-spacing:.04em; text-transform:uppercase }
+    .help { font-size:12px; color:rgba(255,255,255,.55) }
   </style>
-
-  <!-- Optional analytics -->
-  <!-- <script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script> -->
 </head>
 <body>
-  <!-- ===== NAV ===== -->
+  <!-- NAV -->
   <header class="border-b border-white/10 sticky top-0 z-40 backdrop-blur bg-black/30">
     <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
       <a href="#/" class="flex items-center gap-3">
@@ -108,199 +101,263 @@
     </div>
   </header>
 
-  <!-- ===== HERO (revamp) ===== -->
-  <section class="relative section overflow-hidden">
-    <div class="bg-grid"></div>
-    <div class="max-w-7xl mx-auto px-5 grid lg:grid-cols-2 gap-14 items-center">
-      <div>
-        <h1 class="text-4xl md:text-6xl font-extrabold leading-[1.05]">
-          Launch an <span class="bg-gradient-to-r from-brand-400 to-violetx-500 bg-clip-text text-transparent">AI Receptionist</span> in minutes.
-        </h1>
-        <p class="muted text-lg mt-6 max-w-2xl">
-          Production-grade system prompt, two n8n workflows for availability & booking, and a clean voice preview—generated from your business details.
-        </p>
-
-        <div class="mt-8 flex gap-3">
-          <a href="#builder" class="btn btn-primary">Start Building</a>
-          <a href="#features" class="btn btn-ghost">See how it works</a>
-        </div>
-
-        <div class="mt-10 grid grid-cols-3 max-w-md gap-6 text-white/60 text-xs">
-          <div class="glass rounded-xl px-3 py-2 border border-white/10">Google Calendar</div>
-          <div class="glass rounded-xl px-3 py-2 border border-white/10">n8n Templates</div>
-          <div class="glass rounded-xl px-3 py-2 border border-white/10">Voice Preview</div>
-        </div>
-      </div>
-
-      <!-- Right: product mock card -->
-      <div class="glass rounded-2xl p-6 md:p-8 shadow-ring">
-        <div class="text-sm text-white/60 mb-2">Receptionist demo</div>
-        <div id="chatBox" class="h-72 overflow-y-auto bg-black/30 rounded-xl p-3 space-y-3 text-sm border border-white/10">
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div>
-            <div>Hi — I can answer questions and book your appointment. How can I help?</div>
+  <!-- VIEW: HOME -->
+  <main id="view-home">
+    <!-- HERO -->
+    <section class="relative section overflow-hidden">
+      <div class="bg-grid"></div>
+      <div class="max-w-7xl mx-auto px-5 grid lg:grid-cols-2 gap-14 items-center">
+        <div>
+          <h1 class="text-4xl md:text-6xl font-extrabold leading-[1.05]">
+            Launch an <span class="bg-gradient-to-r from-brand-400 to-violetx-500 bg-clip-text text-transparent">AI Receptionist</span> in minutes.
+          </h1>
+          <p class="muted text-lg mt-6 max-w-2xl">
+            Production-grade system prompt, two n8n workflows for availability & booking, and a clean voice preview—generated from your business details.
+          </p>
+          <div class="mt-8 flex gap-3">
+            <a href="#builder" class="btn btn-primary">Start Building</a>
+            <a href="#features" class="btn btn-ghost">See how it works</a>
+          </div>
+          <div class="mt-10 grid grid-cols-3 max-w-md gap-6 text-white/60 text-xs">
+            <div class="glass rounded-xl px-3 py-2 border border-white/10">Google Calendar</div>
+            <div class="glass rounded-xl px-3 py-2 border border-white/10">n8n Templates</div>
+            <div class="glass rounded-xl px-3 py-2 border border-white/10">Voice Preview</div>
           </div>
         </div>
-        <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
-          <input id="chatInput" type="text" placeholder="Type your message…" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
-          <button id="chatSend" type="submit" class="btn btn-primary">Send</button>
-        </form>
-      </div>
-    </div>
-  </section>
 
-  <!-- ===== FEATURE BAND ===== -->
-  <section id="features" class="section border-y border-white/10">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="glass rounded-2xl p-6 border border-white/10">
-          <h3 class="font-semibold text-lg">Prompt + Workflows</h3>
-          <p class="muted mt-2">We generate a full, production prompt and two n8n JSONs: <em>checkAvailability</em> and <em>bookAppointment</em>.</p>
-        </div>
-        <div class="glass rounded-2xl p-6 border border-white/10">
-          <h3 class="font-semibold text-lg">Drop-in Ready</h3>
-          <p class="muted mt-2">Injects your timezone, calendar ID, and unique webhook paths—no manual JSON tinkering.</p>
-        </div>
-        <div class="glass rounded-2xl p-6 border border-white/10">
-          <h3 class="font-semibold text-lg">Clean Voice Preview</h3>
-          <p class="muted mt-2">Try voices instantly via 11Labs with a custom player and graceful rate-limit handling.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== BUILDER ===== -->
-  <section id="builder" class="section">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="grid lg:grid-cols-2 gap-10 items-start">
-        <!-- Form -->
-        <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
-          <h2 class="text-2xl font-bold">Your business</h2>
-          <p class="muted text-sm mt-1">We’ll use this to shape the prompt and patch the workflows.</p>
-
-          <form id="aiForm" class="grid gap-4 mt-6">
-            <input name="bizName" placeholder="Business Name" required>
-            <input name="location" placeholder="Location / Service area" required>
-            <input name="industry" placeholder="Industry (e.g., salon, rentals, clinic)" required>
-            <input name="services" placeholder="Services (comma-separated)" required>
-
-            <div class="grid md:grid-cols-2 gap-4">
-              <input name="agentName" placeholder="Agent Name" value="Alex">
-              <input name="language" placeholder="Language" value="English">
+        <!-- Demo Chat -->
+        <div class="glass rounded-2xl p-6 md:p-8 shadow-ring">
+          <div class="text-sm text-white/60 mb-2">Receptionist demo</div>
+          <div id="chatBox" class="h-72 overflow-y-auto bg-black/30 rounded-xl p-3 space-y-3 text-sm border border-white/10">
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div>
+              <div>Hi — I can answer questions and book your appointment. How can I help?</div>
             </div>
-
-            <div class="grid md:grid-cols-2 gap-4">
-              <input name="hours" placeholder="Hours (e.g., Mon–Sat 9–6)">
-              <input name="timezone" placeholder="Timezone (e.g., America/New_York)">
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4">
-              <input name="calendarId" placeholder="Google Calendar ID (e.g., primary)">
-              <input name="email" type="email" placeholder="Confirmation email sender (optional)">
-            </div>
-
-            <textarea name="policies" rows="2" placeholder="Policies / deposits / refunds (optional)"></textarea>
-
-            <div class="grid md:grid-cols-2 gap-4 items-end pt-2">
-              <div>
-                <label class="block text-sm text-white/70 mb-1" for="voiceSelect">Voice</label>
-                <select id="voiceSelect"><option>Loading voices…</option></select>
-              </div>
-              <div class="flex flex-wrap gap-3">
-                <button type="button" id="previewBtn" class="btn btn-primary inline-flex items-center gap-2">
-                  <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                  <span>Prepare downloads</span>
-                </button>
-                <button type="button" id="ttsBtn" class="btn btn-ghost">Hear greeting</button>
-              </div>
-            </div>
+          </div>
+          <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
+            <input id="chatInput" type="text" placeholder="Type your message…" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
+            <button id="chatSend" type="submit" class="btn btn-primary">Send</button>
           </form>
         </div>
+      </div>
+    </section>
 
-        <!-- Output -->
-        <div class="space-y-6">
-          <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
-            <h3 class="text-lg font-semibold">System Prompt (preview)</h3>
-            <p class="text-xs text-white/60">Preview is truncated; the download is the full prompt.</p>
-            <div id="promptOut" class="code text-sm bg-black/25 rounded-xl p-4 border border-white/10 min-h-[260px] mt-3"></div>
+    <!-- FEATURE BAND -->
+    <section id="features" class="section border-y border-white/10">
+      <div class="max-w-7xl mx-auto px-5">
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="glass rounded-2xl p-6 border border-white/10">
+            <h3 class="font-semibold text-lg">Prompt + Workflows</h3>
+            <p class="muted mt-2">We generate a full, production prompt and two n8n JSONs: <em>checkAvailability</em> and <em>bookAppointment</em>.</p>
+          </div>
+          <div class="glass rounded-2xl p-6 border border-white/10">
+            <h3 class="font-semibold text-lg">Drop-in Ready</h3>
+            <p class="muted mt-2">Injects your timezone, calendar ID, and unique webhook paths—no manual JSON tinkering.</p>
+          </div>
+          <div class="glass rounded-2xl p-6 border border-white/10">
+            <h3 class="font-semibold text-lg">Clean Voice Preview</h3>
+            <p class="muted mt-2">Try voices instantly via 11Labs with a custom player and graceful rate-limit handling.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <div class="mt-6">
-              <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
-              <div class="flex flex-wrap gap-2">
-                <button id="downloadPromptBtn" class="btn btn-primary disabled:opacity-50" disabled>Full Prompt (.txt)</button>
-                <button id="downloadAvailBtn" class="btn btn-ghost disabled:opacity-50" disabled>checkAvailability.json</button>
-                <button id="downloadBookBtn"  class="btn btn-ghost disabled:opacity-50" disabled>bookAppointment.json</button>
+    <!-- BUILDER (Form revamped) -->
+    <section id="builder" class="section">
+      <div class="max-w-7xl mx-auto px-5">
+        <div class="grid lg:grid-cols-2 gap-10 items-start">
+          <!-- Professional Form Card -->
+          <div class="card overflow-hidden">
+            <div class="card-header">
+              <div>
+                <div class="text-lg font-semibold">Business Profile</div>
+                <div class="text-white/60 text-sm">We’ll shape the prompt and patch the workflows from this info.</div>
               </div>
-              <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded</div>
+              <span class="badge">Required</span>
             </div>
+
+            <form id="aiForm" class="p-6 md:p-8 space-y-8">
+              <!-- Group: Company -->
+              <div class="space-y-4">
+                <div class="group-title">Company</div>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <label class="block">
+                    <span class="text-sm text-white/70">Business Name</span>
+                    <input name="bizName" placeholder="e.g., BrightSmile Dental" required class="mt-1 w-full">
+                  </label>
+                  <label class="block">
+                    <span class="text-sm text-white/70">Location / Service Area</span>
+                    <input name="location" placeholder="City / Area" required class="mt-1 w-full">
+                  </label>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <label class="block">
+                    <span class="text-sm text-white/70">Industry</span>
+                    <input name="industry" placeholder="e.g., salon, rentals, clinic" required class="mt-1 w-full">
+                  </label>
+                  <label class="block">
+                    <span class="text-sm text-white/70">Services</span>
+                    <input name="services" placeholder="Comma-separated" required class="mt-1 w-full">
+                  </label>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Group: Operations -->
+              <div class="space-y-4">
+                <div class="group-title">Operations</div>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <label class="block">
+                    <span class="text-sm text-white/70">Agent Name</span>
+                    <input name="agentName" value="Alex" class="mt-1 w-full">
+                  </label>
+                  <label class="block">
+                    <span class="text-sm text-white/70">Language</span>
+                    <input name="language" value="English" class="mt-1 w-full">
+                  </label>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <label class="block">
+                    <span class="text-sm text-white/70">Hours</span>
+                    <input name="hours" placeholder="Mon–Sat 9–6" class="mt-1 w-full">
+                    <div class="help mt-1">Used for availability suggestions.</div>
+                  </label>
+                  <label class="block">
+                    <span class="text-sm text-white/70">Timezone</span>
+                    <input name="timezone" placeholder="America/New_York" class="mt-1 w-full">
+                  </label>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Group: Integrations -->
+              <div class="space-y-4">
+                <div class="group-title">Integrations</div>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <label class="block">
+                    <span class="text-sm text-white/70">Google Calendar ID</span>
+                    <input name="calendarId" placeholder="primary or calendar@domain.com" class="mt-1 w-full">
+                    <div class="help mt-1">Patched into n8n Google Calendar nodes.</div>
+                  </label>
+                  <label class="block">
+                    <span class="text-sm text-white/70">Confirmation Email (From)</span>
+                    <input name="email" type="email" placeholder="no-reply@domain.com" class="mt-1 w-full">
+                  </label>
+                </div>
+                <label class="block">
+                  <span class="text-sm text-white/70">Policies (optional)</span>
+                  <textarea name="policies" rows="2" placeholder="Deposits, cancellations, refunds…" class="mt-1 w-full"></textarea>
+                </label>
+              </div>
+
+              <div class="divider"></div>
+
+              <!-- Group: Voice & Build -->
+              <div class="grid md:grid-cols-2 gap-4 items-end">
+                <label class="block">
+                  <span class="text-sm text-white/70">Voice</span>
+                  <select id="voiceSelect" class="mt-1 w-full"><option>Loading voices…</option></select>
+                </label>
+                <div class="flex flex-wrap gap-3 md:justify-end">
+                  <button type="button" id="previewBtn" class="btn btn-primary inline-flex items-center gap-2">
+                    <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <span>Prepare downloads</span>
+                  </button>
+                  <button type="button" id="ttsBtn" class="btn btn-ghost">Hear greeting</button>
+                </div>
+              </div>
+            </form>
           </div>
 
-          <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
-            <h3 class="text-lg font-semibold">Voice preview</h3>
-            <audio id="audio" class="hidden"></audio>
-            <div id="audioUI" class="hidden mt-3 glass rounded-xl p-4">
-              <div class="flex items-center gap-3">
-                <button id="audioPlay" class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">►</button>
-                <div class="flex-1">
-                  <input id="audioSeek" type="range" min="0" max="100" value="0" class="w-full range">
-                  <div class="flex justify-between text-xs text-white/60 mt-1">
-                    <span id="audioTime">0:00</span><span id="audioDur">0:00</span>
-                  </div>
+          <!-- Output / Downloads -->
+          <div class="space-y-6">
+            <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
+              <h3 class="text-lg font-semibold">System Prompt (preview)</h3>
+              <p class="text-xs text-white/60">Preview is truncated; the download is the full prompt.</p>
+              <div id="promptOut" class="code text-sm bg-black/25 rounded-xl p-4 border border-white/10 min-h-[260px] mt-3"></div>
+
+              <div class="mt-6">
+                <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
+                <div class="flex flex-wrap gap-2">
+                  <button id="downloadPromptBtn" class="btn btn-primary disabled:opacity-50" disabled>Full Prompt (.txt)</button>
+                  <button id="downloadAvailBtn" class="btn btn-ghost disabled:opacity-50" disabled>checkAvailability.json</button>
+                  <button id="downloadBookBtn"  class="btn btn-ghost disabled:opacity-50" disabled>bookAppointment.json</button>
                 </div>
-                <a id="audioDownload" download="ai-greeting.mp3" class="text-sm underline decoration-blue-400">Download</a>
+                <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded</div>
               </div>
-              <div id="notice" class="mt-2 text-xs text-white/60"></div>
-              <div id="debug" class="mt-2 text-xs text-red-400"></div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
+              <h3 class="text-lg font-semibold">Voice preview</h3>
+              <audio id="audio" class="hidden"></audio>
+              <div id="audioUI" class="hidden mt-3 glass rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                  <button id="audioPlay" class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">►</button>
+                  <div class="flex-1">
+                    <input id="audioSeek" type="range" min="0" max="100" value="0" class="w-full range">
+                    <div class="flex justify-between text-xs text-white/60 mt-1">
+                      <span id="audioTime">0:00</span><span id="audioDur">0:00</span>
+                    </div>
+                  </div>
+                  <a id="audioDownload" download="ai-greeting.mp3" class="text-sm underline decoration-blue-400">Download</a>
+                </div>
+                <div id="notice" class="mt-2 text-xs text-white/60"></div>
+                <div id="debug" class="mt-2 text-xs text-red-400"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- Tutorial -->
-      <div id="video" class="mt-12 glass rounded-2xl p-6 md:p-8 border border-white/10">
+    <!-- AGENTS -->
+    <section id="agents" class="section border-t border-white/10">
+      <div class="max-w-7xl mx-auto px-5">
+        <div class="max-w-3xl">
+          <h2 class="text-3xl font-bold">More plug-and-play agents</h2>
+          <p class="muted mt-2">Each opens its own page to generate a tailored full prompt + n8n JSON.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
+          <a href="#/agent/invoice" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+            <div class="text-lg font-semibold">AI Invoice / Follow-ups</div>
+            <div class="text-sm text-white/70 mt-1">Generate invoices + gentle reminders; log to Airtable.</div>
+          </a>
+          <a href="#/agent/salesCloser" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+            <div class="text-lg font-semibold">AI Sales Closer</div>
+            <div class="text-sm text-white/70 mt-1">Objection-aware nudges via SMS/Email. Auto-logs follow-ups.</div>
+          </a>
+          <a href="#/agent/leadQualifier" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+            <div class="text-lg font-semibold">AI Lead Qualifier</div>
+            <div class="text-sm text-white/70 mt-1">Score & route leads (A/B/C). Email both lead & owner.</div>
+          </a>
+          <a href="#/agent/dmResponder" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+            <div class="text-lg font-semibold">AI DM Responder</div>
+            <div class="text-sm text-white/70 mt-1">Short replies for IG/TikTok that push to your CTA.</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TUTORIAL (moved to absolute bottom & smaller) -->
+    <section id="video" class="section border-t border-white/10">
+      <div class="max-w-3xl mx-auto px-5">
         <h3 class="font-semibold">Quick tutorial</h3>
         <p class="text-white/60 text-sm mt-1">3-minute walk-through on using this builder.</p>
         <div class="mt-4 rounded-xl overflow-hidden border border-white/10 aspect-video">
-          <iframe class="w-full h-full"
+          <iframe
+            class="w-full h-full"
             src="https://www.youtube.com/embed/Akwe5h3CQKo?si=Q-Uto-rIMjTar1vv"
             title="How to use the AOS site" frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- ===== AGENTS ===== -->
-  <section id="agents" class="section border-t border-white/10">
-    <div class="max-w-7xl mx-auto px-5">
-      <div class="max-w-3xl">
-        <h2 class="text-3xl font-bold">More plug-and-play agents</h2>
-        <p class="muted mt-2">Each opens its own page to generate a tailored full prompt + n8n JSON.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
-        <a href="#/agent/invoice" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
-          <div class="text-lg font-semibold">AI Invoice / Follow-ups</div>
-          <div class="text-sm text-white/70 mt-1">Generate invoices + gentle reminders; log to Airtable.</div>
-        </a>
-        <a href="#/agent/salesCloser" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
-          <div class="text-lg font-semibold">AI Sales Closer</div>
-          <div class="text-sm text-white/70 mt-1">Objection-aware nudges via SMS/Email. Auto-logs follow-ups.</div>
-        </a>
-        <a href="#/agent/leadQualifier" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
-          <div class="text-lg font-semibold">AI Lead Qualifier</div>
-          <div class="text-sm text-white/70 mt-1">Score & route leads (A/B/C). Email both lead & owner.</div>
-        </a>
-        <a href="#/agent/dmResponder" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
-          <div class="text-lg font-semibold">AI DM Responder</div>
-          <div class="text-sm text-white/70 mt-1">Short replies for IG/TikTok that push to your CTA.</div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== AGENT DETAIL (SPA) ===== -->
+  <!-- VIEW: AGENT DETAIL -->
   <main id="view-agent" class="hidden">
     <section class="section">
       <div class="max-w-5xl mx-auto px-5">
@@ -327,13 +384,13 @@
     </section>
   </main>
 
-  <!-- ===== FOOTER ===== -->
+  <!-- FOOTER -->
   <footer class="py-10 text-center text-white/45 text-sm border-t border-white/10">
     © <span id="year"></span> AOS — AI Optimization Solutions
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ===== EMBEDDED RECEPTIONIST n8n TEMPLATES (EXACT) ===== -->
+  <!-- ===== RECEPTIONIST n8n TEMPLATES (EXACT) ===== -->
   <script id="tplCheckAvailability" type="application/json">
 {
   "name": "checkAvailability",
@@ -598,7 +655,7 @@ OUTPUT JSON ONLY:
 One or two lines max. No emojis unless user uses them first.
   </script>
 
-  <!-- ===== AGENT n8n JSON TEMPLATES (YOUR EXACT GRAPHS) ===== -->
+  <!-- ===== AGENT n8n JSON TEMPLATES ===== -->
   <script id="tplAgentInvoice" type="application/json">
 {
   "name": "AI Invoice & Follow-ups",
@@ -715,14 +772,14 @@ One or two lines max. No emojis unless user uses them first.
 }
   </script>
 
-  <!-- ===== CORE JS (revamped but same functionality) ===== -->
+  <!-- ===== CORE JS (same functionality) ===== -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
     const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
     const escapeHtml=(s)=> (s||'').replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
 
-    /* ---- Demo chat ---- */
+    /* Demo chat */
     function addMsg(role, text){
       const wrap=$('chatBox'); if(!wrap) return;
       const row=document.createElement('div');
@@ -745,7 +802,7 @@ One or two lines max. No emojis unless user uses them first.
       $('chatSend')?.addEventListener('click',()=>form.requestSubmit());
     }
 
-    /* ---- Prompt builder ---- */
+    /* Prompt builder */
     const truncate=(s,n=1200)=> s && s.length>n ? s.slice(0,n)+' …' : (s||'');
     function getValues(){
       const v = Object.fromEntries(new FormData($('aiForm')).entries());
@@ -795,7 +852,7 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
     }
 
-    /* ---- Receptionist JSON templating ---- */
+    /* Receptionist JSON templating */
     function readTplObject(id){
       const node=$(id);
       if(!node){ const n=$('notice'); if(n) n.textContent=`Template "${id}" is missing.`; throw new Error('Missing template node: '+id); }
@@ -834,12 +891,10 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
         const longPrompt = buildLongPrompt(v);
         out.textContent = truncate(longPrompt);
 
-        // Enable full prompt download
         const fullBtn=$('downloadPromptBtn');
         fullBtn.disabled=false;
         fullBtn.onclick=(e)=>{ e.preventDefault(); downloadText(`${slug(v.bizName)}_FULL_PROMPT.txt`, longPrompt, 'text/plain'); flashOk('Full prompt downloaded'); };
 
-        // Prepare JSONs
         const avail = renderWorkflow('tplCheckAvailability', v, 'check');
         const book  = renderWorkflow('tplBookAppointment',  v, 'book');
 
@@ -853,7 +908,7 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       finally{ spinner?.classList.add('hidden'); btn.disabled=false; }
     }
 
-    /* ---- Voice preview (11Labs) ---- */
+    /* Voice preview (11Labs) */
     const audio=$('audio'), box=$('audioUI'), play=$('audioPlay'), seek=$('audioSeek'), tCur=$('audioTime'), tDur=$('audioDur');
     function fmt(t){ t=Math.max(0, t|0); const m=(t/60)|0, s=(t%60)|0; return m+':'+(s<10?'0':'')+s; }
     function sync(){
@@ -912,7 +967,7 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
     });
 
-    /* ---- SPA (Agents) ---- */
+    /* SPA (Agents) */
     const VIEW_AGENT = document.getElementById('view-agent');
 
     const AGENTS = {
