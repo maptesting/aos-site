@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AOS — AI Receptionist Prompt Pack (Free Builder)</title>
+  <title>AOS — AI Receptionist Builder</title>
 
   <!-- SEO -->
-  <meta name="description" content="Build your own AI Receptionist in 30 seconds — free. Generate prompts, workflows, and voice previews for any business.">
-  <meta property="og:title" content="AOS — Free AI Receptionist Builder">
+  <meta name="description" content="Build a production-ready AI Receptionist in minutes — full prompt + n8n workflows + voice preview.">
+  <meta property="og:title" content="AOS — AI Receptionist Builder">
   <meta property="og:description" content="Generate a custom AI receptionist instantly — prompt, workflows, and voice demo included.">
   <meta property="og:image" content="https://yourdomain.com/og-preview.png">
   <meta property="og:type" content="website">
@@ -21,292 +21,523 @@
       theme: {
         extend: {
           colors: {
+            ink: '#0a0f1c',
+            panel: 'rgba(255,255,255,.04)',
+            line: 'rgba(255,255,255,.08)',
             brand: {
-              50:'#eef7ff',100:'#d9ecff',200:'#b8dbff',300:'#8ec4ff',
-              400:'#5aa6ff',500:'#2d7fff',600:'#1d5fe6',700:'#194bbb',800:'#173f96',900:'#163774'
-            }
+              50:'#eaf1ff',100:'#d7e5ff',200:'#b4ceff',300:'#86aeff',400:'#5a8aff',500:'#2e66ff',
+              600:'#204de0',700:'#1a3db7',800:'#15348f',900:'#112a74'
+            },
+            violetx: { 500:'#7c4dff' }
           },
           boxShadow: {
-            glow: '0 0 0 1px rgba(255,255,255,0.06), 0 10px 40px rgba(34,139,255,0.25)',
-            soft: '0 8px 30px rgba(0,0,0,.18)'
-          }
+            soft: '0 8px 28px rgba(0,0,0,.22)',
+            ring: '0 0 0 1px rgba(255,255,255,.06), 0 12px 60px rgba(90,138,255,.25)'
+          },
+          backdropBlur: { xs: '2px' }
         }
       }
     }
   </script>
 
-  <!-- Page style: mid-tone + futuristic gradient; no emojis -->
+  <!-- Global Styles (revamped aesthetic) -->
   <style>
-    :root { color-scheme: dark; }
-    body{
+    :root { color-scheme: dark }
+    body {
       background:
-        radial-gradient(1200px 600px at 75% -10%, rgba(88,129,255,0.25), transparent 60%),
-        radial-gradient(600px 600px at -10% 40%, rgba(147,51,234,0.18), transparent 60%),
-        #0b1220;
-      color:#fff;
+        radial-gradient(900px 600px at 85% -10%, rgba(90,138,255,.18), transparent 60%),
+        radial-gradient(700px 500px at -10% 30%, rgba(124,77,255,.15), transparent 60%),
+        #0a0f1c;
+      color: #fff;
+      font-feature-settings: "ss01" on, "cv05" on;
     }
-    .gradient{background:
-      radial-gradient(1200px 600px at 20% -10%, rgba(85,109,255,.25), transparent 60%),
-      radial-gradient(1000px 600px at 100% 0%, rgba(34,42,130,.35), transparent 60%);
+    /* Subtle grid layer */
+    .bg-grid {
+      position: absolute; inset: 0; pointer-events: none; mask-image: radial-gradient(70% 60% at 50% 20%, #000 60%, transparent 100%);
     }
-    .glass{backdrop-filter:blur(10px);background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08)}
-    .code{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace}
-    input,textarea,select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:.9rem 1rem}
-    input::placeholder,textarea::placeholder{color:rgba(255,255,255,.4)}
-    input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 0 0 2px rgba(45,127,255,.4)}
-    .range{appearance:none;height:6px;border-radius:9999px;background:linear-gradient(to right,#556dff var(--pct,0%),rgba(255,255,255,.2) 0)}
-    .range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:9999px;background:#fff;border:2px solid #556dff;box-shadow:0 0 0 3px rgba(85,109,255,.25)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.1)}
-    .muted{color:rgba(255,255,255,.65)}
-    .hidden{display:none}
-    /* audio progress (clean) */
-    .progress{appearance:none;width:100%;height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
-    .progress::-webkit-progress-value{background:linear-gradient(90deg,#6ea2ff,#7b61ff)}
-    .progress::-moz-progress-bar{background:linear-gradient(90deg,#6ea2ff,#7b61ff)}
+    .bg-grid:before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: .25;
+    }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px) }
+    .btn { border-radius: 14px; padding: .8rem 1.05rem; font-weight: 600 }
+    .btn-primary { background: linear-gradient(90deg, #2e66ff, #7c4dff); box-shadow: var(--btn-shadow, 0 10px 40px rgba(94,129,255,.35)); }
+    .btn-primary:hover { filter: brightness(1.05) saturate(1.02) }
+    .btn-ghost { border: 1px solid rgba(255,255,255,.12); background: transparent }
+    .code { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace }
+    input, textarea, select {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: .85rem 1rem
+    }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,.45) }
+    input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 2px rgba(94,129,255,.45) }
+
+    /* Audio range */
+    .range { appearance:none; height: 6px; border-radius: 999px; background: linear-gradient(to right, #5a8aff var(--pct,0%), rgba(255,255,255,.22) 0) }
+    .range::-webkit-slider-thumb{ appearance:none; width:14px; height:14px; border-radius:999px; background:#fff; border:2px solid #2e66ff; box-shadow:0 0 0 3px rgba(90,138,255,.25) }
+
+    /* Section spacing */
+    .section { padding-block: clamp(56px, 10vw, 108px) }
+    .muted { color: rgba(255,255,255,.66) }
   </style>
 
-  <!-- Plausible (optional) -->
-  <script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script>
+  <!-- Optional analytics -->
+  <!-- <script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script> -->
 </head>
 <body>
-
-  <!-- NAV -->
-  <header class="gradient border-b border-white/10">
-    <div class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-violet-500 grid place-items-center text-black font-bold">A</div>
-        <div>
-          <div class="font-semibold">AOS</div>
-          <div class="text-white/60 text-xs">AI Optimization Solutions</div>
+  <!-- ===== NAV ===== -->
+  <header class="border-b border-white/10 sticky top-0 z-40 backdrop-blur bg-black/30">
+    <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
+      <a href="#/" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div>
+        <div class="leading-tight">
+          <div class="font-semibold tracking-wide">AOS</div>
+          <div class="text-[11px] text-white/60 -mt-0.5">AI Optimization Solutions</div>
         </div>
-      </div>
-      <nav class="flex items-center gap-2">
-        <a href="#/" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15">Home</a>
-        <a href="#builder" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-violet-500 hover:shadow-glow">Build Free</a>
+      </a>
+      <nav class="flex items-center gap-1">
+        <a href="#features" class="px-3 py-2 rounded-lg hover:bg-white/10">Features</a>
+        <a href="#builder" class="px-3 py-2 rounded-lg hover:bg-white/10">Builder</a>
+        <a href="#agents" class="px-3 py-2 rounded-lg hover:bg-white/10">Agents</a>
+        <a href="#video" class="px-3 py-2 rounded-lg hover:bg-white/10">Tutorial</a>
+        <a href="#builder" class="btn btn-primary ml-2">Build Free</a>
       </nav>
     </div>
   </header>
 
-  <!-- =========================
-       VIEW: HOME
-       ========================= -->
-  <main id="view-home">
-    <!-- Hero -->
-    <section class="relative gradient overflow-hidden">
-      <div class="mx-auto max-w-7xl px-4 pt-20 pb-16 md:pt-24 md:pb-24">
-        <div class="grid md:grid-cols-2 gap-16 items-start">
-          <!-- Left -->
-          <div>
-            <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
-              AI Receptionist Prompt Pack — <span class="bg-gradient-to-r from-brand-400 to-violet-400 bg-clip-text text-transparent">Free Builder</span>
-            </h1>
-            <p class="mt-6 text-white/70 max-w-2xl leading-relaxed">
-              Answer a few questions about your business. Get a <b>full production System Prompt</b> and
-              download two <b>n8n</b> workflows — <em>checkAvailability</em> and <em>bookAppointment</em>.
-            </p>
-            <div class="mt-8">
-              <a href="#builder" class="px-5 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet-500 hover:shadow-glow">Start Building</a>
-            </div>
-            <div class="mt-10 flex items-center gap-6 text-xs text-white/50">
-              <div>Works with Google Calendar</div>
-              <div>n8n JSON templates</div>
-              <div>11Labs voice preview</div>
-            </div>
-          </div>
+  <!-- ===== HERO (revamp) ===== -->
+  <section class="relative section overflow-hidden">
+    <div class="bg-grid"></div>
+    <div class="max-w-7xl mx-auto px-5 grid lg:grid-cols-2 gap-14 items-center">
+      <div>
+        <h1 class="text-4xl md:text-6xl font-extrabold leading-[1.05]">
+          Launch an <span class="bg-gradient-to-r from-brand-400 to-violetx-500 bg-clip-text text-transparent">AI Receptionist</span> in minutes.
+        </h1>
+        <p class="muted text-lg mt-6 max-w-2xl">
+          Production-grade system prompt, two n8n workflows for availability & booking, and a clean voice preview—generated from your business details.
+        </p>
 
-          <!-- Demo Chat (stub) -->
-          <div class="glass rounded-2xl p-6 md:p-8 shadow-soft mt-6 md:mt-0">
-            <div class="text-sm text-white/60 mb-2">Talk to Ava — Receptionist Demo</div>
-            <div id="chatBox" class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
-              <div class="flex gap-3">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violet-500 grid place-items-center text-black font-bold">A</div>
-                <div>Hi! I’m your AI receptionist demo — how can I help?</div>
+        <div class="mt-8 flex gap-3">
+          <a href="#builder" class="btn btn-primary">Start Building</a>
+          <a href="#features" class="btn btn-ghost">See how it works</a>
+        </div>
+
+        <div class="mt-10 grid grid-cols-3 max-w-md gap-6 text-white/60 text-xs">
+          <div class="glass rounded-xl px-3 py-2 border border-white/10">Google Calendar</div>
+          <div class="glass rounded-xl px-3 py-2 border border-white/10">n8n Templates</div>
+          <div class="glass rounded-xl px-3 py-2 border border-white/10">Voice Preview</div>
+        </div>
+      </div>
+
+      <!-- Right: product mock card -->
+      <div class="glass rounded-2xl p-6 md:p-8 shadow-ring">
+        <div class="text-sm text-white/60 mb-2">Receptionist demo</div>
+        <div id="chatBox" class="h-72 overflow-y-auto bg-black/30 rounded-xl p-3 space-y-3 text-sm border border-white/10">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div>
+            <div>Hi — I can answer questions and book your appointment. How can I help?</div>
+          </div>
+        </div>
+        <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
+          <input id="chatInput" type="text" placeholder="Type your message…" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
+          <button id="chatSend" type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURE BAND ===== -->
+  <section id="features" class="section border-y border-white/10">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass rounded-2xl p-6 border border-white/10">
+          <h3 class="font-semibold text-lg">Prompt + Workflows</h3>
+          <p class="muted mt-2">We generate a full, production prompt and two n8n JSONs: <em>checkAvailability</em> and <em>bookAppointment</em>.</p>
+        </div>
+        <div class="glass rounded-2xl p-6 border border-white/10">
+          <h3 class="font-semibold text-lg">Drop-in Ready</h3>
+          <p class="muted mt-2">Injects your timezone, calendar ID, and unique webhook paths—no manual JSON tinkering.</p>
+        </div>
+        <div class="glass rounded-2xl p-6 border border-white/10">
+          <h3 class="font-semibold text-lg">Clean Voice Preview</h3>
+          <p class="muted mt-2">Try voices instantly via 11Labs with a custom player and graceful rate-limit handling.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BUILDER ===== -->
+  <section id="builder" class="section">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid lg:grid-cols-2 gap-10 items-start">
+        <!-- Form -->
+        <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
+          <h2 class="text-2xl font-bold">Your business</h2>
+          <p class="muted text-sm mt-1">We’ll use this to shape the prompt and patch the workflows.</p>
+
+          <form id="aiForm" class="grid gap-4 mt-6">
+            <input name="bizName" placeholder="Business Name" required>
+            <input name="location" placeholder="Location / Service area" required>
+            <input name="industry" placeholder="Industry (e.g., salon, rentals, clinic)" required>
+            <input name="services" placeholder="Services (comma-separated)" required>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <input name="agentName" placeholder="Agent Name" value="Alex">
+              <input name="language" placeholder="Language" value="English">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <input name="hours" placeholder="Hours (e.g., Mon–Sat 9–6)">
+              <input name="timezone" placeholder="Timezone (e.g., America/New_York)">
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <input name="calendarId" placeholder="Google Calendar ID (e.g., primary)">
+              <input name="email" type="email" placeholder="Confirmation email sender (optional)">
+            </div>
+
+            <textarea name="policies" rows="2" placeholder="Policies / deposits / refunds (optional)"></textarea>
+
+            <div class="grid md:grid-cols-2 gap-4 items-end pt-2">
+              <div>
+                <label class="block text-sm text-white/70 mb-1" for="voiceSelect">Voice</label>
+                <select id="voiceSelect"><option>Loading voices…</option></select>
+              </div>
+              <div class="flex flex-wrap gap-3">
+                <button type="button" id="previewBtn" class="btn btn-primary inline-flex items-center gap-2">
+                  <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                  <span>Prepare downloads</span>
+                </button>
+                <button type="button" id="ttsBtn" class="btn btn-ghost">Hear greeting</button>
               </div>
             </div>
-            <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
-              <input id="chatInput" type="text" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
-              <button id="chatSend" type="submit" class="bg-gradient-to-r from-brand-500 to-violet-500 rounded-xl px-4 py-2 text-sm font-medium hover:shadow-glow">Send</button>
-            </form>
-          </div>
+          </form>
         </div>
-      </div>
-    </section>
 
-    <!-- Builder -->
-    <section id="builder" class="py-24 md:py-32 scroll-mt-28">
-      <div class="max-w-6xl mx-auto px-4">
-        <h2 class="text-center text-3xl font-bold mb-10">Build your AI Receptionist</h2>
-        <div class="glass rounded-2xl p-6 md:p-10">
-          <div class="flex items-start justify-between gap-12 flex-col lg:flex-row">
-            <!-- Form -->
-            <div class="w-full lg:w-1/2">
-              <h3 class="text-2xl font-semibold mb-4">Your Business</h3>
-              <form id="aiForm" class="grid gap-4 mt-4">
-                <input name="bizName" placeholder="Business Name" required>
-                <input name="location" placeholder="Location / Service area" required>
-                <input name="industry" placeholder="Industry (e.g., salon, rentals, clinic)" required>
-                <input name="services" placeholder="Services (comma-separated)" required>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <input name="agentName" placeholder="Agent Name" value="Alex">
-                  <input name="language" placeholder="Language" value="English">
-                </div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <input name="hours" placeholder="Hours (e.g., Mon–Sat 9–6)">
-                  <input name="timezone" placeholder="Timezone (e.g., America/New_York)">
-                </div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <input name="calendarId" placeholder="Google Calendar ID (e.g., primary)">
-                  <input name="email" type="email" placeholder="Confirmation email sender (optional)">
-                </div>
-                <textarea name="policies" rows="2" placeholder="Policies / deposits / refunds (optional)"></textarea>
+        <!-- Output -->
+        <div class="space-y-6">
+          <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
+            <h3 class="text-lg font-semibold">System Prompt (preview)</h3>
+            <p class="text-xs text-white/60">Preview is truncated; the download is the full prompt.</p>
+            <div id="promptOut" class="code text-sm bg-black/25 rounded-xl p-4 border border-white/10 min-h-[260px] mt-3"></div>
 
-                <!-- Voice picker -->
-                <div class="grid md:grid-cols-2 gap-4 items-end">
-                  <div>
-                    <label class="block text-sm text-white/70 mb-1" for="voiceSelect">Voice</label>
-                    <select id="voiceSelect"><option>Loading voices…</option></select>
-                  </div>
-                  <div class="mt-3 md:mt-0 flex gap-3 flex-wrap">
-                    <button type="button" id="previewBtn" class="px-4 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-violet-500 hover:shadow-glow font-medium inline-flex items-center gap-2">
-                      <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                      <span>Prepare Downloads</span>
-                    </button>
-                    <button type="button" id="ttsBtn" class="px-4 py-3 rounded-xl border border-white/10 hover:bg-white/5 font-medium">Hear AI Greeting</button>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <!-- Preview + Downloads + Audio -->
-            <div class="w-full lg:w-1/2">
-              <div class="glass rounded-2xl p-5 h-full">
-                <h3 class="text-xl font-semibold">System Prompt — Preview</h3>
-                <div class="text-xs text-white/60">Preview only (truncated). The download is the full prompt.</div>
-                <div id="promptOut" class="code text-sm bg-black/30 rounded-xl p-4 border border-white/10 min-h-[280px] mt-3"></div>
-
-                <div class="mt-6">
-                  <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
-                  <div class="flex flex-wrap gap-2">
-                    <button id="downloadPromptBtn" class="px-4 py-2 rounded-xl bg-brand-500/80 hover:bg-brand-600 font-medium disabled:opacity-50" disabled>Download Full Prompt (.txt)</button>
-                    <button id="downloadAvailBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: checkAvailability.json</button>
-                    <button id="downloadBookBtn" class="px-4 py-2 rounded-xl border border-white/10 hover:bg-white/5 disabled:opacity-50" disabled>Download: bookAppointment.json</button>
-                  </div>
-                  <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded</div>
-                </div>
-
-                <!-- Custom Audio Player -->
-                <div class="mt-6">
-                  <audio id="audio" class="hidden"></audio>
-                  <div id="audioUI" class="hidden glass rounded-xl p-4">
-                    <div class="flex items-center gap-3">
-                      <button id="audioPlay" class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-violet-500 hover:shadow-glow grid place-items-center text-black font-bold">►</button>
-                      <div class="flex-1">
-                        <input id="audioSeek" type="range" min="0" max="100" value="0" class="w-full range">
-                        <div class="flex justify-between text-xs text-white/60 mt-1">
-                          <span id="audioTime">0:00</span>
-                          <span id="audioDur">0:00</span>
-                        </div>
-                      </div>
-                      <a id="audioDownload" download="ai-greeting.mp3" class="text-sm underline decoration-blue-400">Download</a>
-                    </div>
-                  </div>
-                  <div id="notice" class="mt-2 text-xs text-white/60"></div>
-                  <div id="debug" class="mt-2 text-xs text-red-400"></div>
-                </div>
+            <div class="mt-6">
+              <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
+              <div class="flex flex-wrap gap-2">
+                <button id="downloadPromptBtn" class="btn btn-primary disabled:opacity-50" disabled>Full Prompt (.txt)</button>
+                <button id="downloadAvailBtn" class="btn btn-ghost disabled:opacity-50" disabled>checkAvailability.json</button>
+                <button id="downloadBookBtn"  class="btn btn-ghost disabled:opacity-50" disabled>bookAppointment.json</button>
               </div>
+              <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded</div>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
+            <h3 class="text-lg font-semibold">Voice preview</h3>
+            <audio id="audio" class="hidden"></audio>
+            <div id="audioUI" class="hidden mt-3 glass rounded-xl p-4">
+              <div class="flex items-center gap-3">
+                <button id="audioPlay" class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">►</button>
+                <div class="flex-1">
+                  <input id="audioSeek" type="range" min="0" max="100" value="0" class="w-full range">
+                  <div class="flex justify-between text-xs text-white/60 mt-1">
+                    <span id="audioTime">0:00</span><span id="audioDur">0:00</span>
+                  </div>
+                </div>
+                <a id="audioDownload" download="ai-greeting.mp3" class="text-sm underline decoration-blue-400">Download</a>
+              </div>
+              <div id="notice" class="mt-2 text-xs text-white/60"></div>
+              <div id="debug" class="mt-2 text-xs text-red-400"></div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Tutorial video UNDER the builder -->
-        <div class="glass rounded-2xl p-6 md:p-8 border border-white/10 mt-10" id="video">
-          <h3 class="font-semibold">Quick Tutorial</h3>
-          <p class="text-white/60 text-sm mt-1">A 3-minute walk-through on using this builder.</p>
-          <div class="mt-4 rounded-xl overflow-hidden border border-white/10 aspect-video">
-            <iframe class="w-full h-full"
-              src="https://www.youtube.com/embed/Akwe5h3CQKo?si=Q-Uto-rIMjTar1vv"
-              title="How to use the AOS site" frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-          </div>
+      <!-- Tutorial -->
+      <div id="video" class="mt-12 glass rounded-2xl p-6 md:p-8 border border-white/10">
+        <h3 class="font-semibold">Quick tutorial</h3>
+        <p class="text-white/60 text-sm mt-1">3-minute walk-through on using this builder.</p>
+        <div class="mt-4 rounded-xl overflow-hidden border border-white/10 aspect-video">
+          <iframe class="w-full h-full"
+            src="https://www.youtube.com/embed/Akwe5h3CQKo?si=Q-Uto-rIMjTar1vv"
+            title="How to use the AOS site" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Agents list -->
-    <section id="agents" class="py-20 border-t border-white/10">
-      <div class="max-w-6xl mx-auto px-4">
-        <h2 class="text-3xl font-bold mb-6">More Plug-and-Play Agents</h2>
-        <p class="muted mb-6">Each agent opens its own page to generate a tailored Prompt + n8n JSON.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <a href="#/agent/invoice" class="glass rounded-2xl p-5 block hover:bg-white/5">
-            <div class="text-lg font-semibold">AI Invoice / Follow-ups</div>
-            <div class="text-sm text-white/70 mt-1">Generate invoices + gentle reminders; log to Airtable.</div>
-          </a>
-          <a href="#/agent/salesCloser" class="glass rounded-2xl p-5 block hover:bg-white/5">
-            <div class="text-lg font-semibold">AI Sales Closer</div>
-            <div class="text-sm text-white/70 mt-1">Objection-aware nudges via SMS/Email. Auto-logs follow-ups.</div>
-          </a>
-          <a href="#/agent/leadQualifier" class="glass rounded-2xl p-5 block hover:bg-white/5">
-            <div class="text-lg font-semibold">AI Lead Qualifier</div>
-            <div class="text-sm text-white/70 mt-1">Score & route leads (A/B/C). Email both lead & owner.</div>
-          </a>
-          <a href="#/agent/dmResponder" class="glass rounded-2xl p-5 block hover:bg-white/5">
-            <div class="text-lg font-semibold">AI DM Responder</div>
-            <div class="text-sm text-white/70 mt-1">Short replies for IG/TikTok that push to your CTA.</div>
-          </a>
-        </div>
+  <!-- ===== AGENTS ===== -->
+  <section id="agents" class="section border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="max-w-3xl">
+        <h2 class="text-3xl font-bold">More plug-and-play agents</h2>
+        <p class="muted mt-2">Each opens its own page to generate a tailored full prompt + n8n JSON.</p>
       </div>
-    </section>
 
-    <!-- Bottom video was moved above per request; keeping footer clean -->
-  </main>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
+        <a href="#/agent/invoice" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+          <div class="text-lg font-semibold">AI Invoice / Follow-ups</div>
+          <div class="text-sm text-white/70 mt-1">Generate invoices + gentle reminders; log to Airtable.</div>
+        </a>
+        <a href="#/agent/salesCloser" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+          <div class="text-lg font-semibold">AI Sales Closer</div>
+          <div class="text-sm text-white/70 mt-1">Objection-aware nudges via SMS/Email. Auto-logs follow-ups.</div>
+        </a>
+        <a href="#/agent/leadQualifier" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+          <div class="text-lg font-semibold">AI Lead Qualifier</div>
+          <div class="text-sm text-white/70 mt-1">Score & route leads (A/B/C). Email both lead & owner.</div>
+        </a>
+        <a href="#/agent/dmResponder" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+          <div class="text-lg font-semibold">AI DM Responder</div>
+          <div class="text-sm text-white/70 mt-1">Short replies for IG/TikTok that push to your CTA.</div>
+        </a>
+      </div>
+    </div>
+  </section>
 
-  <!-- =========================
-       VIEW: AGENT DETAIL (SPA)
-       ========================= -->
+  <!-- ===== AGENT DETAIL (SPA) ===== -->
   <main id="view-agent" class="hidden">
-    <section class="py-10">
-      <div class="max-w-5xl mx-auto px-4">
+    <section class="section">
+      <div class="max-w-5xl mx-auto px-5">
         <a href="#/" class="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6">← Back</a>
-        <div class="glass rounded-2xl p-6 md:p-8">
+        <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
           <h2 id="agentTitle" class="text-2xl font-bold"></h2>
           <p id="agentDesc" class="text-white/70 mt-2"></p>
 
-          <!-- Agent-specific form -->
           <form id="agentForm" class="grid gap-4 mt-6"></form>
 
-          <!-- Output/downloads -->
           <div class="mt-6">
             <div class="flex flex-wrap gap-2">
-              <button id="agentGenerate" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-500 to-violet-500 hover:shadow-glow font-medium">Generate</button>
-              <a id="agentPromptDownload" class="px-4 py-2 rounded-xl btn-ghost">Download Full Prompt (.txt)</a>
-              <a id="agentJsonDownload" class="px-4 py-2 rounded-xl btn-ghost">Download n8n JSON</a>
+              <button id="agentGenerate" class="btn btn-primary">Generate</button>
+              <a id="agentPromptDownload" class="btn btn-ghost">Full Prompt (.txt)</a>
+              <a id="agentJsonDownload" class="btn btn-ghost">n8n JSON</a>
             </div>
             <div id="agentMsg" class="text-xs text-green-400 mt-3 hidden">Generated ✓</div>
 
             <h4 class="mt-6 font-semibold">Prompt Preview</h4>
-            <div id="agentPromptPreview" class="code text-sm bg-black/30 rounded-xl p-4 border border-white/10 min-h-[180px] mt-2"></div>
+            <div id="agentPromptPreview" class="code text-sm bg-black/25 rounded-xl p-4 border border-white/10 min-h-[180px] mt-2"></div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="py-10 text-center text-white/40 text-sm border-t border-white/10">
+  <!-- ===== FOOTER ===== -->
+  <footer class="py-10 text-center text-white/45 text-sm border-t border-white/10">
     © <span id="year"></span> AOS — AI Optimization Solutions
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ====== EMBEDDED TEMPLATES (RECEPTIONIST — EXACTLY YOUR JSONS, NO FALLBACKS) ====== -->
-  <script id="tplCheckAvailability" type="application/json">{"name":"checkAvailability","nodes":[{"parameters":{"httpMethod":"POST","path":"0635b597-12bc-4601-87d9-530c58e028ff","responseMode":"responseNode","options":{}},"type":"n8n-nodes-base.webhook","typeVersion":2.1,"position":[-640,432],"id":"09e7f082-cfac-4027-80a6-9edeb64ef87d","name":"Webhook","webhookId":"0635b597-12bc-4601-87d9-530c58e028ff"},{"parameters":{"promptType":"define","text":"=Role: \n\nYou are an appointment availability checker. Your job is to get the requested time and use the calendar to check availability for the customer.\n\nThe current date and time is: {{ $now }}\n\nCustomer requested time is:\n{{ $json.body.message.toolCallList[0].function.arguments.time }}\n\nCalendar data:\nWorking hours 8am - 9pm\nLength of each slot: 1 hour\n\nBooking Process\n\n-Check if the customer’s requested time is available using the calendar\n-If the time is available let the AI model know & confirm\n-If the time is unavailable, suggest up to 2 alternative slots close to the requested time, by checking the availability again\n-If there are no slots upon rechecking within that day, search the next weekday from the current time and provide alternative slots. \n\nResponse & output:\n\n-If the requested time is available confirm it by saying:\nE.g: The requested time of 10am on June 22nd is available, just to confirm would you like to book this?\n-If you have found no availability or unavailable in the requested time, suggest up to 3 alternative slots closest to the requested time.\n-If no slots exist within the day suggest 3 more times the next weekday.\n-Your output must be natural and conversational e.g. “Hey there, the time that you requested of 10am on June 22nd is available, just to confirm would you like to book this?”\n\nImportant notes:\n\n- You must not output your result in the past, aways check availability in the future, use the current time you have received and the requested data to help make that decision.\n-Your ability to follow these steps precisely is very crucial and can impact the business’s reputation.","options":{}},"type":"@n8n/n8n-nodes-langchain.agent","typeVersion":2.2,"position":[-336,368],"id":"75f18a8b-f48d-4027-8872-98ce8cbd7ecd","name":"AI Agent"},{"parameters":{"model":{"__rl":true,"mode":"list","value":"gpt-4.1-mini"},"options":{}},"type":"@n8n/n8n-nodes-langchain.lmChatOpenAi","typeVersion":1.2,"position":[-416,608],"id":"bde217d0-c5bb-412f-9b56-b50967ddcbee","name":"OpenAI Chat Model","credentials":{"openAiApi":{"id":"exm7lxhShqpiglPn","name":"n8n free OpenAI API credits"}}},{"parameters":{"respondWith":"json","responseBody":"={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}\n","options":{}},"type":"n8n-nodes-base.respondToWebhook","typeVersion":1.4,"position":[64,416],"id":"ffe1fcc9-82a3-4284-9069-897621ab7d13","name":"Respond to Webhook"},{"parameters":{"resource":"calendar","calendar":{"__rl":true,"value":"razerrtrading@gmail.com","mode":"list","cachedResultName":"razerrtrading@gmail.com"},"timeMin":"={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}","timeMax":"={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}","options":{}},"type":"n8n-nodes-base.googleCalendarTool","typeVersion":1.3,"position":[-144,624],"id":"fe54952b-15ca-4f28-a9b3-476ca9858ae4","name":"check availability","credentials":{"googleCalendarOAuth2Api":{"id":"VyBLeoRYD28XxnYS","name":"Google Calendar account"}}}],"pinData":{"Webhook":[{"json":{"headers":{},"params":{},"query":{},"body":{}},"webhookUrl":"","executionMode":"test"}]},"connections":{"Webhook":{"main":[[{"node":"AI Agent","type":"main","index":0}]]},"OpenAI Chat Model":{"ai_languageModel":[[{"node":"AI Agent","type":"ai_languageModel","index":0}]]},"AI Agent":{"main":[[{"node":"Respond to Webhook","type":"main","index":0}]]},"check availability":{"ai_tool":[[{"node":"AI Agent","type":"ai_tool","index":0}]]}},"active":false,"settings":{"executionOrder":"v1"},"versionId":"6244fb20-f4d2-4e76-bc7b-bfbcc2e69ffb","meta":{"templateCredsSetupCompleted":true,"instanceId":"7f9d..."},"id":"s2Oz4PD8hi3d8dXJ","tags":[]}</script>
+  <!-- ===== EMBEDDED RECEPTIONIST n8n TEMPLATES (EXACT) ===== -->
+  <script id="tplCheckAvailability" type="application/json">
+{
+  "name": "checkAvailability",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0635b597-12bc-4601-87d9-530c58e028ff",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-640,432],
+      "id": "09e7f082-cfac-4027-80a6-9edeb64ef87d",
+      "name": "Webhook",
+      "webhookId": "0635b597-12bc-4601-87d9-530c58e028ff"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Role: \n\nYou are an appointment availability checker. Your job is to get the requested time and use the calendar to check availability for the customer.\n\nThe current date and time is: {{ $now }}\n\nCustomer requested time is:\n{{ $json.body.message.toolCallList[0].function.arguments.time }}\n\nCalendar data:\nWorking hours 8am - 9pm\nLength of each slot: 1 hour\n\nBooking Process\n\n-Check if the customer’s requested time is available using the calendar\n-If the time is available let the AI model know & confirm\n-If the time is unavailable, suggest up to 2 alternative slots close to the requested time, by checking the availability again\n-If there are no slots upon rechecking within that day, search the next weekday from the current time and provide alternative slots. \n\nResponse & output:\n\n-If the requested time is available confirm it by saying:\nE.g: The requested time of 10am on June 22nd is available, just to confirm would you like to book this?\n-If you have found no availability or unavailable in the requested time, suggest up to 3 alternative slots closest to the requested time.\n-If no slots exist within the day suggest 3 more times the next weekday.\n-Your output must be natural and conversational e.g. “Hey there, the time that you requested of 10am on June 22nd is available, just to confirm would you like to book this?”\n\nImportant notes:\n\n- You must not output your result in the past, aways check availability in the future, use the current time you have received and the requested data to help make that decision.\n-Your ability to follow these steps precisely is very crucial and can impact the business’s reputation.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [-336,368],
+      "id": "75f18a8b-f48d-4027-8872-98ce8cbd7ecd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [-416,608],
+      "id": "bde217d0-c5bb-412f-9b56-b50967ddcbee",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "exm7lxhShqpiglPn",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [64,416],
+      "id": "ffe1fcc9-82a3-4284-9069-897621ab7d13",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "razerrtrading@gmail.com",
+          "mode": "list",
+          "cachedResultName": "razerrtrading@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [-144,624],
+      "id": "fe54952b-15ca-4f28-a9b3-476ca9858ae4",
+      "name": "check availability",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "VyBLeoRYD28XxnYS",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": { "Webhook": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
+  "connections": {
+    "Webhook": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] },
+    "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
+    "AI Agent": { "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ] },
+    "check availability": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "6244fb20-f4d2-4e76-bc7b-bfbcc2e69ffb",
+  "meta": { "templateCredsSetupCompleted": true, "instanceId": "7f9d..." },
+  "id": "s2Oz4PD8hi3d8dXJ",
+  "tags": []
+}
+  </script>
 
-  <script id="tplBookAppointment" type="application/json">{"name":"bookAppointment","nodes":[{"parameters":{"promptType":"define","text":"=You are a appointment booking AI Agent your job is to use the \"Create an event in Google Calendar\" tool to get the details of the customer and create a event/ booking in the calendar. \n\nThe confirmed time:  {{ $json.body.message.toolCalls[0].function.arguments.time }}\n\nTime now (use for bookings) : {{ $now }}\n\nAppointment duration will be one hour. Simply add one hour on to the confirm time, use the confirm time as the start time and then simply just add one hour on to the confirm time to get the end time. \n\nIf the event has been schedualed please provide your output in this format:\n\nOutput: \n\nHey there the appointment at July 18th 2025 for a message has been schedualed we will see you there. ","options":{}},"type":"@n8n/n8n-nodes-langchain.agent","typeVersion":2,"position":[-832,144],"id":"b4d922ad-2b69-49d5-a2da-17c1ecbe345f","name":"AI Agent"},{"parameters":{"model":{"__rl":true,"mode":"list","value":"gpt-4.1-mini"},"options":{}},"type":"@n8n/n8n-nodes-langchain.lmChatOpenAi","typeVersion":1.2,"position":[-912,384],"id":"c1c61458-8e97-4e7c-ab54-d395e74ae84a","name":"OpenAI Chat Model"},{"parameters":{"calendar":{"__rl":true,"value":"razerrtrading@gmail.com","mode":"list","cachedResultName":"razerrtrading@gmail.com"},"start":"={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}","end":"={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}","additionalFields":{"attendees":["={{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}"],"description":"=Details of the Appointment: \nname:{{ $json.body.message.toolCallList[0].function.arguments.full_name }} \nService Type: {{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.service_type }}\nTime::{{ $json.body.message.toolCallList[0].function.arguments.time }} \nEmail:{{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}","summary":"=New Appointment For  {{ $json.body.message.toolCallList[0].function.arguments.full_name }} at {{ $json.body.message.toolCallList[0].function.arguments.time }}"}},"type":"n8n-nodes-base.googleCalendarTool","typeVersion":1.3,"position":[-672,384],"id":"7b5d02c2-e5e4-4609-ad6c-4ba402a9a757","name":"Create an event in Google Calendar"},{"parameters":{"respondWith":"json","responseBody":"={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}","options":{}},"type":"n8n-nodes-base.respondToWebhook","typeVersion":1.4,"position":[-368,224],"id":"57b1eac0-b482-4a59-9228-a6cc5cd30025","name":"Respond to Webhook"},{"parameters":{"httpMethod":"POST","path":"test77823457892345879245","responseMode":"responseNode","options":{}},"type":"n8n-nodes-base.webhook","typeVersion":2,"position":[-1104,208],"id":"a5013f1c-24ed-4d41-8d36-e9a579100421","name":"Webhook1","webhookId":"e909a8bc-5aba-477b-a3d5-3be663cd655d"}],"pinData":{"Webhook1":[{"json":{"headers":{},"params":{},"query":{},"body":{}},"webhookUrl":"","executionMode":"test"}]},"connections":{"OpenAI Chat Model":{"ai_languageModel":[[{"node":"AI Agent","type":"ai_languageModel","index":0}]]},"Create an event in Google Calendar":{"ai_tool":[[{"node":"AI Agent","type":"ai_tool","index":0}]]},"AI Agent":{"main":[[{"node":"Respond to Webhook","type":"main","index":0}]]},"Webhook1":{"main":[[{"node":"AI Agent","type":"main","index":0}]]}},"active":false,"settings":{"executionOrder":"v1"},"versionId":"1204e689-05e3-4059-82cc-e6e5cac9d410","meta":{"instanceId":"7f9d..."},"id":"rk03nuO44WQh49bc","tags":[]}</script>
-  <!-- ====== /EMBEDDED RECEPTIONIST TEMPLATES ====== -->
+  <script id="tplBookAppointment" type="application/json">
+{
+  "name": "bookAppointment",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a appointment booking AI Agent your job is to use the \"Create an event in Google Calendar\" tool to get the details of the customer and create a event/ booking in the calendar. \n\nThe confirmed time:  {{ $json.body.message.toolCalls[0].function.arguments.time }}\n\nTime now (use for bookings) : {{ $now }}\n\nAppointment duration will be one hour. Simply add one hour on to the confirm time, use the confirm time as the start time and then simply just add one hour on to the confirm time to get the end time. \n\nIf the event has been schedualed please provide your output in this format:\n\nOutput: \n\nHey there the appointment at July 18th 2025 for a message has been schedualed we will see you there. ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [-832,144],
+      "id": "b4d922ad-2b69-49d5-a2da-17c1ecbe345f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [-912,384],
+      "id": "c1c61458-8e97-4e7c-ab54-d395e74ae84a",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "razerrtrading@gmail.com",
+          "mode": "list",
+          "cachedResultName": "razerrtrading@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [ "={{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}" ],
+          "description": "=Details of the Appointment: \nname:{{ $json.body.message.toolCallList[0].function.arguments.full_name }} \nService Type: {{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.service_type }}\nTime::{{ $json.body.message.toolCallList[0].function.arguments.time }} \nEmail:{{ $('Webhook1').item.json.body.message.toolCalls[0].function.arguments.email }}",
+          "summary": "=New Appointment For  {{ $json.body.message.toolCallList[0].function.arguments.full_name }} at {{ $json.body.message.toolCallList[0].function.arguments.time }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [-672,384],
+      "id": "7b5d02c2-e5e4-4609-ad6c-4ba402a9a757",
+      "name": "Create an event in Google Calendar"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [-368,224],
+      "id": "57b1eac0-b482-4a59-9228-a6cc5cd30025",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "test77823457892345879245",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1104,208],
+      "id": "a5013f1c-24ed-4d41-8d36-e9a579100421",
+      "name": "Webhook1",
+      "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
+    }
+  ],
+  "pinData": { "Webhook1": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
+  "connections": {
+    "OpenAI Chat Model": { "ai_languageModel": [ [ { "node": "AI Agent", "type": "ai_languageModel", "index": 0 } ] ] },
+    "Create an event in Google Calendar": { "ai_tool": [ [ { "node": "AI Agent", "type": "ai_tool", "index": 0 } ] ] },
+    "AI Agent": { "main": [ [ { "node": "Respond to Webhook", "type": "main", "index": 0 } ] ] },
+    "Webhook1": { "main": [ [ { "node": "AI Agent", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "1204e689-05e3-4059-82cc-e6e5cac9d410",
+  "meta": { "instanceId": "7f9d..." },
+  "id": "rk03nuO44WQh49bc",
+  "tags": []
+}
+  </script>
 
-  <!-- ====== AGENT PROMPTS (LONG) ====== -->
-  <script id="prInvoice" type="text/plain">You are {{AGENT_NAME}}, an invoice/follow-up assistant for {{BIZ_NAME}}.
+  <!-- ===== AGENT PROMPTS (LONG) ===== -->
+  <script id="prInvoice" type="text/plain">
+You are {{AGENT_NAME}}, an invoice/follow-up assistant for {{BIZ_NAME}}.
 Task: when provided a customer + line items, generate a clear, friendly invoice email with due date, payment link, and gentle follow-ups if overdue.
 
 Must collect/accept:
@@ -323,9 +554,11 @@ OUTPUT JSON ONLY (no prose):
   "toEmail":"", "subject":"", "textBody":"",
   "total": number, "dueISO":"", "paymentLink":"{{PAYMENT_LINK}}"
 }
-If input suggests a reminder (overdue), set intent to "reminder" and adjust tone slightly firmer but polite.</script>
+If input suggests a reminder (overdue), set intent to "reminder" and adjust tone slightly firmer but polite.
+  </script>
 
-  <script id="prSalesCloser" type="text/plain">You are {{AGENT_NAME}}, a sales closer for {{BIZ_NAME}}.
+  <script id="prSalesCloser" type="text/plain">
+You are {{AGENT_NAME}}, a sales closer for {{BIZ_NAME}}.
 Goal: convert warm leads to a booked call or paid order.
 
 Context inputs: lead name, last interaction, offer {{OFFER_SNIPPET}}, CTA {{CTA_URL}}.
@@ -336,9 +569,11 @@ Strategy:
 
 OUTPUT JSON ONLY:
 { "to":"", "channel":"sms|email", "subject":"", "textBody":"", "nextFollowupHours": {{FOLLOWUP_GAP_HOURS}}, "stage":"A|B|Close" }
-Keep copy short and human. No emojis.</script>
+Keep copy short and human. No emojis.
+  </script>
 
-  <script id="prLeadQualifier" type="text/plain">You are {{AGENT_NAME}}, a lead qualifier for {{BIZ_NAME}}.
+  <script id="prLeadQualifier" type="text/plain">
+You are {{AGENT_NAME}}, a lead qualifier for {{BIZ_NAME}}.
 Qualify leads and route them according to {{QUAL_RULES}}.
 
 Collect or use:
@@ -349,34 +584,145 @@ OUTPUT JSON ONLY:
   "emailToLead": {"subject":"","textBody":""},
   "emailToOwner": {"subject":"","textBody":""}
 }
-Terse, friendly, zero fluff.</script>
+Terse, friendly, zero fluff. Reasons should be one sentence.
+  </script>
 
-  <script id="prDMResponder" type="text/plain">You are {{AGENT_NAME}}, a DM responder for {{BIZ_NAME}}.
+  <script id="prDMResponder" type="text/plain">
+You are {{AGENT_NAME}}, a DM responder for {{BIZ_NAME}}.
 Reply to IG/TikTok DMs with short, human messages that move users to {{PRIMARY_CTA}} (link: {{BOOK_URL}}).
 If complex product questions arise, answer briefly and point to {{FAQ_URL}}.
 
 OUTPUT JSON ONLY:
 {"reply":"", "suggestedTag":"lead|customer|spam"}
 
-One or two lines max.</script>
-  <!-- ====== /AGENT PROMPTS ====== -->
+One or two lines max. No emojis unless user uses them first.
+  </script>
 
-  <!-- ====== AGENT TEMPLATES (n8n WORKFLOWS) ====== -->
-  <!-- (unchanged graphs; placeholders to be injected) -->
-  <script id="tplAgentInvoice" type="application/json">{...same as your prior script...}</script>
-  <script id="tplAgentSalesCloser" type="application/json">{...same as your prior script...}</script>
-  <script id="tplAgentLeadQualifier" type="application/json">{...same as your prior script...}</script>
-  <script id="tplAgentDMResponder" type="application/json">{...same as your prior script...}</script>
-  <!-- ====== /AGENT TEMPLATES ====== -->
+  <!-- ===== AGENT n8n JSON TEMPLATES (YOUR EXACT GRAPHS) ===== -->
+  <script id="tplAgentInvoice" type="application/json">
+{
+  "name": "AI Invoice & Follow-ups",
+  "nodes": [
+    { "parameters": { "path": "invoice", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (Create/Reminder)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "const b=$json; return [{payload:b}];" }, "id": "2", "name": "Normalize", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "authentication": "none", "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "responseFormat": "json", "sendBody": true, "headerParametersJson": "{ \n  \"Authorization\": \"Bearer {{OPENAI_API_KEY}}\",\n  \"Content-Type\":\"application/json\"\n}", "bodyParametersJson": "={\n  \"model\":\"{{OPENAI_MODEL}}\",\n  \"temperature\":0.3,\n  \"messages\":[\n    {\"role\":\"system\",\"content\":\"YOU_ARE_INVOICE_ASSISTANT\"},\n    {\"role\":\"user\",\"content\": JSON.stringify($json.payload) }\n  ]\n}" }, "id": "3", "name": "OpenAI - Draft Invoice/Reminder", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const c=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(c);}catch(e){p={intent:\"invoice\",toEmail:\"\",subject:\"Invoice\",textBody:c,total:0};} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.toEmail}}", "subject": "={{$json.subject}}", "text": "={{$json.textBody}}" }, "id": "5", "name": "Send Email", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1180, 200], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "Client", "fieldValue": "={{$json.toEmail}}" }, { "fieldId": "Subject", "fieldValue": "={{$json.subject}}" }, { "fieldId": "Total", "fieldValue": "={{$json.total}}"}, { "fieldId": "DueISO", "fieldValue": "={{$json.dueISO}}"}, { "fieldId": "PaymentLink", "fieldValue": "={{$json.paymentLink}}"} ] } }, "id": "6", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1180, 400], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "7", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1400, 300] }
+  ],
+  "connections": {
+    "Webhook (Create/Reminder)": { "main": [ [ { "node": "Normalize", "type": "main", "index": 0 } ] ] },
+    "Normalize": { "main": [ [ { "node": "OpenAI - Draft Invoice/Reminder", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Draft Invoice/Reminder": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": { "main": [ [ { "node": "Send Email", "type": "main", "index": 0 } ], [ { "node": "Log to Airtable", "type": "main", "index": 0 } ], [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Send Email": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
 
-  <!-- Core JS -->
+  <script id="tplAgentSalesCloser" type="application/json">
+{
+  "name": "AI Sales Closer",
+  "nodes": [
+    { "parameters": { "path": "closer", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (New Lead/Reply)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{ \"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.4,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_SALES_CLOSER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - Draft Reply", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const s=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(s);}catch(e){p={to:\"\",channel:\"sms\",textBody:s,subject:\"\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{$json.channel}}", "operation": "equal", "value2": "sms" } ] } }, "id": "5", "name": "IF SMS?", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [1180, 260] },
+    { "parameters": { "from": "{{TWILIO_FROM}}", "to": "={{$json.to}}", "message": "={{$json.textBody}}" }, "id": "6", "name": "Twilio - Send SMS", "type": "n8n-nodes-base.twilio", "typeVersion": 1, "position": [1400, 140], "credentials": { "twilioApi": { "id": "{{TWILIO_CRED_ID}}", "name": "Twilio" } } },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.to}}", "subject": "={{$json.subject}}", "text": "={{$json.textBody}}" }, "id": "7", "name": "Email - Send", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 380], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "To", "fieldValue": "={{$json.to}}" }, { "fieldId": "Channel", "fieldValue": "={{$json.channel}}" }, { "fieldId": "Stage", "fieldValue": "={{$json.stage}}" }, { "fieldId": "NextFollowupHours", "fieldValue": "={{$json.nextFollowupHours}}" } ] } }, "id": "8", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1620, 260], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "9", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1840, 260] }
+  ],
+  "connections": {
+    "Webhook (New Lead/Reply)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - Draft Reply", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Draft Reply": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": {
+      "main": [
+        [ { "node": "IF SMS?", "type": "main", "index": 0 } ],
+        [ { "node": "Email - Send", "type": "main", "index": 0 } ],
+        [ { "node": "Log to Airtable", "type": "main", "index": 0 } ],
+        [ { "node": "Return", "type": "main", "index": 0 } ]
+      ]
+    },
+    "IF SMS?": {
+      "main": [
+        [ { "node": "Twilio - Send SMS", "type": "main", "index": 0 } ],
+        [ { "node": "Email - Send", "type": "main", "index": 0 } ]
+      ]
+    },
+    "Twilio - Send SMS": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Email - Send": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+
+  <script id="tplAgentLeadQualifier" type="application/json">
+{
+  "name": "AI Lead Qualifier",
+  "nodes": [
+    { "parameters": { "path": "lead", "options": { "responseData": "={{$json}}" } }, "id": "1", "name": "Webhook (Lead In)", "type": "n8n-nodes-base.webhook", "typeVersion": 1, "position": [240, 300] },
+    { "parameters": { "functionCode": "return [{$json}];" }, "id": "2", "name": "Pass", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [480, 300] },
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions", "jsonParameters": true, "sendBody": true, "responseFormat": "json", "headerParametersJson": "{ \"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}", "bodyParametersJson": "={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.2,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_LEAD_QUALIFIER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id": "3", "name": "OpenAI - Qualify", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4, "position": [720, 300] },
+    { "parameters": { "functionCode": "const t=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(t);}catch(e){p={score:50,tier:\"B\",reason:t,recommendedNext:\"nurture\"}} return [p];" }, "id": "4", "name": "Parse JSON", "type": "n8n-nodes-base.function", "typeVersion": 2, "position": [960, 300] },
+    { "parameters": { "conditions": { "string": [ { "value1": "={{$json.recommendedNext}}", "operation": "equal", "value2": "book_call" } ] } }, "id": "5", "name": "IF Book Call", "type": "n8n-nodes-base.if", "typeVersion": 1, "position": [1180, 240] },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "={{$json.emailToLead?.to || $json.lead?.email || \"\"}}", "subject": "={{$json.emailToLead.subject}}", "text": "={{$json.emailToLead.textBody}}" }, "id": "6", "name": "Email Lead", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 140], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "fromEmail": "{{SMTP_FROM}}", "toEmail": "{{BIZ_EMAIL}}", "subject": "={{$json.emailToOwner.subject}}", "text": "={{$json.emailToOwner.textBody}}" }, "id": "7", "name": "Email Owner", "type": "n8n-nodes-base.emailSend", "typeVersion": 2, "position": [1400, 300], "credentials": { "smtp": { "id": "{{SMTP_CRED_ID}}", "name": "SMTP" } } },
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "Score", "fieldValue": "={{$json.score}}" }, { "fieldId": "Tier", "fieldValue": "={{$json.tier}}" }, { "fieldId": "Reason", "fieldValue": "={{$json.reason}}" }, { "fieldId": "Next", "fieldValue": "={{$json.recommendedNext}}" } ] } }, "id": "8", "name": "Log to Airtable", "type": "n8n-nodes-base.airtable", "typeVersion": 2, "position": [1620, 240], "credentials": { "airtableApi": { "id": "{{AIRTABLE_CRED_ID}}", "name": "Airtable API" } } },
+    { "parameters": { "responseBody": "={{$json}}", "responseCode": 200 }, "id": "9", "name": "Return", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1, "position": [1840, 240] }
+  ],
+  "connections": {
+    "Webhook (Lead In)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - Qualify", "type": "main", "index": 0 } ] ] },
+    "OpenAI - Qualify": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": { "main": [ [ { "node": "IF Book Call", "type": "main", "index": 0 } ], [ { "node": "Email Owner", "type": "main", "index": 0 } ], [ { "node": "Log to Airtable", "type": "main", "index": 0 } ], [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "IF Book Call": { "main": [ [ { "node": "Email Lead", "type": "main", "index": 0 } ] ] },
+    "Email Lead": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Email Owner": { "main": [ [ { "node": "Log to Airtable", "type": "main", "index": 0 } ] ] },
+    "Log to Airtable": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+
+  <script id="tplAgentDMResponder" type="application/json">
+{
+  "name": "AI DM Responder",
+  "nodes": [
+    { "parameters": { "path": "dm-responder", "options": { "responseData": "={{$json}}" } }, "id":"1","name":"Webhook (DM)","type":"n8n-nodes-base.webhook","typeVersion":1,"position":[240,300]},
+    { "parameters": { "functionCode": "return [{$json}];" }, "id":"2","name":"Pass","type":"n8n-nodes-base.function","typeVersion":2,"position":[480,300]},
+    { "parameters": { "url": "https://api.openai.com/v1/chat/completions","jsonParameters": true,"sendBody": true,"responseFormat":"json","headerParametersJson":"{\"Authorization\":\"Bearer {{OPENAI_API_KEY}}\",\"Content-Type\":\"application/json\"}","bodyParametersJson":"={\"model\":\"{{OPENAI_MODEL}}\",\"temperature\":0.5,\"messages\":[{\"role\":\"system\",\"content\":\"YOU_ARE_DM_RESPONDER\"},{\"role\":\"user\",\"content\": JSON.stringify($json)}]}" }, "id":"3","name":"OpenAI - DM Reply","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[720,300]},
+    { "parameters": { "functionCode": "const s=$json.choices?.[0]?.message?.content?.trim()||\"\"; let p; try{p=JSON.parse(s);}catch(e){p={reply:s,suggestedTag:\"lead\"}} return [p];" }, "id":"4","name":"Parse JSON","type":"n8n-nodes-base.function","typeVersion":2,"position":[960,300]},
+    { "parameters": { "url": "{{PLATFORM_REPLY_WEBHOOK}}", "jsonParameters": true, "options": {}, "sendBody": true, "bodyParametersJson": "={\"conversationId\": $json.conversationId || \"\", \"reply\": $json.reply }" }, "id":"5","name":"HTTP - Send Reply to Platform","type":"n8n-nodes-base.httpRequest","typeVersion":4,"position":[1180,220]},
+    { "parameters": { "operation": "create", "base": "{{AIRTABLE_BASE_ID}}", "table": "{{AIRTABLE_TABLE}}", "fieldsUi": { "field": [ { "fieldId": "ConversationId", "fieldValue": "={{$json.conversationId}}"}, { "fieldId": "Reply", "fieldValue": "={{$json.reply}}"}, { "fieldId": "Tag", "fieldValue": "={{$json.suggestedTag}}"} ] } }, "id":"6","name":"Airtable - Log","type":"n8n-nodes-base.airtable","typeVersion":2,"position":[1180,380], "credentials":{"airtableApi":{"id":"{{AIRTABLE_CRED_ID}}","name":"Airtable API"}}},
+    { "parameters": { "responseBody":"={{$json}}","responseCode":200 }, "id":"7","name":"Return","type":"n8n-nodes-base.respondToWebhook","typeVersion":1,"position":[1400,300]}
+  ],
+  "connections": {
+    "Webhook (DM)": { "main": [ [ { "node": "Pass", "type": "main", "index": 0 } ] ] },
+    "Pass": { "main": [ [ { "node": "OpenAI - DM Reply", "type": "main", "index": 0 } ] ] },
+    "OpenAI - DM Reply": { "main": [ [ { "node": "Parse JSON", "type": "main", "index": 0 } ] ] },
+    "Parse JSON": { "main": [ [ { "node": "HTTP - Send Reply to Platform", "type": "main", "index": 0 } ], [ { "node": "Airtable - Log", "type": "main", "index": 0 } ], [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "HTTP - Send Reply to Platform": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] },
+    "Airtable - Log": { "main": [ [ { "node": "Return", "type": "main", "index": 0 } ] ] }
+  },
+  "active": false
+}
+  </script>
+
+  <!-- ===== CORE JS (revamped but same functionality) ===== -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
     const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
     const escapeHtml=(s)=> (s||'').replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
 
-    /* ----- Demo chat ----- */
+    /* ---- Demo chat ---- */
     function addMsg(role, text){
       const wrap=$('chatBox'); if(!wrap) return;
       const row=document.createElement('div');
@@ -384,7 +730,7 @@ One or two lines max.</script>
       if(role==='user'){ row.className+=' justify-end'; }
       row.innerHTML = role==='user'
         ? `<div class="max-w-[75%] bg-brand-500/20 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`
-        : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violet-500 grid place-items-center text-black font-bold">A</div><div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
+        : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div><div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
       wrap.appendChild(row); wrap.scrollTop=wrap.scrollHeight;
     }
     function wireChat(){
@@ -394,12 +740,12 @@ One or two lines max.</script>
         e.preventDefault();
         const t=input.value.trim(); if(!t) return;
         addMsg('user', t); input.value='';
-        setTimeout(()=>addMsg('bot',"Thanks! (Demo only) — production runs in your n8n workflows."), 400);
+        setTimeout(()=>addMsg('bot',"Thanks! (Demo only) — production runs inside your n8n workflows."), 400);
       });
       $('chatSend')?.addEventListener('click',()=>form.requestSubmit());
     }
 
-    /* ----- Prompt builder (full download; preview truncated) ----- */
+    /* ---- Prompt builder ---- */
     const truncate=(s,n=1200)=> s && s.length>n ? s.slice(0,n)+' …' : (s||'');
     function getValues(){
       const v = Object.fromEntries(new FormData($('aiForm')).entries());
@@ -443,28 +789,13 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000);
     }
 
-    function setDownload(anchor, filename, data, mime='application/octet-stream'){
-      const blob = new Blob([data], { type: mime });
-      const url = URL.createObjectURL(blob);
-      anchor.href = url; anchor.download = filename;
+    function downloadText(filename, data, mime='text/plain'){
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(new Blob([data], { type:mime })); a.download=filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
     }
 
-    function wirePromptDownload(){
-      const btn=$('downloadPromptBtn'); if(!btn) return;
-      btn.disabled=false;
-      btn.onclick=(e)=>{
-        e.preventDefault();
-        const v=getValues();
-        const txt = buildLongPrompt(v);
-        setDownload(document.createElement('a'), `${slug(v.bizName)}_FULL_PROMPT.txt`, txt, 'text/plain');
-        const a=document.createElement('a');
-        a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));
-        a.download=`${slug(v.bizName)}_FULL_PROMPT.txt`; a.click();
-        flashOk('Full prompt downloaded');
-      };
-    }
-
-    /* ----- Receptionist JSON templating (keep graphs intact) ----- */
+    /* ---- Receptionist JSON templating ---- */
     function readTplObject(id){
       const node=$(id);
       if(!node){ const n=$('notice'); if(n) n.textContent=`Template "${id}" is missing.`; throw new Error('Missing template node: '+id); }
@@ -502,56 +833,39 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
         const v=getValues();
         const longPrompt = buildLongPrompt(v);
         out.textContent = truncate(longPrompt);
-        wirePromptDownload();
 
+        // Enable full prompt download
+        const fullBtn=$('downloadPromptBtn');
+        fullBtn.disabled=false;
+        fullBtn.onclick=(e)=>{ e.preventDefault(); downloadText(`${slug(v.bizName)}_FULL_PROMPT.txt`, longPrompt, 'text/plain'); flashOk('Full prompt downloaded'); };
+
+        // Prepare JSONs
         const avail = renderWorkflow('tplCheckAvailability', v, 'check');
         const book  = renderWorkflow('tplBookAppointment',  v, 'book');
 
         const dlA=$('downloadAvailBtn'), dlB=$('downloadBookBtn');
         dlA.disabled=false; dlB.disabled=false;
-        dlA.onclick=(e)=>{e.preventDefault(); setDownload(document.createElement('a'), 'checkAvailability.json', avail, 'application/json'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([avail],{type:'application/json'})); a.download='checkAvailability.json'; a.click(); flashOk('checkAvailability.json downloaded');};
-        dlB.onclick=(e)=>{e.preventDefault(); setDownload(document.createElement('a'), 'bookAppointment.json', book, 'application/json'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([book],{type:'application/json'})); a.download='bookAppointment.json'; a.click(); flashOk('bookAppointment.json downloaded');};
+        dlA.onclick=(e)=>{ e.preventDefault(); downloadText('checkAvailability.json', avail, 'application/json'); flashOk('checkAvailability.json downloaded'); };
+        dlB.onclick=(e)=>{ e.preventDefault(); downloadText('bookAppointment.json', book, 'application/json'); flashOk('bookAppointment.json downloaded'); };
 
         const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
       }catch(e){ console.error(e); alert('Error preparing downloads: '+e.message); }
       finally{ spinner?.classList.add('hidden'); btn.disabled=false; }
     }
 
-    /* ----- Audio UI + 11Labs TTS (debounced to reduce 429s) ----- */
-    const audioEl=$('audio'); const audioBox=$('audioUI'); const btnPlay=$('audioPlay'); const seek=$('audioSeek'); const tCur=$('audioTime'); const tDur=$('audioDur');
+    /* ---- Voice preview (11Labs) ---- */
+    const audio=$('audio'), box=$('audioUI'), play=$('audioPlay'), seek=$('audioSeek'), tCur=$('audioTime'), tDur=$('audioDur');
     function fmt(t){ t=Math.max(0, t|0); const m=(t/60)|0, s=(t%60)|0; return m+':'+(s<10?'0':'')+s; }
     function sync(){
-      if(!isFinite(audioEl.duration)) return;
-      tDur.textContent=fmt(audioEl.duration); tCur.textContent=fmt(audioEl.currentTime);
-      const pct=audioEl.currentTime/Math.max(1,audioEl.duration)*100; seek.value=pct; seek.style.setProperty('--pct',pct+'%');
-      btnPlay.textContent = audioEl.paused ? '►' : '❚❚';
+      if(!isFinite(audio.duration)) return;
+      tDur.textContent=fmt(audio.duration); tCur.textContent=fmt(audio.currentTime);
+      const pct=audio.currentTime/Math.max(1,audio.duration)*100; seek.value=pct; seek.style.setProperty('--pct', pct+'%');
+      play.textContent = audio.paused ? '►' : '❚❚';
     }
-    btnPlay?.addEventListener('click',()=>{ audioEl.paused?audioEl.play():audioEl.pause(); });
-    audioEl?.addEventListener('play',sync); audioEl?.addEventListener('pause',sync); audioEl?.addEventListener('timeupdate',sync);
-    audioEl?.addEventListener('loadedmetadata',()=>{ audioBox.classList.remove('hidden'); sync(); });
-    seek?.addEventListener('input', ()=>{ const pct=parseFloat(seek.value||'0')/100; if(isFinite(audioEl.duration)) audioEl.currentTime=audioEl.duration*pct; seek.style.setProperty('--pct', seek.value+'%'); });
-
-    async function doTTS(){
-      const ttsBtn = $('ttsBtn'); if (ttsBtn) ttsBtn.disabled = true;
-      const v=getValues();
-      const voice_id = ($('voiceSelect')?.value)||'';
-      const text=`Hi, this is ${v.agentName||'Alex'} with ${v.bizName||'your business'}. How can I help you today?`;
-
-      async function call(body){
-        const res = await fetch('/api/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-        const ok = res.headers.get('content-type')?.includes('application/json');
-        const data = ok ? await res.json() : null;
-        if(!res.ok || !data?.ok) throw new Error((data&&data.message)||('HTTP '+res.status));
-        return data.data.audioBase64;
-      }
-      try{
-        let audioB64;
-        try{ audioB64 = await call({ text, voice_id }); }
-        catch(e){ if(String(e).includes('Too many concurrent')){ audioB64 = await call({ text }); } else { throw e; } }
-        audioEl.src = audioB64; audioEl.load(); $('audioDownload').href = audioB64; await audioEl.play().catch(()=>{});
-      }catch(e){ console.error(e); alert('TTS failed: '+ e.message); }
-      finally{ setTimeout(()=>{ if(ttsBtn) ttsBtn.disabled=false; }, 1200); }
-    }
+    play?.addEventListener('click',()=> audio.paused?audio.play():audio.pause());
+    audio?.addEventListener('play',sync); audio?.addEventListener('pause',sync); audio?.addEventListener('timeupdate',sync);
+    audio?.addEventListener('loadedmetadata',()=>{ box.classList.remove('hidden'); sync(); });
+    seek?.addEventListener('input', ()=>{ const pct=parseFloat(seek.value||'0')/100; if(isFinite(audio.duration)) audio.currentTime=audio.duration*pct; seek.style.setProperty('--pct', seek.value+'%'); });
 
     async function loadVoices(){
       const sel=$('voiceSelect'); if(!sel) return;
@@ -568,14 +882,37 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       }
     }
 
-    // Receptionist bindings
+    async function doTTS(){
+      const ttsBtn = $('ttsBtn'); if (ttsBtn) ttsBtn.disabled = true;
+      const v=getValues();
+      const voice_id = ($('voiceSelect')?.value)||'';
+      const text=`Hi, this is ${v.agentName||'Alex'} with ${v.bizName||'your business'}. How can I help you today?`;
+
+      async function call(body){
+        const res = await fetch('/api/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        let data=null; try{ data=await res.json(); }catch{}
+        if(!res.ok || !data?.ok){
+          const msg = data?.message || `HTTP ${res.status}`;
+          const code= data?.code || 'UNKNOWN';
+          throw new Error(`[${code}] ${msg}`);
+        }
+        return data.data.audioBase64;
+      }
+      try{
+        let audioB64;
+        try{ audioB64 = await call({ text, voice_id }); }
+        catch(e){ if(String(e).includes('concurrent')){ audioB64 = await call({ text }); } else { throw e; } }
+        audio.src = audioB64; audio.load(); $('audioDownload').href = audioB64; await audio.play().catch(()=>{});
+      }catch(e){ console.error(e); alert('TTS failed: '+ e.message); }
+      finally{ setTimeout(()=>{ if(ttsBtn) ttsBtn.disabled=false; }, 1100); }
+    }
+
     document.addEventListener('click',(ev)=>{
       if(ev.target.closest('#previewBtn')){ ev.preventDefault(); doPreview(); }
       if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
     });
 
-    /* ===== SPA Router & Agents (unchanged behavior) ===== */
-    const VIEW_HOME = document.getElementById('view-home');
+    /* ---- SPA (Agents) ---- */
     const VIEW_AGENT = document.getElementById('view-agent');
 
     const AGENTS = {
@@ -712,11 +1049,9 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       if(missing.length) throw new Error('Missing: '+missing.join(', '));
       const map = def.map(v);
 
-      // Prompt
       let prompt=getScriptText(def.promptId);
       prompt = injectPlaceholders(prompt, map);
 
-      // JSON Template
       let tpl=getScriptText(def.tplId);
       const longForJSON = prompt.replace(/`/g,'\\`').replace(/\n/g,'\\n');
       tpl = tpl.replace(/YOU_ARE_[A-Z_]+/g, longForJSON);
@@ -731,7 +1066,8 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       if(m){
         const key=m[1]; const def=AGENTS[key];
         if(!def){ location.hash='#/'; return; }
-        $('view-home').classList?.add('hidden'); $('view-agent').classList?.remove('hidden');
+        document.getElementById('view-agent').classList.remove('hidden');
+        document.getElementById('view-home')?.classList.add('hidden');
         $('agentTitle').textContent=def.title; $('agentDesc').textContent=def.desc; renderAgentForm(def);
         $('agentPromptPreview').textContent='';
         $('agentGenerate').onclick=(e)=>{
@@ -739,20 +1075,21 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
           try{
             const out=buildAgent(def);
             $('agentPromptPreview').textContent=out.prompt;
-            const a1=$('agentPromptDownload'), a2=$('agentJsonDownload');
-            a1.href=URL.createObjectURL(new Blob([out.prompt],{type:'text/plain'})); a1.download=`${def.fileBase}-FULL-PROMPT.txt`;
-            a2.href=URL.createObjectURL(new Blob([out.json],{type:'application/json'})); a2.download=`${def.fileBase}-workflow.json`;
+            $('agentPromptDownload').href=URL.createObjectURL(new Blob([out.prompt],{type:'text/plain'}));
+            $('agentPromptDownload').download=`${def.fileBase}-FULL-PROMPT.txt`;
+            $('agentJsonDownload').href=URL.createObjectURL(new Blob([out.json],{type:'application/json'}));
+            $('agentJsonDownload').download=`${def.fileBase}-workflow.json`;
             const ok=$('agentMsg'); ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),1500);
           }catch(err){ alert(err.message); }
         };
         $('agentPromptDownload').onclick=(e)=>{ if(!$('agentPromptPreview').textContent) e.preventDefault(); };
         $('agentJsonDownload').onclick=(e)=>{ if(!$('agentPromptPreview').textContent) e.preventDefault(); };
       }else{
-        $('view-agent').classList?.add('hidden'); $('view-home').classList?.remove('hidden');
+        document.getElementById('view-agent').classList.add('hidden');
+        document.getElementById('view-home')?.classList.remove('hidden');
       }
     }
 
-    // init
     function init(){ wireChat(); loadVoices(); route(); }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
     window.addEventListener('hashchange', route);
