@@ -1107,10 +1107,15 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       let prompt=getScriptText(def.promptId);
       prompt = injectPlaceholders(prompt, map);
 
-      let tpl=getScriptText(def.tplId);
-      const longForJSON = prompt.replace(/`/g,'\\`').replace(/\n/g,'\\n');
-      tpl = tpl.replace(/YOU_ARE_[A-Z_]+/g, longForJSON);
-      tpl = injectPlaceholders(tpl, map);
+      let tpl = getScriptText(def.tplId);
+
+// Safely inject the full system prompt as a JSON string value.
+// Looks for:  "YOU_ARE_SOMETHING"  and replaces the *entire quoted string*
+// with a proper JSON string of your long prompt.
+tpl = tpl.replace(/"YOU_ARE_[A-Z_]+"/g, () => JSON.stringify(prompt));
+
+tpl = injectPlaceholders(tpl, map);
+
 
       return { prompt, json: JSON.stringify(JSON.parse(tpl), null, 2) };
     }
@@ -1152,3 +1157,4 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
   </script>
 </body>
 </html>
+
