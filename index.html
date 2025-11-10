@@ -1,407 +1,339 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AOS — AI Receptionist Builder</title>
+  <title>AOS — AI Receptionist Prompt Pack (Free Builder)</title>
 
   <!-- SEO -->
-  <meta name="description" content="Build a production-ready AI Receptionist in minutes — full prompt + n8n workflows + voice preview.">
-  <meta property="og:title" content="AOS — AI Receptionist Builder">
+  <meta name="description" content="Build your own AI Receptionist in 30 seconds — free. Generate prompts, workflows, and voice previews for any business.">
+  <meta property="og:title" content="AOS — Free AI Receptionist Builder">
   <meta property="og:description" content="Generate a custom AI receptionist instantly — prompt, workflows, and voice demo included.">
   <meta property="og:image" content="https://yourdomain.com/og-preview.png">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Favicon (simple lettermark) -->
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23556dff"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="28" fill="white">A</text></svg>'>
+
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            ink: '#0a0f1c',
-            panel: 'rgba(255,255,255,.04)',
-            line: 'rgba(255,255,255,.08)',
-            brand: {
-              50:'#eaf1ff',100:'#d7e5ff',200:'#b4ceff',300:'#86aeff',400:'#5a8aff',500:'#2e66ff',
-              600:'#204de0',700:'#1a3db7',800:'#15348f',900:'#112a74'
-            },
-            violetx: { 500:'#7c4dff' }
-          },
-          boxShadow: {
-            soft: '0 8px 28px rgba(0,0,0,.22)',
-            ring: '0 0 0 1px rgba(255,255,255,.06), 0 12px 60px rgba(90,138,255,.25)'
-          },
-          backdropBlur: { xs: '2px' }
+          colors: { brand: {500:"#556dff", 600:"#3d4fe6"}, ink:"#0b0f1a" },
+          boxShadow: { soft:"0 8px 30px rgba(0,0,0,.18)" }
         }
       }
-    }
+    };
   </script>
 
-  <!-- Global Styles -->
   <style>
-    :root { color-scheme: dark }
-    body {
+    body{ background:#0b0f1a; color:#fff }
+    .gradient{
       background:
-        radial-gradient(900px 600px at 85% -10%, rgba(90,138,255,.18), transparent 60%),
-        radial-gradient(700px 500px at -10% 30%, rgba(124,77,255,.15), transparent 60%),
-        #0a0f1c;
-      color: #fff;
-      font-feature-settings: "ss01" on, "cv05" on;
+       radial-gradient(1200px 600px at 20% -10%, rgba(85,109,255,.25), transparent 60%),
+       radial-gradient(1000px 600px at 100% 0%, rgba(34,42,130,.35), transparent 60%);
     }
-    .bg-grid { position:absolute; inset:0; pointer-events:none; mask-image: radial-gradient(70% 60% at 50% 20%, #000 60%, transparent 100%); }
-    .bg-grid:before {
-      content:""; position:absolute; inset:0;
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
-      background-size:40px 40px; opacity:.25;
+    .glass{ backdrop-filter: blur(10px); background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08) }
+    .code{ white-space:pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace }
+    input, textarea, select{
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: .9rem 1rem;
     }
-    .glass { background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px) }
-    .card { border:1px solid rgba(255,255,255,.1); background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); border-radius:16px; }
-    .card-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.08); }
-    .badge { font-size:11px; letter-spacing:.02em; border:1px solid rgba(255,255,255,.18); padding:.25rem .5rem; border-radius:999px; background:rgba(255,255,255,.06) }
-    .btn { border-radius: 14px; padding: .8rem 1.05rem; font-weight: 600 }
-    .btn-primary { background: linear-gradient(90deg, #2e66ff, #7c4dff); box-shadow: 0 10px 40px rgba(94,129,255,.35) }
-    .btn-primary:hover { filter: brightness(1.05) saturate(1.02) }
-    .btn-ghost { border: 1px solid rgba(255,255,255,.12); background: transparent }
-    .code { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace }
-    input, textarea, select { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: .8rem 1rem }
-    input::placeholder, textarea::placeholder { color: rgba(255,255,255,.45) }
-    input:focus, textarea:focus, select:focus { outline: none; box-shadow: 0 0 0 2px rgba(94,129,255,.45) }
-    .range { appearance:none; height: 6px; border-radius: 999px; background: linear-gradient(to right, #5a8aff var(--pct,0%), rgba(255,255,255,.22) 0) }
-    .range::-webkit-slider-thumb{ appearance:none; width:14px; height:14px; border-radius:999px; background:#fff; border:2px solid #2e66ff; box-shadow:0 0 0 3px rgba(90,138,255,.25) }
-    .section { padding-block: clamp(56px, 10vw, 108px) }
-    .muted { color: rgba(255,255,255,.66) }
-    .divider { height:1px; background:rgba(255,255,255,.08) }
-    .group-title { font-weight:600; font-size:13px; color:rgba(255,255,255,.7); letter-spacing:.04em; text-transform:uppercase }
-    .help { font-size:12px; color:rgba(255,255,255,.55) }
+    input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.45) }
+    input:focus, textarea:focus, select:focus{ outline:none; box-shadow:0 0 0 2px rgba(85,109,255,.5) }
+    .range {appearance:none;height:6px;border-radius:9999px;background:linear-gradient(to right,#556dff var(--pct,0%),rgba(255,255,255,.2) 0)}
+    .range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:9999px;background:#fff;border:2px solid #556dff;box-shadow:0 0 0 3px rgba(85,109,255,.25)}
+    .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,.12) }
+    .muted{ color: rgba(255,255,255,.65) }
+    .hidden{ display:none }
+    .field>label{ font-size:.85rem; color:rgba(255,255,255,.75) }
   </style>
 </head>
 <body>
-  <!-- NAV -->
-  <header class="border-b border-white/10 sticky top-0 z-40 backdrop-blur bg-black/30">
-    <div class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
-      <a href="#/" class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div>
-        <div class="leading-tight">
-          <div class="font-semibold tracking-wide">AOS</div>
-          <div class="text-[11px] text-white/60 -mt-0.5">AI Optimization Solutions</div>
+  <!-- Header -->
+  <header class="gradient border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-brand-500 grid place-items-center text-black font-bold">A</div>
+        <div>
+          <div class="font-semibold">AOS</div>
+          <div class="text-white/60 text-xs">AI Optimization Solutions</div>
         </div>
-      </a>
-      <nav class="flex items-center gap-1">
-        <a href="#features" class="px-3 py-2 rounded-lg hover:bg-white/10">Features</a>
-        <a href="#builder" class="px-3 py-2 rounded-lg hover:bg-white/10">Builder</a>
-        <a href="#agents" class="px-3 py-2 rounded-lg hover:bg-white/10">Agents</a>
-        <a href="#video" class="px-3 py-2 rounded-lg hover:bg-white/10">Tutorial</a>
-        <a href="#builder" class="btn btn-primary ml-2">Build Free</a>
+      </div>
+      <nav class="flex items-center gap-2">
+        <a href="#/" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15">Home</a>
+        <a href="#builder" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600">Build Free</a>
       </nav>
     </div>
   </header>
 
-  <!-- VIEW: HOME -->
+  <!-- =========================
+       VIEW: HOME
+       ========================= -->
   <main id="view-home">
-    <!-- HERO -->
-    <section class="relative section overflow-hidden">
-      <div class="bg-grid"></div>
-      <div class="max-w-7xl mx-auto px-5 grid lg:grid-cols-2 gap-14 items-center">
-        <div>
-          <h1 class="text-4xl md:text-6xl font-extrabold leading-[1.05]">
-            Launch an <span class="bg-gradient-to-r from-brand-400 to-violetx-500 bg-clip-text text-transparent">AI Receptionist</span> in minutes.
-          </h1>
-          <p class="muted text-lg mt-6 max-w-2xl">
-            Production-grade system prompt, two n8n workflows for availability & booking, and a clean voice preview—generated from your business details.
-          </p>
-          <div class="mt-8 flex gap-3">
-            <a href="#builder" class="btn btn-primary">Start Building</a>
-            <a href="#features" class="btn btn-ghost">See how it works</a>
-          </div>
-          <div class="mt-10 grid grid-cols-3 max-w-md gap-6 text-white/60 text-xs">
-            <div class="glass rounded-xl px-3 py-2 border border-white/10">Google Calendar</div>
-            <div class="glass rounded-xl px-3 py-2 border border-white/10">n8n Templates</div>
-            <div class="glass rounded-xl px-3 py-2 border border-white/10">Voice Preview</div>
-          </div>
-        </div>
-
-        <!-- Demo Chat -->
-        <div class="glass rounded-2xl p-6 md:p-8 shadow-ring">
-          <div class="text-sm text-white/60 mb-2">Receptionist demo</div>
-          <div id="chatBox" class="h-72 overflow-y-auto bg-black/30 rounded-xl p-3 space-y-3 text-sm border border-white/10">
-            <div class="flex gap-3">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div>
-              <div>Hi — I can answer questions and book your appointment. How can I help?</div>
+    <!-- Hero -->
+    <section class="relative gradient overflow-hidden">
+      <div class="mx-auto max-w-7xl px-4 pt-20 pb-16 md:pt-24 md:pb-24">
+        <div class="grid md:grid-cols-2 gap-16 items-start">
+          <!-- Left -->
+          <div>
+            <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+              AI Receptionist Prompt Pack — <span class="text-brand-500">Free Builder</span>
+            </h1>
+            <p class="mt-6 text-white/70 max-w-2xl leading-relaxed">
+              Answer a few questions about your business. Get a production-ready System Prompt (preview) and
+              download two <b>n8n</b> workflows — <em>checkAvailability</em> and <em>bookAppointment</em>.
+            </p>
+            <div class="mt-8">
+              <a href="#builder" class="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600">Start Building</a>
             </div>
           </div>
-          <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
-            <input id="chatInput" type="text" placeholder="Type your message…" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
-            <button id="chatSend" type="submit" class="btn btn-primary">Send</button>
-          </form>
-        </div>
-      </div>
-    </section>
 
-    <!-- FEATURE BAND -->
-    <section id="features" class="section border-y border-white/10">
-      <div class="max-w-7xl mx-auto px-5">
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="glass rounded-2xl p-6 border border-white/10">
-            <h3 class="font-semibold text-lg">Prompt + Workflows</h3>
-            <p class="muted mt-2">We generate a full, production prompt and two n8n JSONs: <em>checkAvailability</em> and <em>bookAppointment</em>.</p>
-          </div>
-          <div class="glass rounded-2xl p-6 border border-white/10">
-            <h3 class="font-semibold text-lg">Drop-in Ready</h3>
-            <p class="muted mt-2">Injects your timezone, calendar ID, and unique webhook paths—no manual JSON tinkering.</p>
-          </div>
-          <div class="glass rounded-2xl p-6 border border-white/10">
-            <h3 class="font-semibold text-lg">Clean Voice Preview</h3>
-            <p class="muted mt-2">Try voices instantly via 11Labs with a custom player and graceful rate-limit handling.</p>
+          <!-- Demo Chat -->
+          <div class="glass rounded-2xl p-6 md:p-8 shadow-soft mt-6 md:mt-0">
+            <div class="text-sm text-white/60 mb-2">Talk to Ava — Receptionist (Demo)</div>
+            <div id="chatBox" class="h-64 overflow-y-auto bg-black/20 rounded-xl p-3 space-y-3 text-sm border border-white/10">
+              <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center text-black font-bold">A</div>
+                <div>Hi! This is Ava from BrightSmile Dental — how can I help you today?</div>
+              </div>
+            </div>
+            <form id="chatForm" class="mt-3 flex gap-2" action="javascript:void(0)" autocomplete="off">
+              <input id="chatInput" type="text" placeholder="Type your message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm" required>
+              <button id="chatSend" type="submit" class="bg-brand-500 hover:bg-brand-600 rounded-xl px-4 py-2 text-sm font-medium">Send</button>
+            </form>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- BUILDER (Form revamped) -->
-    <section id="builder" class="section">
-      <div class="max-w-7xl mx-auto px-5">
-        <div class="grid lg:grid-cols-2 gap-10 items-start">
-          <!-- Professional Form Card -->
-          <div class="card overflow-hidden">
-            <div class="card-header">
-              <div>
-                <div class="text-lg font-semibold">Business Profile</div>
-                <div class="text-white/60 text-sm">We’ll shape the prompt and patch the workflows from this info.</div>
-              </div>
-              <span class="badge">Required</span>
-            </div>
+    <!-- Builder -->
+    <section id="builder" class="py-24 md:py-32 scroll-mt-28">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-center text-3xl font-bold mb-10 text-white">Build your AI Receptionist</h2>
 
-            <form id="aiForm" class="p-6 md:p-8 space-y-8">
-              <!-- Group: Company -->
-              <div class="space-y-4">
-                <div class="group-title">Company</div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <label class="block">
-                    <span class="text-sm text-white/70">Business Name</span>
-                    <input name="bizName" placeholder="e.g., BrightSmile Dental" required class="mt-1 w-full">
-                  </label>
-                  <label class="block">
-                    <span class="text-sm text-white/70">Location / Service Area</span>
-                    <input name="location" placeholder="City / Area" required class="mt-1 w-full">
-                  </label>
+        <div class="grid lg:grid-cols-2 gap-8">
+          <!-- Professional form card -->
+          <div class="glass rounded-2xl p-6 md:p-8 shadow-soft">
+            <h3 class="text-2xl font-semibold">Your Business</h3>
+            <p class="text-white/60 text-sm mt-1">We’ll generate a tailored prompt and n8n templates.</p>
+            <form id="aiForm" class="grid gap-4 mt-6">
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="field">
+                  <label>Business Name</label>
+                  <input name="bizName" placeholder="e.g., BrightSmile Dental" required>
                 </div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <label class="block">
-                    <span class="text-sm text-white/70">Industry</span>
-                    <input name="industry" placeholder="e.g., salon, rentals, clinic" required class="mt-1 w-full">
-                  </label>
-                  <label class="block">
-                    <span class="text-sm text-white/70">Services</span>
-                    <input name="services" placeholder="Comma-separated" required class="mt-1 w-full">
-                  </label>
+                <div class="field">
+                  <label>Location / Service Area</label>
+                  <input name="location" placeholder="e.g., Charlotte, NC" required>
                 </div>
               </div>
 
-              <div class="divider"></div>
-
-              <!-- Group: Operations -->
-              <div class="space-y-4">
-                <div class="group-title">Operations</div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <label class="block">
-                    <span class="text-sm text-white/70">Agent Name</span>
-                    <input name="agentName" value="Alex" class="mt-1 w-full">
-                  </label>
-                  <label class="block">
-                    <span class="text-sm text-white/70">Language</span>
-                    <input name="language" value="English" class="mt-1 w-full">
-                  </label>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="field">
+                  <label>Industry</label>
+                  <input name="industry" placeholder="e.g., salon, rentals, clinic" required>
                 </div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <label class="block">
-                    <span class="text-sm text-white/70">Hours</span>
-                    <input name="hours" placeholder="Mon–Sat 9–6" class="mt-1 w-full">
-                    <div class="help mt-1">Used for availability suggestions.</div>
-                  </label>
-                  <label class="block">
-                    <span class="text-sm text-white/70">Timezone</span>
-                    <input name="timezone" placeholder="America/New_York" class="mt-1 w-full">
-                  </label>
+                <div class="field">
+                  <label>Services (comma-separated)</label>
+                  <input name="services" placeholder="Full detail, Interior only, Exterior only" required>
                 </div>
               </div>
 
-              <div class="divider"></div>
-
-              <!-- Group: Integrations -->
-              <div class="space-y-4">
-                <div class="group-title">Integrations</div>
-                <div class="grid md:grid-cols-2 gap-4">
-                  <label class="block">
-                    <span class="text-sm text-white/70">Google Calendar ID</span>
-                    <input name="calendarId" placeholder="primary or calendar@domain.com" class="mt-1 w-full">
-                    <div class="help mt-1">Patched into n8n Google Calendar nodes.</div>
-                  </label>
-                  <label class="block">
-                    <span class="text-sm text-white/70">Confirmation Email (From)</span>
-                    <input name="email" type="email" placeholder="no-reply@domain.com" class="mt-1 w-full">
-                  </label>
+              <div class="grid md:grid-cols-3 gap-4">
+                <div class="field">
+                  <label>Agent Name</label>
+                  <input name="agentName" placeholder="Alex" value="Alex">
                 </div>
-                <label class="block">
-                  <span class="text-sm text-white/70">Policies (optional)</span>
-                  <textarea name="policies" rows="2" placeholder="Deposits, cancellations, refunds…" class="mt-1 w-full"></textarea>
-                </label>
+                <div class="field">
+                  <label>Language</label>
+                  <input name="language" placeholder="English" value="English">
+                </div>
+                <div class="field">
+                  <label>Timezone</label>
+                  <input name="timezone" placeholder="America/New_York">
+                </div>
               </div>
 
-              <div class="divider"></div>
+              <div class="grid md:grid-cols-3 gap-4">
+                <div class="field">
+                  <label>Hours</label>
+                  <input name="hours" placeholder="Mon–Sat 9–6">
+                </div>
+                <div class="field">
+                  <label>Google Calendar ID</label>
+                  <input name="calendarId" placeholder="primary">
+                </div>
+                <div class="field">
+                  <label>Confirmation Email (from)</label>
+                  <input name="email" type="email" placeholder="no-reply@yourbiz.com">
+                </div>
+              </div>
 
-              <!-- Group: Voice & Build -->
-              <div class="grid md:grid-cols-2 gap-4 items-end">
-                <label class="block">
-                  <span class="text-sm text-white/70">Voice</span>
-                  <select id="voiceSelect" class="mt-1 w-full"><option>Loading voices…</option></select>
-                </label>
-                <div class="flex flex-wrap gap-3 md:justify-end">
-                  <button type="button" id="previewBtn" class="btn btn-primary inline-flex items-center gap-2">
+              <div class="field">
+                <label>Policies / Deposits / Refunds (optional)</label>
+                <textarea name="policies" rows="2" placeholder="Deposit $25 to secure slot. 24h reschedule window."></textarea>
+              </div>
+
+              <!-- Voice picker row -->
+              <div class="grid md:grid-cols-2 gap-4 items-end mt-2">
+                <div class="field">
+                  <label>Voice</label>
+                  <select id="voiceSelect">
+                    <option>Loading voices…</option>
+                  </select>
+                </div>
+                <div class="flex gap-3 flex-wrap">
+                  <button type="button" id="previewBtn" class="px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium inline-flex items-center gap-2">
                     <span id="previewSpinner" class="hidden inline-block w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
-                    <span>Prepare downloads</span>
+                    <span>Generate Preview</span>
                   </button>
-                  <button type="button" id="ttsBtn" class="btn btn-ghost">Hear greeting</button>
+                  <button type="button" id="ttsBtn" class="px-4 py-3 rounded-xl btn-ghost font-medium">Hear AI Greeting</button>
                 </div>
               </div>
             </form>
           </div>
 
-          <!-- Output / Downloads -->
-          <div class="space-y-6">
-            <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
-              <h3 class="text-lg font-semibold">System Prompt (preview)</h3>
-              <p class="text-xs text-white/60">Preview is truncated; the download is the full prompt.</p>
-              <div id="promptOut" class="code text-sm bg-black/25 rounded-xl p-4 border border-white/10 min-h-[260px] mt-3"></div>
+          <!-- Preview + downloads + audio -->
+          <div class="glass rounded-2xl p-6 md:p-8 shadow-soft">
+            <h3 class="text-xl font-semibold">System Prompt — Preview</h3>
+            <div class="text-xs text-white/60">Preview only (truncated)</div>
+            <div id="promptOut" class="code text-sm bg-black/30 rounded-xl p-4 border border-white/10 min-h-[280px] mt-3"></div>
 
-              <div class="mt-6">
-                <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
-                <div class="flex flex-wrap gap-2">
-                  <button id="downloadPromptBtn" class="btn btn-primary disabled:opacity-50" disabled>Full Prompt (.txt)</button>
-                  <button id="downloadAvailBtn" class="btn btn-ghost disabled:opacity-50" disabled>checkAvailability.json</button>
-                  <button id="downloadBookBtn"  class="btn btn-ghost disabled:opacity-50" disabled>bookAppointment.json</button>
-                </div>
-                <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded</div>
+            <div class="mt-6">
+              <h4 class="text-sm font-semibold text-white/80 mb-2">Downloads</h4>
+              <div class="flex flex-wrap gap-2">
+                <button id="downloadPromptBtn" class="px-4 py-2 rounded-xl bg-brand-500/80 hover:bg-brand-600 font-medium disabled:opacity-50" disabled>Download Full Prompt (.txt)</button>
+                <button id="downloadAvailBtn" class="px-4 py-2 rounded-xl btn-ghost disabled:opacity-50" disabled>Download: checkAvailability.json</button>
+                <button id="downloadBookBtn" class="px-4 py-2 rounded-xl btn-ghost disabled:opacity-50" disabled>Download: bookAppointment.json</button>
               </div>
+              <div id="successMsg" class="hidden mt-3 text-sm text-green-400">Downloaded ✓</div>
+              <p id="notice" class="mt-3 text-xs text-white/60"></p>
+              <div id="debug" class="mt-2 text-xs text-red-400"></div>
             </div>
 
-            <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
-              <h3 class="text-lg font-semibold">Voice preview</h3>
+            <!-- Custom Audio Player -->
+            <div class="mt-6">
               <audio id="audio" class="hidden"></audio>
-              <div id="audioUI" class="hidden mt-3 glass rounded-xl p-4">
+              <div id="audioUI" class="hidden glass rounded-xl p-4">
                 <div class="flex items-center gap-3">
-                  <button id="audioPlay" class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">►</button>
+                  <button id="audioPlay" class="w-10 h-10 rounded-full bg-brand-500 hover:bg-brand-600 grid place-items-center text-black font-bold">▶</button>
                   <div class="flex-1">
                     <input id="audioSeek" type="range" min="0" max="100" value="0" class="w-full range">
                     <div class="flex justify-between text-xs text-white/60 mt-1">
-                      <span id="audioTime">0:00</span><span id="audioDur">0:00</span>
+                      <span id="audioTime">0:00</span>
+                      <span id="audioDur">0:00</span>
                     </div>
                   </div>
                   <a id="audioDownload" download="ai-greeting.mp3" class="text-sm underline decoration-blue-400">Download</a>
                 </div>
-                <div id="notice" class="mt-2 text-xs text-white/60"></div>
-                <div id="debug" class="mt-2 text-xs text-red-400"></div>
               </div>
             </div>
           </div>
         </div>
+
+        <p class="text-center text-sm text-white/50 mt-8">
+          After import, attach your Google Calendar OAuth2 and OpenAI credentials in n8n.
+        </p>
       </div>
     </section>
 
-    <!-- AGENTS -->
-    <section id="agents" class="section border-t border-white/10">
-      <div class="max-w-7xl mx-auto px-5">
-        <div class="max-w-3xl">
-          <h2 class="text-3xl font-bold">More plug-and-play agents</h2>
-          <p class="muted mt-2">Each opens its own page to generate a tailored full prompt + n8n JSON.</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
-          <a href="#/agent/invoice" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+    <!-- Agents (under Receptionist) -->
+    <section id="agents" class="py-20 border-t border-white/10">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-bold mb-6">More Plug-and-Play Agents</h2>
+        <p class="muted mb-6">Each opens its own page to generate a tailored Full Prompt and n8n JSON.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <a href="#/agent/invoice" class="glass rounded-2xl p-5 block hover:bg-white/5">
             <div class="text-lg font-semibold">AI Invoice / Follow-ups</div>
-            <div class="text-sm text-white/70 mt-1">Generate invoices + gentle reminders; log to Airtable.</div>
+            <div class="text-sm text-white/70 mt-1">Generate invoices + reminders via email. Logs to Airtable.</div>
           </a>
-          <a href="#/agent/salesCloser" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+
+          <a href="#/agent/salesCloser" class="glass rounded-2xl p-5 block hover:bg-white/5">
             <div class="text-lg font-semibold">AI Sales Closer</div>
             <div class="text-sm text-white/70 mt-1">Objection-aware nudges via SMS/Email. Auto-logs follow-ups.</div>
           </a>
-          <a href="#/agent/leadQualifier" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+
+          <a href="#/agent/leadQualifier" class="glass rounded-2xl p-5 block hover:bg-white/5">
             <div class="text-lg font-semibold">AI Lead Qualifier</div>
             <div class="text-sm text-white/70 mt-1">Score & route leads (A/B/C). Email both lead & owner.</div>
           </a>
-          <a href="#/agent/dmResponder" class="glass rounded-2xl p-5 border border-white/10 hover:shadow-ring transition-all">
+
+          <a href="#/agent/dmResponder" class="glass rounded-2xl p-5 block hover:bg-white/5">
             <div class="text-lg font-semibold">AI DM Responder</div>
-            <div class="text-sm text-white/70 mt-1">Short replies for IG/TikTok that push to your CTA.</div>
+            <div class="text-sm text-white/70 mt-1">Short replies for IG/TikTok that push to your CTA. Tags & logs.</div>
           </a>
         </div>
       </div>
     </section>
 
-    <!-- TUTORIAL (moved to absolute bottom & smaller) -->
-    <section id="video" class="section border-t border-white/10">
-      <div class="max-w-3xl mx-auto px-5">
-        <h3 class="font-semibold">Quick tutorial</h3>
-        <p class="text-white/60 text-sm mt-1">3-minute walk-through on using this builder.</p>
-        <div class="mt-4 rounded-xl overflow-hidden border border-white/10 aspect-video">
+    <!-- Video (moved all the way to the bottom & smaller) -->
+    <section class="py-16 border-t border-white/10">
+      <div class="max-w-4xl mx-auto px-4">
+        <h3 class="text-xl font-semibold mb-3">How to use this builder</h3>
+        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-soft aspect-video max-w-3xl mx-auto">
           <iframe
             class="w-full h-full"
             src="https://www.youtube.com/embed/Akwe5h3CQKo?si=Q-Uto-rIMjTar1vv"
-            title="How to use the AOS site" frameborder="0"
+            title="AOS — How to use the AI Receptionist Builder"
+            frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- VIEW: AGENT DETAIL -->
+  <!-- =========================
+       VIEW: AGENT DETAIL (SPA)
+       ========================= -->
   <main id="view-agent" class="hidden">
-    <section class="section">
-      <div class="max-w-5xl mx-auto px-5">
+    <section class="py-10">
+      <div class="max-w-5xl mx-auto px-4">
         <a href="#/" class="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6">← Back</a>
-        <div class="glass rounded-2xl p-6 md:p-8 border border-white/10">
+        <div class="glass rounded-2xl p-6 md:p-8">
           <h2 id="agentTitle" class="text-2xl font-bold"></h2>
           <p id="agentDesc" class="text-white/70 mt-2"></p>
 
+          <!-- Agent-specific form -->
           <form id="agentForm" class="grid gap-4 mt-6"></form>
 
+          <!-- Output/downloads -->
           <div class="mt-6">
             <div class="flex flex-wrap gap-2">
-              <button id="agentGenerate" class="btn btn-primary">Generate</button>
-              <a id="agentPromptDownload" class="btn btn-ghost">Full Prompt (.txt)</a>
-              <a id="agentJsonDownload" class="btn btn-ghost">n8n JSON</a>
+              <button id="agentGenerate" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 font-medium">Generate</button>
+              <a id="agentPromptDownload" class="px-4 py-2 rounded-xl btn-ghost">Download Full Prompt (.txt)</a>
+              <a id="agentJsonDownload" class="px-4 py-2 rounded-xl btn-ghost">Download n8n JSON</a>
             </div>
             <div id="agentMsg" class="text-xs text-green-400 mt-3 hidden">Generated ✓</div>
 
             <h4 class="mt-6 font-semibold">Prompt Preview</h4>
-            <div id="agentPromptPreview" class="code text-sm bg-black/25 rounded-xl p-4 border border-white/10 min-h-[180px] mt-2"></div>
+            <div id="agentPromptPreview" class="code text-sm bg-black/30 rounded-xl p-4 border border-white/10 min-h-[180px] mt-2"></div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="py-10 text-center text-white/45 text-sm border-t border-white/10">
+  <footer class="py-10 text-center text-white/40 text-sm">
     © <span id="year"></span> AOS — AI Optimization Solutions
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- ===== RECEPTIONIST n8n TEMPLATES (EXACT) ===== -->
+  <!-- ====== EMBEDDED TEMPLATES (RECEPTIONIST — EXACT) ====== -->
   <script id="tplCheckAvailability" type="application/json">
 {
   "name": "checkAvailability",
   "nodes": [
     {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "0635b597-12bc-4601-87d9-530c58e028ff",
-        "responseMode": "responseNode",
-        "options": {}
-      },
+      "parameters": { "httpMethod": "POST", "path": "0635b597-12bc-4601-87d9-530c58e028ff", "responseMode": "responseNode", "options": {} },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [-640,432],
@@ -423,11 +355,7 @@
     },
     {
       "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4.1-mini"
-        },
+        "model": { "__rl": true, "mode": "list", "value": "gpt-4.1-mini" },
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
@@ -435,17 +363,12 @@
       "position": [-416,608],
       "id": "bde217d0-c5bb-412f-9b56-b50967ddcbee",
       "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "exm7lxhShqpiglPn",
-          "name": "n8n free OpenAI API credits"
-        }
-      }
+      "credentials": { "openAiApi": { "id": "exm7lxhShqpiglPn", "name": "n8n free OpenAI API credits" } }
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}\n",
+        "responseBody": "={\n  \"results\": [\n    { \"toolCallId\": \"{{ $('Webhook').item.json.body.message.toolCalls[0].id }}\", \"result\": \"{{ $json.output }}\" }\n  ]\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
@@ -457,12 +380,7 @@
     {
       "parameters": {
         "resource": "calendar",
-        "calendar": {
-          "__rl": true,
-          "value": "razerrtrading@gmail.com",
-          "mode": "list",
-          "cachedResultName": "razerrtrading@gmail.com"
-        },
+        "calendar": { "__rl": true, "value": "razerrtrading@gmail.com", "mode": "list", "cachedResultName": "razerrtrading@gmail.com" },
         "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
         "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
         "options": {}
@@ -472,12 +390,7 @@
       "position": [-144,624],
       "id": "fe54952b-15ca-4f28-a9b3-476ca9858ae4",
       "name": "check availability",
-      "credentials": {
-        "googleCalendarOAuth2Api": {
-          "id": "VyBLeoRYD28XxnYS",
-          "name": "Google Calendar account"
-        }
-      }
+      "credentials": { "googleCalendarOAuth2Api": { "id": "VyBLeoRYD28XxnYS", "name": "Google Calendar account" } }
     }
   ],
   "pinData": { "Webhook": [ { "json": { "headers": {}, "params": {}, "query": {}, "body": {} }, "webhookUrl": "", "executionMode": "test" } ] },
@@ -514,11 +427,7 @@
     },
     {
       "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4.1-mini"
-        },
+        "model": { "__rl": true, "mode": "list", "value": "gpt-4.1-mini" },
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
@@ -529,12 +438,7 @@
     },
     {
       "parameters": {
-        "calendar": {
-          "__rl": true,
-          "value": "razerrtrading@gmail.com",
-          "mode": "list",
-          "cachedResultName": "razerrtrading@gmail.com"
-        },
+        "calendar": { "__rl": true, "value": "razerrtrading@gmail.com", "mode": "list", "cachedResultName": "razerrtrading@gmail.com" },
         "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
         "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
         "additionalFields": {
@@ -552,7 +456,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"results\": [\n    {\n      \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\",\n      \"result\": \"{{ $json.output }}\"\n    }\n  ]\n}",
+        "responseBody": "={\n  \"results\": [\n    { \"toolCallId\": \"{{ $('Webhook1').item.json.body.message.toolCalls[0].id }}\", \"result\": \"{{ $json.output }}\" }\n  ]\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
@@ -570,7 +474,7 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [-1104,208],
+        "position": [-1104,208],
       "id": "a5013f1c-24ed-4d41-8d36-e9a579100421",
       "name": "Webhook1",
       "webhookId": "e909a8bc-5aba-477b-a3d5-3be663cd655d"
@@ -591,8 +495,9 @@
   "tags": []
 }
   </script>
+  <!-- ====== /RECEPTIONIST TEMPLATES ====== -->
 
-  <!-- ===== AGENT PROMPTS (LONG) ===== -->
+  <!-- ====== AGENT PROMPTS (LONG) ====== -->
   <script id="prInvoice" type="text/plain">
 You are {{AGENT_NAME}}, an invoice/follow-up assistant for {{BIZ_NAME}}.
 Task: when provided a customer + line items, generate a clear, friendly invoice email with due date, payment link, and gentle follow-ups if overdue.
@@ -626,7 +531,7 @@ Strategy:
 
 OUTPUT JSON ONLY:
 { "to":"", "channel":"sms|email", "subject":"", "textBody":"", "nextFollowupHours": {{FOLLOWUP_GAP_HOURS}}, "stage":"A|B|Close" }
-Keep copy short and human. No emojis.
+Keep copy short and human. No emojis unless the lead uses them.
   </script>
 
   <script id="prLeadQualifier" type="text/plain">
@@ -654,8 +559,9 @@ OUTPUT JSON ONLY:
 
 One or two lines max. No emojis unless user uses them first.
   </script>
+  <!-- ====== /AGENT PROMPTS ====== -->
 
-  <!-- ===== AGENT n8n JSON TEMPLATES ===== -->
+  <!-- ====== AGENT n8n WORKFLOW TEMPLATES (contain YOU_ARE_* tokens) ====== -->
   <script id="tplAgentInvoice" type="application/json">
 {
   "name": "AI Invoice & Follow-ups",
@@ -771,88 +677,108 @@ One or two lines max. No emojis unless user uses them first.
   "active": false
 }
   </script>
+  <!-- ====== /AGENT TEMPLATES ====== -->
 
-  <!-- ===== CORE JS (same functionality) ===== -->
+  <!-- ====== APP SCRIPT ====== -->
   <script>
   (function(){
     const $ = (id)=>document.getElementById(id);
-    const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
-    const escapeHtml=(s)=> (s||'').replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
 
-    /* Demo chat */
+    /* ---------------- DEMO CHAT ---------------- */
     function addMsg(role, text){
-      const wrap=$('chatBox'); if(!wrap) return;
-      const row=document.createElement('div');
-      row.className='flex gap-3';
-      if(role==='user'){ row.className+=' justify-end'; }
+      const wrap = $('chatBox'); if(!wrap) return;
+      const row = document.createElement('div');
+      row.className = 'flex gap-3';
+      if(role==='user'){ row.className += ' justify-end'; }
       row.innerHTML = role==='user'
         ? `<div class="max-w-[75%] bg-brand-500/20 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`
-        : `<div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violetx-500 grid place-items-center text-black font-bold">A</div><div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
-      wrap.appendChild(row); wrap.scrollTop=wrap.scrollHeight;
+        : `<div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center text-black font-bold">A</div><div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
+      wrap.appendChild(row);
+      wrap.scrollTop = wrap.scrollHeight;
     }
+    function escapeHtml(s){return (s||'').replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]))}
     function wireChat(){
       const form=$('chatForm'), input=$('chatInput');
-      if(!form||!input) return;
+      if(!form || !input) return;
       form.addEventListener('submit',(e)=>{
         e.preventDefault();
         const t=input.value.trim(); if(!t) return;
-        addMsg('user', t); input.value='';
-        setTimeout(()=>addMsg('bot',"Thanks! (Demo only) — production runs inside your n8n workflows."), 400);
+        addMsg('user', t);
+        input.value='';
+        setTimeout(()=>addMsg('bot', "Thanks! (Demo only) — the real receptionist runs in your n8n workflows."), 400);
       });
       $('chatSend')?.addEventListener('click',()=>form.requestSubmit());
     }
 
-    /* Prompt builder */
-    const truncate=(s,n=1200)=> s && s.length>n ? s.slice(0,n)+' …' : (s||'');
+    /* --------- FORM / PROMPT (Receptionist) --------- */
     function getValues(){
-      const v = Object.fromEntries(new FormData($('aiForm')).entries());
-      try{ v.timezone ||= Intl.DateTimeFormat().resolvedOptions().timeZone; }catch{}
+      const form = $('aiForm'); if(!form) return {};
+      const v = Object.fromEntries(new FormData(form).entries());
+      try{ v.timezone ||= Intl.DateTimeFormat().resolvedOptions().timeZone || ""; }catch{}
       v.agentName ||= 'Alex'; v.language ||= 'English';
       return v;
     }
-    function buildLongPrompt(v={}){
+    const truncate=(s,n=1200)=> s && s.length>n ? s.slice(0,n)+' …' : (s||'');
+
+    function buildPrompt(v={}){
       const tz=v.timezone||'America/New_York', biz=v.bizName||'the business', agent=v.agentName||'Alex';
       const industry=v.industry||'services', services=v.services||'General services', hours=v.hours||'Mon–Fri 9:00–17:00';
-      const emailFrom=v.email||'no-reply@example.com';
+      const location=v.location||'Local area', policies=v.policies||'Standard policies apply.', emailFrom=v.email||'no-reply@example.com';
       const now=(()=>{try{return new Date().toLocaleString('en-US',{timeZone:tz,weekday:'long',year:'numeric',month:'long',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return new Date().toLocaleString()}})();
-      return `SYSTEM ROLE
-You are ${agent}, a friendly, efficient AI receptionist for ${biz} (${industry}). Keep replies to 1–2 sentences, natural and clear.
+      const L=(x,l)=>`${l}: ${x||'N/A'}`;
+      return [
+`# ROLE
+You are ${agent}, a friendly, efficient AI receptionist for **${biz}** (${industry}). Keep replies to 1–2 sentences, natural and clear.
 
-CURRENT TIME
-- ${now} (${tz})
+# CURRENT TIME
+- Current time: **${now}**
+- Timezone: **${tz}**
+Use ISO 8601 timestamps when interacting with tools.
 
-BUSINESS CONTEXT
-- Services: ${services}
-- Hours: ${hours}
+# BUSINESS CONTEXT
+${L(biz,'Business')}
+${L(location,'Location / Service')}
+${L(industry,'Industry')}
+${L(services,'Services')}
+${L(hours,'Hours')}
+${L(policies,'Policies')}
 
-TASK
+# TASK
 Answer questions and help book appointments quickly.
 
-BOOKING FLOW
-1) Ask for the preferred date/time (within business hours).
-2) Check requested slot via calendar tool.
-3) If unavailable, propose up to 3 nearby alternatives (same day or next business day).
+# BOOKING FLOW
+1) Ask for the preferred date/time (within ${hours}).
+2) Check the requested slot.
+3) If unavailable, propose up to 3 close alternatives (same day or next business day).
 4) Collect full name, email, phone.
 5) Confirm slot and create the booking.
-6) Summarize details and say a confirmation will be sent from ${emailFrom}.
+6) Summarize details and say a confirmation will be sent from **${emailFrom}**.
 
-STYLE & RULES
-Natural, concise, confident. No emojis. Confirm final date/time + contact details.`;
+# STYLE & RULES
+Warm, concise, confident; use contractions. Don’t invent availability outside ${hours}. Confirm final date/time + contact details.`
+      ].join('\n');
     }
 
+    function wirePromptDownload(){
+      const btn = $('downloadPromptBtn'); if(!btn) return;
+      btn.disabled = false;
+      btn.onclick = (e)=>{
+        e.preventDefault();
+        const txt = buildPrompt(getValues());
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain;charset=utf-8' }));
+        a.download = `${(getValues().bizName || 'AI_Receptionist')}_prompt.txt`;
+        a.click(); URL.revokeObjectURL(a.href);
+        flashOk('Prompt downloaded ✓');
+      };
+    }
     function flashOk(msg){
       const ok=$('successMsg'); if(!ok) return;
       ok.textContent = msg; ok.classList.remove('hidden');
       clearTimeout(ok._t); ok._t=setTimeout(()=>ok.classList.add('hidden'),2000);
     }
 
-    function downloadText(filename, data, mime='text/plain'){
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(new Blob([data], { type:mime })); a.download=filename; a.click();
-      setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
-    }
-
-    /* Receptionist JSON templating */
+    /* --------- JSON TEMPLATING (Receptionist) --------- */
     function readTplObject(id){
       const node=$(id);
       if(!node){ const n=$('notice'); if(n) n.textContent=`Template "${id}" is missing.`; throw new Error('Missing template node: '+id); }
@@ -860,6 +786,7 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       if(!text.trim()){ const n=$('notice'); if(n) n.textContent=`Template "${id}" is empty.`; throw new Error('Empty template: '+id); }
       return JSON.parse(text);
     }
+    const slug=(s)=> (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,48)||'biz';
     function setWorkflowTimezone(obj, tz){ obj.settings=obj.settings||{}; obj.settings.timezone = tz || obj.settings.timezone || 'America/New_York'; }
     function patchCalendarToolNode(obj, idOrPrimary){
       (obj.nodes||[]).forEach(n=>{
@@ -882,66 +809,91 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       patchWebhookPath(obj, kind==='book' ? `${base}-book` : `${base}-check`);
       return JSON.stringify(obj, null, 2);
     }
+    function enableDownload(btnId, text, name){
+      const btn=$(btnId); if(!btn) return;
+      btn.disabled=false; btn.onclick=(e)=>{
+        e.preventDefault();
+        const a=document.createElement('a');
+        a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+        a.download=name; a.click(); URL.revokeObjectURL(a.href);
+        flashOk(name+' downloaded ✓');
+      };
+    }
 
+    /* --------- AUDIO UI --------- */
+    function fmt(s){ s = Math.max(0, s|0); const m=(s/60)|0, sec=(s%60)|0; return m+':'+(sec<10?'0':'')+sec; }
+    function wireAudioUI(){
+      const a=$('audio'), box=$('audioUI'); if(!a || !box) return;
+      const btn=$('audioPlay'), seek=$('audioSeek'), t=$('audioTime'), d=$('audioDur');
+      function sync(){
+        if(!isFinite(a.duration)) return;
+        d.textContent = fmt(a.duration);
+        t.textContent = fmt(a.currentTime);
+        const pct = a.currentTime / Math.max(1, a.duration) * 100;
+        seek.value = pct;
+        seek.style.setProperty('--pct', pct+'%');
+        btn.textContent = a.paused ? '▶' : '⏸';
+      }
+      btn.addEventListener('click',()=>{ a.paused ? a.play() : a.pause(); });
+      a.addEventListener('play', sync);
+      a.addEventListener('pause', sync);
+      a.addEventListener('timeupdate', sync);
+      a.addEventListener('loadedmetadata', ()=>{ box.classList.remove('hidden'); sync(); });
+      seek.addEventListener('input', ()=>{
+        const pct = parseFloat(seek.value||'0')/100;
+        if(isFinite(a.duration)) a.currentTime = a.duration*pct;
+        seek.style.setProperty('--pct', seek.value+'%');
+      });
+    }
+
+    /* --------- Receptionist Actions --------- */
     async function doPreview(){
       const spinner=$('previewSpinner'), btn=$('previewBtn'), out=$('promptOut');
       btn.disabled=true; spinner?.classList.remove('hidden');
       try{
         const v=getValues();
-        const longPrompt = buildLongPrompt(v);
-        out.textContent = truncate(longPrompt);
-
-        const fullBtn=$('downloadPromptBtn');
-        fullBtn.disabled=false;
-        fullBtn.onclick=(e)=>{ e.preventDefault(); downloadText(`${slug(v.bizName)}_FULL_PROMPT.txt`, longPrompt, 'text/plain'); flashOk('Full prompt downloaded'); };
-
+        out.textContent = (truncate(buildPrompt(v)));
+        wirePromptDownload();
         const avail = renderWorkflow('tplCheckAvailability', v, 'check');
         const book  = renderWorkflow('tplBookAppointment',  v, 'book');
-
-        const dlA=$('downloadAvailBtn'), dlB=$('downloadBookBtn');
-        dlA.disabled=false; dlB.disabled=false;
-        dlA.onclick=(e)=>{ e.preventDefault(); downloadText('checkAvailability.json', avail, 'application/json'); flashOk('checkAvailability.json downloaded'); };
-        dlB.onclick=(e)=>{ e.preventDefault(); downloadText('bookAppointment.json', book, 'application/json'); flashOk('bookAppointment.json downloaded'); };
-
+        enableDownload('downloadAvailBtn', avail, 'checkAvailability.json');
+        enableDownload('downloadBookBtn',  book,  'bookAppointment.json');
         const n=$('notice'); if(n) n.textContent='Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
       }catch(e){ console.error(e); alert('Error preparing downloads: '+e.message); }
       finally{ spinner?.classList.add('hidden'); btn.disabled=false; }
     }
 
-    /* Voice preview (11Labs) */
-    const audio=$('audio'), box=$('audioUI'), play=$('audioPlay'), seek=$('audioSeek'), tCur=$('audioTime'), tDur=$('audioDur');
-    function fmt(t){ t=Math.max(0, t|0); const m=(t/60)|0, s=(t%60)|0; return m+':'+(s<10?'0':'')+s; }
-    function sync(){
-      if(!isFinite(audio.duration)) return;
-      tDur.textContent=fmt(audio.duration); tCur.textContent=fmt(audio.currentTime);
-      const pct=audio.currentTime/Math.max(1,audio.duration)*100; seek.value=pct; seek.style.setProperty('--pct', pct+'%');
-      play.textContent = audio.paused ? '►' : '❚❚';
-    }
-    play?.addEventListener('click',()=> audio.paused?audio.play():audio.pause());
-    audio?.addEventListener('play',sync); audio?.addEventListener('pause',sync); audio?.addEventListener('timeupdate',sync);
-    audio?.addEventListener('loadedmetadata',()=>{ box.classList.remove('hidden'); sync(); });
-    seek?.addEventListener('input', ()=>{ const pct=parseFloat(seek.value||'0')/100; if(isFinite(audio.duration)) audio.currentTime=audio.duration*pct; seek.style.setProperty('--pct', seek.value+'%'); });
-
-    async function loadVoices(){
-      const sel=$('voiceSelect'); if(!sel) return;
-      try{
-        const r=await fetch('/api/voices'); const j=await r.json();
-        sel.innerHTML=''; (j?.data?.voices||[]).forEach(v=>{ const o=document.createElement('option'); o.value=v.id; o.textContent=v.name; sel.appendChild(o); });
-        if(!sel.children.length) throw 0;
-      }catch{
-        sel.innerHTML='';
-        [{id:'UgBBYS2sOqTuMpoF3BR0',name:'AOS Male Clean'},
-         {id:'21m00Tcm4TlvDq8ikWAM',name:'Eleven — Adam'},
-         {id:'AZnzlk1XvdvUeBnXmlld',name:'Eleven — Bella'}]
-        .forEach(v=>{ const o=document.createElement('option'); o.value=v.id; o.textContent=v.name; sel.appendChild(o); });
-      }
+    /* --------- Voices + TTS --------- */
+    async function loadVoices() {
+      const sel = $('voiceSelect'); if (!sel) return;
+      try {
+        const r = await fetch('/api/voices'); const j = await r.json();
+        sel.innerHTML = '';
+        if (j.ok && Array.isArray(j.data.voices) && j.data.voices.length) {
+          j.data.voices.forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.id; opt.textContent = v.name;
+            sel.appendChild(opt);
+          });
+          return;
+        }
+      } catch {}
+      sel.innerHTML = '';
+      [
+        { id:'', name:'Default' },
+        { id:'56bWURjYFHyYyVf490Dp', name:'Emma' },
+        { id:'UgBBYS2sOqTuMpoF3BR0', name:'Mark' }
+      ].forEach(v=>{
+        const opt=document.createElement('option');
+        opt.value=v.id; opt.textContent=v.name; sel.appendChild(opt);
+      });
     }
 
     async function doTTS(){
       const ttsBtn = $('ttsBtn'); if (ttsBtn) ttsBtn.disabled = true;
       const v=getValues();
       const voice_id = ($('voiceSelect')?.value)||'';
-      const text=`Hi, this is ${v.agentName||'Alex'} with ${v.bizName||'your business'}. How can I help you today?`;
+      const text=`Hey, this is ${v.agentName||'Alex'} with ${v.bizName||'your business'}. How can I help you today?`;
 
       async function call(body){
         const res = await fetch('/api/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -953,21 +905,32 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
         }
         return data.data.audioBase64;
       }
+
       try{
         let audioB64;
-        try{ audioB64 = await call({ text, voice_id }); }
-        catch(e){ if(String(e).includes('concurrent')){ audioB64 = await call({ text }); } else { throw e; } }
-        audio.src = audioB64; audio.load(); $('audioDownload').href = audioB64; await audio.play().catch(()=>{});
-      }catch(e){ console.error(e); alert('TTS failed: '+ e.message); }
-      finally{ setTimeout(()=>{ if(ttsBtn) ttsBtn.disabled=false; }, 1100); }
+        try{
+          const body = { text }; if (voice_id) body.voice_id = voice_id;
+          audioB64 = await call(body);
+        }catch(e){
+          if(String(e.message).includes('[UPSTREAM]')){
+            audioB64 = await call({ text });
+          } else { throw e; }
+        }
+        const a=$('audio');
+        a.src = audioB64; a.load();
+        $('audioDownload').href = audioB64;
+        await a.play().catch(()=>{});
+      }catch(e){
+        console.error(e); alert('TTS failed: '+ e.message);
+      } finally {
+        if (ttsBtn) ttsBtn.disabled = false;
+      }
     }
 
-    document.addEventListener('click',(ev)=>{
-      if(ev.target.closest('#previewBtn')){ ev.preventDefault(); doPreview(); }
-      if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
-    });
-
-    /* SPA (Agents) */
+    /* ============================
+       SPA ROUTER + AGENT DETAIL
+       ============================ */
+    const VIEW_HOME = document.getElementById('view-home');
     const VIEW_AGENT = document.getElementById('view-agent');
 
     const AGENTS = {
@@ -1033,7 +996,7 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       },
       leadQualifier: {
         title: 'AI Lead Qualifier',
-        desc: 'Score & route leads (A/B/C). Email both lead & owner.',
+        desc: 'Score & route leads (A/B/C). Email both lead & owner with next steps.',
         promptId: 'prLeadQualifier',
         tplId: 'tplAgentLeadQualifier',
         fields: [
@@ -1085,76 +1048,134 @@ Natural, concise, confident. No emojis. Confirm final date/time + contact detail
       }
     };
 
-    function getScriptText(id){ const el=document.getElementById(id); if(!el) throw new Error('Missing node: '+id); return el.textContent||''; }
-    function injectPlaceholders(str, map){ return Object.entries(map).reduce((acc,[k,v])=> acc.replaceAll(`{{${k}}}`, String(v ?? '')), String(str)); }
+    function getScriptText(id){
+      const el = document.getElementById(id);
+      if(!el) throw new Error('Missing node: '+id);
+      return el.textContent || '';
+    }
+    function injectPlaceholders(str, map){
+      return Object.entries(map).reduce((acc,[k,v])=> acc.replaceAll(`{{${k}}}`, String(v ?? '')), String(str));
+    }
+    function setDownload(anchor, filename, data, mime='application/octet-stream'){
+      const blob = new Blob([data], { type: mime });
+      const url = URL.createObjectURL(blob);
+      anchor.href = url; anchor.download = filename;
+    }
 
     function renderAgentForm(def){
-      const f=$('agentForm'); f.innerHTML='';
+      const f = $('agentForm'); f.innerHTML = '';
       def.fields.forEach(field=>{
-        const wrap=document.createElement('div');
-        wrap.innerHTML = `<label class="block text-sm text-white/70 mb-1">${field.label}${field.req? ' <span class="text-red-400">*</span>':''}</label><input name="${field.name}" value="${field.value||''}" placeholder="${field.label}" class="w-full">`;
+        const wrap = document.createElement('div');
+        wrap.className = 'field';
+        wrap.innerHTML = `
+          <label class="block mb-1">${field.label}${field.req? ' <span class="text-red-400">*</span>':''}</label>
+          <input name="${field.name}" value="${field.value||''}" placeholder="${field.label}" class="w-full">
+        `;
         f.appendChild(wrap);
       });
     }
-    function readAgentVals(){ return Object.fromEntries(new FormData($('agentForm')).entries()); }
-
-    function buildAgent(def){
-      const v=readAgentVals();
-      const missing = def.fields.filter(x=>x.req && !v[x.name]?.trim()).map(x=>x.label);
-      if(missing.length) throw new Error('Missing: '+missing.join(', '));
-      const map = def.map(v);
-
-      let prompt=getScriptText(def.promptId);
-      prompt = injectPlaceholders(prompt, map);
-
-      let tpl = getScriptText(def.tplId);
-
-// Safely inject the full system prompt as a JSON string value.
-// Looks for:  "YOU_ARE_SOMETHING"  and replaces the *entire quoted string*
-// with a proper JSON string of your long prompt.
-tpl = tpl.replace(/"YOU_ARE_[A-Z_]+"/g, () => JSON.stringify(prompt));
-
-tpl = injectPlaceholders(tpl, map);
-
-
-      return { prompt, json: JSON.stringify(JSON.parse(tpl), null, 2) };
+    function readAgentVals(){
+      const f = $('agentForm');
+      return Object.fromEntries(new FormData(f).entries());
     }
 
-    function route(){
-      const hash=location.hash || '#/';
-      const m=hash.match(/^#\/agent\/([a-zA-Z0-9_-]+)$/);
-      if(m){
-        const key=m[1]; const def=AGENTS[key];
-        if(!def){ location.hash='#/'; return; }
-        document.getElementById('view-agent').classList.remove('hidden');
-        document.getElementById('view-home')?.classList.add('hidden');
-        $('agentTitle').textContent=def.title; $('agentDesc').textContent=def.desc; renderAgentForm(def);
-        $('agentPromptPreview').textContent='';
-        $('agentGenerate').onclick=(e)=>{
-          e.preventDefault();
-          try{
-            const out=buildAgent(def);
-            $('agentPromptPreview').textContent=out.prompt;
-            $('agentPromptDownload').href=URL.createObjectURL(new Blob([out.prompt],{type:'text/plain'}));
-            $('agentPromptDownload').download=`${def.fileBase}-FULL-PROMPT.txt`;
-            $('agentJsonDownload').href=URL.createObjectURL(new Blob([out.json],{type:'application/json'}));
-            $('agentJsonDownload').download=`${def.fileBase}-workflow.json`;
-            const ok=$('agentMsg'); ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),1500);
-          }catch(err){ alert(err.message); }
-        };
-        $('agentPromptDownload').onclick=(e)=>{ if(!$('agentPromptPreview').textContent) e.preventDefault(); };
-        $('agentJsonDownload').onclick=(e)=>{ if(!$('agentPromptPreview').textContent) e.preventDefault(); };
-      }else{
-        document.getElementById('view-agent').classList.add('hidden');
-        document.getElementById('view-home')?.classList.remove('hidden');
+    /* ========= Robust nested-JSON prompt embedding + validation ========= */
+    function embedPromptForNestedJSONString(prompt) {
+      // 1) Make a proper JSON string: "\"line1\nline2\""
+      const jsonOne = JSON.stringify(prompt);
+      // 2) Strip outer quotes so we keep template's quotes: line1\nline2 (escaped for one level)
+      const inner = jsonOne.slice(1, -1);
+      // 3) Double-escape for the outer JSON string context: \n -> \\n, \" -> \\"
+      return inner.replace(/\\/g, '\\\\');
+    }
+    function tryParseOrExplain(jsonText, label = 'JSON') {
+      try {
+        return JSON.parse(jsonText);
+      } catch (e) {
+        const m = String(e.message).match(/position\s+(\d+)/i);
+        if (m) {
+          const pos = Math.max(0, parseInt(m[1], 10));
+          const start = Math.max(0, pos - 120);
+          const end = Math.min(jsonText.length, pos + 120);
+          const snippet = jsonText.slice(start, end);
+          throw new Error(`${label} parse failed at ${pos}.\n…${snippet}…\n${e.message}`);
+        }
+        throw new Error(`${label} parse failed: ${e.message}`);
       }
     }
 
-    function init(){ wireChat(); loadVoices(); route(); }
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+    function buildAgent(def){
+      const v = readAgentVals();
+      const missing = def.fields.filter(x=>x.req && !v[x.name]?.trim()).map(x=>x.label);
+      if(missing.length) throw new Error('Missing: '+missing.join(', '));
+
+      const map = def.map(v);
+
+      // Long prompt (final human-readable)
+      let prompt = getScriptText(def.promptId);
+      prompt = injectPlaceholders(prompt, map);
+
+      // JSON Template (contains YOU_ARE_* token inside inner JSON)
+      let tpl = getScriptText(def.tplId);
+
+      // Replace the raw token (no quotes) so we preserve the template's "content":"<token>" quotes.
+      // Provide a correctly nested-escaped string.
+      tpl = tpl.replace(/YOU_ARE_[A-Z_]+/g, () => embedPromptForNestedJSONString(prompt));
+
+      // Replace all other placeholders
+      tpl = injectPlaceholders(tpl, map);
+
+      // Validate early and return prettified JSON
+      const parsed = tryParseOrExplain(tpl, `${def.fileBase} workflow`);
+      return { prompt, json: JSON.stringify(parsed, null, 2) };
+    }
+
+    function route(){
+      const hash = location.hash || '#/';
+      const m = hash.match(/^#\/agent\/([a-zA-Z0-9_-]+)$/);
+      if(m){
+        const key = m[1];
+        const def = AGENTS[key];
+        if(!def){ location.hash = '#/'; return; }
+        VIEW_HOME.classList.add('hidden');
+        VIEW_AGENT.classList.remove('hidden');
+        $('agentTitle').textContent = def.title;
+        $('agentDesc').textContent = def.desc;
+        renderAgentForm(def);
+        $('agentPromptPreview').textContent = '';
+
+        $('agentGenerate').onclick = (e)=>{
+          e.preventDefault();
+          try{
+            const out = buildAgent(def);
+            $('agentPromptPreview').textContent = out.prompt;
+            setDownload($('agentPromptDownload'), `${def.fileBase}-FULL-PROMPT.txt`, out.prompt, 'text/plain');
+            setDownload($('agentJsonDownload'), `${def.fileBase}-workflow.json`, out.json, 'application/json');
+            const ok = $('agentMsg'); ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'), 1500);
+          }catch(err){ alert(err.message); }
+        };
+        $('agentPromptDownload').onclick = (e)=>{ if(!$('agentPromptPreview').textContent) e.preventDefault(); };
+        $('agentJsonDownload').onclick = (e)=>{ if(!$('agentPromptPreview').textContent) e.preventDefault(); };
+      } else {
+        VIEW_AGENT.classList.add('hidden');
+        VIEW_HOME.classList.remove('hidden');
+      }
+    }
+
+    // events
     window.addEventListener('hashchange', route);
+
+    // init
+    function init(){ wireChat(); wireAudioUI(); loadVoices(); route(); }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+    // Receptionist actions (preview + tts)
+    document.addEventListener('click',(ev)=>{
+      if(ev.target.closest('#previewBtn')){ ev.preventDefault(); doPreview(); }
+      if(ev.target.closest('#ttsBtn')){ ev.preventDefault(); doTTS(); }
+    });
+
   })();
   </script>
 </body>
 </html>
-
