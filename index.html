@@ -48,27 +48,28 @@
     .glass{ backdrop-filter: blur(10px); background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08) }
     .code{ white-space:pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.875rem; }
     input, textarea, select{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255,255,255,.2);
       border-radius: 10px;
       padding: 0.75rem 1rem;
-      color: #fff;
+      color: #ffffff;
       font-size: 0.9375rem;
       transition: all 0.2s ease;
       width: 100%;
     }
     input::placeholder, textarea::placeholder{ 
-      color: rgba(255,255,255,.4);
+      color: rgba(255,255,255,.5);
       font-size: 0.875rem;
     }
     input:focus, textarea:focus, select:focus{ 
       outline: none; 
-      background: rgba(255,255,255,.12);
-      border-color: rgba(85,109,255,.6);
-      box-shadow: 0 0 0 3px rgba(85,109,255,.15);
+      background: rgba(15, 23, 42, 0.8);
+      border-color: rgba(85,109,255,.8);
+      box-shadow: 0 0 0 3px rgba(85,109,255,.2);
     }
     input:hover, textarea:hover, select:hover{
-      border-color: rgba(255,255,255,.25);
+      border-color: rgba(255,255,255,.35);
+      background: rgba(15, 23, 42, 0.7);
     }
     select {
       cursor: pointer;
@@ -77,6 +78,11 @@
       background-repeat: no-repeat;
       background-position: right 1rem center;
       padding-right: 2.5rem;
+    }
+    select option {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 0.5rem;
     }
     textarea {
       resize: vertical;
@@ -320,10 +326,10 @@
     <!-- Video -->
     <section class="py-16 border-t border-white/10">
       <div class="max-w-4xl mx-auto px-4">
-        <h3 class="text-xl font-semibold mb-3">How to use this builder</h3>
-        <div class="rounded-2xl overflow-hidden border border-white/10 shadow-soft aspect-video max-w-3xl mx-auto">
+        <h3 class="text-2xl font-semibold mb-6 text-center">How to use this builder</h3>
+        <div class="relative rounded-2xl overflow-hidden border border-white/10 shadow-soft" style="padding-bottom: 56.25%; height: 0;">
           <iframe
-            class="w-full h-full"
+            class="absolute top-0 left-0 w-full h-full"
             src="https://www.youtube.com/embed/Akwe5h3CQKo?si=Q-Uto-rIMjTar1vv"
             title="AOS — How to use the AI Receptionist Builder"
             frameborder="0"
