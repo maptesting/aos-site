@@ -39,7 +39,7 @@
   </script>
 
   <style>
-    body{ background:#0b0f1a; color:#fff }
+    body{ background:#0b0f1a; color:#fff; margin: 0; padding: 0; }
     .gradient{
       background:
        radial-gradient(1200px 600px at 20% -10%, rgba(85,109,255,.25), transparent 60%),
@@ -47,54 +47,57 @@
     }
     .glass{ backdrop-filter: blur(10px); background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08) }
     .code{ white-space:pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.875rem; }
+    
+    /* FIXED INPUT STYLING */
     input, textarea, select{
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
-      color: #ffffff;
-      font-size: 0.9375rem;
-      transition: all 0.2s ease;
-      width: 100%;
+      background: rgba(30, 41, 59, 0.8) !important;
+      border: 1px solid rgba(148, 163, 184, 0.3) !important;
+      border-radius: 10px !important;
+      padding: 0.75rem 1rem !important;
+      color: #f1f5f9 !important;
+      font-size: 0.9375rem !important;
+      transition: all 0.2s ease !important;
+      width: 100% !important;
     }
     input::placeholder, textarea::placeholder{ 
-      color: rgba(255,255,255,.5);
-      font-size: 0.875rem;
+      color: rgba(203, 213, 225, 0.6) !important;
+      font-size: 0.875rem !important;
     }
     input:focus, textarea:focus, select:focus{ 
-      outline: none; 
-      background: rgba(15, 23, 42, 0.8);
-      border-color: rgba(85,109,255,.8);
-      box-shadow: 0 0 0 3px rgba(85,109,255,.2);
+      outline: none !important; 
+      background: rgba(30, 41, 59, 1) !important;
+      border-color: rgba(85,109,255,.9) !important;
+      box-shadow: 0 0 0 3px rgba(85,109,255,.25) !important;
     }
-    input:hover, textarea:hover, select:hover{
-      border-color: rgba(255,255,255,.35);
-      background: rgba(15, 23, 42, 0.7);
+    input:hover:not(:focus), textarea:hover:not(:focus), select:hover:not(:focus){
+      border-color: rgba(148, 163, 184, 0.5) !important;
+      background: rgba(30, 41, 59, 0.9) !important;
     }
     select {
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 1rem center;
-      padding-right: 2.5rem;
+      cursor: pointer !important;
+      appearance: none !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23f1f5f9' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 1rem center !important;
+      padding-right: 2.5rem !important;
     }
     select option {
-      background: #1e293b;
-      color: #ffffff;
-      padding: 0.5rem;
+      background: #1e293b !important;
+      color: #f1f5f9 !important;
+      padding: 0.5rem !important;
     }
     textarea {
-      resize: vertical;
-      min-height: 80px;
-      font-family: inherit;
-      line-height: 1.5;
+      resize: vertical !important;
+      min-height: 80px !important;
+      font-family: inherit !important;
+      line-height: 1.5 !important;
     }
+    
     .range {appearance:none;height:6px;border-radius:9999px;background:linear-gradient(to right,#556dff var(--pct,0%),rgba(255,255,255,.2) 0)}
     .range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:9999px;background:#fff;border:2px solid #556dff;box-shadow:0 0 0 3px rgba(85,109,255,.25)}
     .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,.12) }
     .muted{ color: rgba(255,255,255,.65) }
-    .hidden{ display:none }
+    .hidden{ display:none !important; }
     .field>label{ 
       font-size: 0.8125rem; 
       color: rgba(255,255,255,.85); 
@@ -372,8 +375,9 @@
     © <span id="year"></span> AOS — AI Optimization Solutions
   </footer>
 
-  <!-- WORKFLOW TEMPLATES - FIXED VERSIONS -->
-  <script id="tplCheckAvailability" type="application/json">
+  <!-- TEMPLATES (Hidden from view) -->
+  <div style="display:none;">
+    <script id="tplCheckAvailability" type="application/json">
 {
   "name": "checkAvailability",
   "nodes": [
@@ -484,6 +488,159 @@
         ]
       ]
     },
+    "Check Availability Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "{{TIMEZONE}}"
+  }
+}
+    </script>
+
+    <script id="tplBookAppointment" type="application/json">
+{
+  "name": "bookAppointment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "{{WEBHOOK_PATH_BOOK}}",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [240, 300],
+      "id": "webhook-book",
+      "name": "Webhook",
+      "webhookId": "{{WEBHOOK_ID_BOOK}}"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.body.systemPrompt || 'You are an appointment booking assistant. Create calendar events with the provided details.'}}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [560, 300],
+      "id": "ai-agent-book",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [560, 500],
+      "id": "openai-book",
+      "name": "OpenAI Chat Model"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "{{CALENDAR_ID}}",
+          "mode": "list",
+          "cachedResultName": "{{CALENDAR_ID}}"
+        },
+        "start": "={{ $json.body.startTime || $now.toISO() }}",
+        "end": "={{ $json.body.endTime || $now.plus({ hours: 1 }).toISO() }}",
+        "additionalFields": {
+          "attendees": "={{ $json.body.attendeeEmail ? [$json.body.attendeeEmail] : [] }}",
+          "description": "=Appointment Details:\nName: {{ $json.body.customerName || 'N/A' }}\nEmail: {{ $json.body.attendeeEmail || 'N/A' }}\nPhone: {{ $json.body.customerPhone || 'N/A' }}\nService: {{ $json.body.serviceType || 'Standard appointment' }}",
+          "summary": "=Appointment: {{ $json.body.customerName || 'New booking' }} - {{ $json.body.serviceType || 'Service' }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [760, 500],
+      "id": "calendar-create",
+      "name": "Create Calendar Event Tool"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{CONFIRMATION_EMAIL}}",
+        "toEmail": "={{ $json.body.attendeeEmail || '' }}",
+        "subject": "=Appointment Confirmed - {{BIZ_NAME}}",
+        "text": "=Hi {{ $json.body.customerName || 'there' }},\n\nYour appointment has been confirmed!\n\nDate & Time: {{ $json.body.startTime }}\nService: {{ $json.body.serviceType || 'Standard appointment' }}\n\nWe look forward to seeing you!\n\nBest regards,\n{{BIZ_NAME}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [960, 400],
+      "id": "send-email",
+      "name": "Send Confirmation Email"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Appointment booked successfully\",\n  \"details\": {\n    \"customerName\": {{ $json.body.customerName ? JSON.stringify($json.body.customerName) : '\"\"' }},\n    \"startTime\": {{ $json.body.startTime ? JSON.stringify($json.body.startTime) : '\"\"' }},\n    \"serviceType\": {{ $json.body.serviceType ? JSON.stringify($json.body.serviceType) : '\"\"' }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [1160, 300],
+      "id": "respond-book",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Create Calendar Event Tool": {
       "ai_tool": [
         [
@@ -513,10 +670,9 @@
     "timezone": "{{TIMEZONE}}"
   }
 }
-  </script>
+    </script>
 
-  <!-- AGENT PROMPTS -->
-  <script id="prInvoice" type="text/plain">
+    <script id="prInvoice" type="text/plain">
 You are {{AGENT_NAME}}, an invoice/follow-up assistant for {{BIZ_NAME}}.
 Task: when provided a customer + line items, generate a clear, friendly invoice email with due date, payment link, and gentle follow-ups if overdue.
 
@@ -535,9 +691,9 @@ OUTPUT JSON ONLY (no prose):
   "total": number, "dueISO":"", "paymentLink":"{{PAYMENT_LINK}}"
 }
 If input suggests a reminder (overdue), set intent to "reminder" and adjust tone slightly firmer but polite.
-  </script>
+    </script>
 
-  <script id="prSalesCloser" type="text/plain">
+    <script id="prSalesCloser" type="text/plain">
 You are {{AGENT_NAME}}, a sales closer for {{BIZ_NAME}}.
 Goal: convert warm leads to a booked call or paid order.
 
@@ -550,9 +706,9 @@ Strategy:
 OUTPUT JSON ONLY:
 { "to":"", "channel":"sms|email", "subject":"", "textBody":"", "nextFollowupHours": {{FOLLOWUP_GAP_HOURS}}, "stage":"A|B|Close" }
 Keep copy short and human. No emojis unless the lead uses them.
-  </script>
+    </script>
 
-  <script id="prLeadQualifier" type="text/plain">
+    <script id="prLeadQualifier" type="text/plain">
 You are {{AGENT_NAME}}, a lead qualifier for {{BIZ_NAME}}.
 Qualify leads and route them according to {{QUAL_RULES}}.
 
@@ -565,9 +721,9 @@ OUTPUT JSON ONLY:
   "emailToOwner": {"subject":"","textBody":""}
 }
 Terse, friendly, zero fluff. Reasons should be one sentence.
-  </script>
+    </script>
 
-  <script id="prDMResponder" type="text/plain">
+    <script id="prDMResponder" type="text/plain">
 You are {{AGENT_NAME}}, a DM responder for {{BIZ_NAME}}.
 Reply to IG/TikTok DMs with short, human messages that move users to {{PRIMARY_CTA}} (link: {{BOOK_URL}}).
 If complex product questions arise, answer briefly and point to {{FAQ_URL}}.
@@ -576,10 +732,9 @@ OUTPUT JSON ONLY:
 {"reply":"", "suggestedTag":"lead|customer|spam"}
 
 One or two lines max. No emojis unless user uses them first.
-  </script>
+    </script>
 
-  <!-- AGENT WORKFLOW TEMPLATES -->
-  <script id="tplAgentInvoice" type="application/json">
+    <script id="tplAgentInvoice" type="application/json">
 {
   "name": "AI Invoice & Follow-ups",
   "nodes": [
@@ -723,6 +878,757 @@ One or two lines max. No emojis unless user uses them first.
         ]
       ]
     },
+    "Send Reply to Platform": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Airtable": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
+    </script>
+  </div>
+
+  <!-- MAIN JAVASCRIPT -->
+  <script>
+  (function(){
+    'use strict';
+    
+    const $ = (id) => document.getElementById(id);
+    const escapeHtml = (s) => (s || '').replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[m]));
+
+    /* ============ DEMO CHAT ============ */
+    function addMsg(role, text) {
+      const wrap = $('chatBox');
+      if (!wrap) return;
+      
+      const row = document.createElement('div');
+      row.className = 'flex gap-3' + (role === 'user' ? ' justify-end' : '');
+      
+      if (role === 'user') {
+        row.innerHTML = `<div class="max-w-[75%] bg-brand-500/20 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
+      } else {
+        row.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center text-black font-bold flex-shrink-0">A</div>
+          <div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>
+        `;
+      }
+      
+      wrap.appendChild(row);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function initChat() {
+      const form = $('chatForm');
+      const input = $('chatInput');
+      
+      if (!form || !input) return;
+      
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+        
+        addMsg('user', text);
+        input.value = '';
+        
+        setTimeout(() => {
+          addMsg('bot', "Thanks! (Demo only) — the real receptionist runs in your n8n workflows.");
+        }, 400);
+      });
+    }
+
+    /* ============ RECEPTIONIST FORM ============ */
+    function getFormValues() {
+      const form = $('aiForm');
+      if (!form) return {};
+      
+      const values = Object.fromEntries(new FormData(form).entries());
+      
+      try {
+        values.timezone = values.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+      } catch (e) {
+        values.timezone = values.timezone || 'America/New_York';
+      }
+      
+      values.agentName = values.agentName || 'Alex';
+      values.language = values.language || 'English';
+      
+      return values;
+    }
+
+    function truncate(str, maxLen = 1200) {
+      if (!str) return '';
+      return str.length > maxLen ? str.slice(0, maxLen) + ' …' : str;
+    }
+
+    function buildPrompt(values = {}) {
+      const tz = values.timezone || 'America/New_York';
+      const biz = values.bizName || 'the business';
+      const agent = values.agentName || 'Alex';
+      const industry = values.industry || 'services';
+      const services = values.services || 'General services';
+      const hours = values.hours || 'Mon–Fri 9:00–17:00';
+      const location = values.location || 'Local area';
+      const policies = values.policies || 'Standard policies apply.';
+      const emailFrom = values.email || 'no-reply@example.com';
+      
+      let now;
+      try {
+        now = new Date().toLocaleString('en-US', {
+          timeZone: tz,
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (e) {
+        now = new Date().toLocaleString();
+      }
+
+      return `# ROLE
+You are ${agent}, a friendly, efficient AI receptionist for **${biz}** (${industry}). Keep replies to 1–2 sentences, natural and clear.
+
+# CURRENT TIME
+- Current time: **${now}**
+- Timezone: **${tz}**
+Use ISO 8601 timestamps when interacting with tools.
+
+# BUSINESS CONTEXT
+Business: ${biz}
+Location / Service: ${location}
+Industry: ${industry}
+Services: ${services}
+Hours: ${hours}
+Policies: ${policies}
+
+# TASK
+Answer questions and help book appointments quickly.
+
+# BOOKING FLOW
+1) Ask for the preferred date/time (within ${hours}).
+2) Check the requested slot.
+3) If unavailable, propose up to 3 close alternatives (same day or next business day).
+4) Collect full name, email, phone.
+5) Confirm slot and create the booking.
+6) Summarize details and say a confirmation will be sent from **${emailFrom}**.
+
+# STYLE & RULES
+Warm, concise, confident; use contractions. Don't invent availability outside ${hours}. Confirm final date/time + contact details.`;
+    }
+
+    /* ============ DOWNLOADS ============ */
+    function flashSuccess(msg) {
+      const el = $('successMsg');
+      if (!el) return;
+      
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      
+      clearTimeout(el._timeout);
+      el._timeout = setTimeout(() => el.classList.add('hidden'), 2000);
+    }
+
+    function downloadFile(filename, content, mimeType = 'text/plain') {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function enablePromptDownload() {
+      const btn = $('downloadPromptBtn');
+      if (!btn) return;
+      
+      btn.disabled = false;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const values = getFormValues();
+        const prompt = buildPrompt(values);
+        const filename = `${(values.bizName || 'AI_Receptionist').replace(/[^a-z0-9]/gi, '_')}_prompt.txt`;
+        downloadFile(filename, prompt, 'text/plain');
+        flashSuccess('Prompt downloaded ✓');
+      };
+    }
+
+    /* ============ JSON WORKFLOW GENERATION ============ */
+    function readTemplate(id) {
+      const el = $(id);
+      if (!el) {
+        const notice = $('notice');
+        if (notice) notice.textContent = `Template "${id}" is missing.`;
+        throw new Error('Missing template: ' + id);
+      }
+      
+      const text = el.textContent || '';
+      if (!text.trim()) {
+        const notice = $('notice');
+        if (notice) notice.textContent = `Template "${id}" is empty.`;
+        throw new Error('Empty template: ' + id);
+      }
+      
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Failed to parse template "${id}": ${e.message}`);
+      }
+    }
+
+    function slugify(str) {
+      return (str || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'biz';
+    }
+
+    function generateUniqueId() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    }
+
+    function injectPlaceholders(str, map) {
+      let result = str;
+      Object.entries(map).forEach(([key, value]) => {
+        const placeholder = `{{${key}}}`;
+        result = result.split(placeholder).join(String(value ?? ''));
+      });
+      return result;
+    }
+
+    function renderWorkflow(templateId, values, type) {
+      const workflow = readTemplate(templateId);
+      const base = 'aos-' + slugify(values.bizName);
+      
+      const map = {
+        WEBHOOK_PATH_CHECK: `${base}-check`,
+        WEBHOOK_PATH_BOOK: `${base}-book`,
+        WEBHOOK_ID_CHECK: generateUniqueId(),
+        WEBHOOK_ID_BOOK: generateUniqueId(),
+        CALENDAR_ID: values.calendarId || 'primary',
+        TIMEZONE: values.timezone || 'America/New_York',
+        BIZ_NAME: values.bizName || 'Business',
+        CONFIRMATION_EMAIL: values.email || 'no-reply@example.com'
+      };
+      
+      if (workflow.settings) {
+        workflow.settings.timezone = map.TIMEZONE;
+      }
+      
+      let workflowStr = JSON.stringify(workflow, null, 2);
+      workflowStr = injectPlaceholders(workflowStr, map);
+      
+      return workflowStr;
+    }
+
+    function enableWorkflowDownload(btnId, templateId, values, type, filename) {
+      const btn = $(btnId);
+      if (!btn) return;
+      
+      btn.disabled = false;
+      btn.onclick = (e) => {
+        e.preventDefault();
+        try {
+          const json = renderWorkflow(templateId, values, type);
+          downloadFile(filename, json, 'application/json');
+          flashSuccess(`${filename} downloaded ✓`);
+        } catch (err) {
+          console.error(err);
+          alert('Download failed: ' + err.message);
+        }
+      };
+    }
+
+    /* ============ PREVIEW GENERATION ============ */
+    async function generatePreview() {
+      const btn = $('previewBtn');
+      const spinner = $('previewSpinner');
+      const output = $('promptOut');
+      const notice = $('notice');
+      const ttsBtn = $('ttsBtn');
+      
+      if (!btn || !output) return;
+      
+      btn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+      
+      try {
+        const values = getFormValues();
+        const prompt = buildPrompt(values);
+        
+        output.textContent = truncate(prompt, 1200);
+        
+        enablePromptDownload();
+        enableWorkflowDownload('downloadAvailBtn', 'tplCheckAvailability', values, 'check', 'checkAvailability.json');
+        enableWorkflowDownload('downloadBookBtn', 'tplBookAppointment', values, 'book', 'bookAppointment.json');
+        
+        if (notice) {
+          notice.textContent = 'Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
+        }
+        
+        if (ttsBtn) ttsBtn.disabled = false;
+        
+      } catch (err) {
+        console.error(err);
+        alert('Error generating preview: ' + err.message);
+      } finally {
+        if (spinner) spinner.classList.add('hidden');
+        btn.disabled = false;
+      }
+    }
+
+    /* ============ AUDIO PLAYER ============ */
+    function formatTime(seconds) {
+      seconds = Math.max(0, seconds | 0);
+      const m = (seconds / 60) | 0;
+      const s = seconds % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function initAudioPlayer() {
+      const audio = $('audio');
+      const ui = $('audioUI');
+      const playBtn = $('audioPlay');
+      const seek = $('audioSeek');
+      const timeEl = $('audioTime');
+      const durEl = $('audioDur');
+      
+      if (!audio || !ui) return;
+      
+      function updateUI() {
+        if (!isFinite(audio.duration)) return;
+        
+        durEl.textContent = formatTime(audio.duration);
+        timeEl.textContent = formatTime(audio.currentTime);
+        
+        const pct = (audio.currentTime / Math.max(1, audio.duration)) * 100;
+        seek.value = pct;
+        seek.style.setProperty('--pct', pct + '%');
+        playBtn.textContent = audio.paused ? '▶' : '⏸';
+      }
+      
+      playBtn.addEventListener('click', () => {
+        audio.paused ? audio.play() : audio.pause();
+      });
+      
+      audio.addEventListener('play', updateUI);
+      audio.addEventListener('pause', updateUI);
+      audio.addEventListener('timeupdate', updateUI);
+      audio.addEventListener('loadedmetadata', () => {
+        ui.classList.remove('hidden');
+        updateUI();
+      });
+      
+      seek.addEventListener('input', () => {
+        const pct = parseFloat(seek.value || '0') / 100;
+        if (isFinite(audio.duration)) {
+          audio.currentTime = audio.duration * pct;
+        }
+        seek.style.setProperty('--pct', seek.value + '%');
+      });
+    }
+
+    /* ============ TEXT-TO-SPEECH ============ */
+    async function generateTTS() {
+      const ttsBtn = $('ttsBtn');
+      if (ttsBtn) ttsBtn.disabled = true;
+      
+      try {
+        const values = getFormValues();
+        const voiceId = $('voiceSelect')?.value || '';
+        const text = `Hey, this is ${values.agentName || 'Alex'} with ${values.bizName || 'your business'}. How can I help you today?`;
+        
+        alert('TTS feature requires backend API integration. The greeting would be: "' + text + '"');
+        
+      } catch (err) {
+        console.error(err);
+        alert('TTS failed: ' + err.message);
+      } finally {
+        if (ttsBtn) ttsBtn.disabled = false;
+      }
+    }
+
+    /* ============ AGENT SYSTEM ============ */
+    const AGENTS = {
+      invoice: {
+        title: 'AI Invoice / Follow-ups',
+        desc: 'Generate invoices + polite reminders and email them. Logs to Airtable.',
+        promptId: 'prInvoice',
+        tplId: 'tplAgentInvoice',
+        fields: [
+          { name: 'bizName', label: 'Business Name', required: true },
+          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
+          { name: 'email', label: 'Business Email (from)', required: true },
+          { name: 'timezone', label: 'Timezone', value: 'America/New_York' },
+          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
+          { name: 'paymentLink', label: 'Payment Link (Stripe/PayPal)', required: true },
+          { name: 'taxRules', label: 'Tax Rules (optional)' },
+          { name: 'airtableBaseId', label: 'Airtable Base ID' },
+          { name: 'airtableTable', label: 'Airtable Table', value: 'Invoices' },
+          { name: 'airtableCredId', label: 'Airtable Credential ID' },
+          { name: 'smtpFrom', label: 'SMTP From (no-reply@...)' },
+          { name: 'smtpCredId', label: 'SMTP Credential ID' }
+        ],
+        map: (v) => ({
+          BIZ_NAME: v.bizName,
+          AGENT_NAME: v.agentName,
+          BIZ_EMAIL: v.email,
+          TIMEZONE: v.timezone,
+          OPENAI_MODEL: v.openaiModel,
+          PAYMENT_LINK: v.paymentLink,
+          TAX_RULES_SNIPPET: v.taxRules || '',
+          AIRTABLE_BASE_ID: v.airtableBaseId || '',
+          AIRTABLE_TABLE: v.airtableTable || 'Logs',
+          AIRTABLE_CRED_ID: v.airtableCredId || '',
+          SMTP_FROM: v.smtpFrom || 'no-reply@example.com',
+          SMTP_CRED_ID: v.smtpCredId || 'SMTP_CREDENTIAL'
+        }),
+        fileBase: 'invoice'
+      },
+      salesCloser: {
+        title: 'AI Sales Closer',
+        desc: 'Objection-aware nudges via SMS/Email. Auto-logs follow-ups.',
+        promptId: 'prSalesCloser',
+        tplId: 'tplAgentSalesCloser',
+        fields: [
+          { name: 'bizName', label: 'Business Name', required: true },
+          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
+          { name: 'email', label: 'Business Email (from)', required: true },
+          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
+          { name: 'offerSnippet', label: 'Offer Snippet', required: true },
+          { name: 'ctaUrl', label: 'CTA URL (checkout/booking)', required: true },
+          { name: 'followupGap', label: 'Follow-up Gap (hours)', value: '24' },
+          { name: 'airtableBaseId', label: 'Airtable Base ID' },
+          { name: 'airtableTable', label: 'Airtable Table', value: 'Sales' },
+          { name: 'airtableCredId', label: 'Airtable Credential ID' },
+          { name: 'smtpFrom', label: 'SMTP From (no-reply@...)' },
+          { name: 'smtpCredId', label: 'SMTP Credential ID' },
+          { name: 'twilioFrom', label: 'Twilio From +1...' },
+          { name: 'twilioCredId', label: 'Twilio Credential ID' }
+        ],
+        map: (v) => ({
+          BIZ_NAME: v.bizName,
+          AGENT_NAME: v.agentName,
+          BIZ_EMAIL: v.email,
+          OPENAI_MODEL: v.openaiModel,
+          OFFER_SNIPPET: v.offerSnippet,
+          CTA_URL: v.ctaUrl,
+          FOLLOWUP_GAP_HOURS: v.followupGap || '24',
+          AIRTABLE_BASE_ID: v.airtableBaseId || '',
+          AIRTABLE_TABLE: v.airtableTable || 'Logs',
+          AIRTABLE_CRED_ID: v.airtableCredId || '',
+          SMTP_FROM: v.smtpFrom || 'no-reply@example.com',
+          SMTP_CRED_ID: v.smtpCredId || 'SMTP_CREDENTIAL',
+          TWILIO_FROM: v.twilioFrom || '',
+          TWILIO_CRED_ID: v.twilioCredId || ''
+        }),
+        fileBase: 'salesCloser'
+      },
+      leadQualifier: {
+        title: 'AI Lead Qualifier',
+        desc: 'Score & route leads (A/B/C). Email both lead & owner with next steps.',
+        promptId: 'prLeadQualifier',
+        tplId: 'tplAgentLeadQualifier',
+        fields: [
+          { name: 'bizName', label: 'Business Name', required: true },
+          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
+          { name: 'email', label: 'Owner/Team Email', required: true },
+          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
+          { name: 'qualRules', label: 'Qualifier Rules (A/B/C tiers)', value: 'A: ready budget & timeline; B: missing one; C: mismatch' },
+          { name: 'airtableBaseId', label: 'Airtable Base ID' },
+          { name: 'airtableTable', label: 'Airtable Table', value: 'Leads' },
+          { name: 'airtableCredId', label: 'Airtable Credential ID' },
+          { name: 'smtpFrom', label: 'SMTP From (no-reply@...)' },
+          { name: 'smtpCredId', label: 'SMTP Credential ID' }
+        ],
+        map: (v) => ({
+          BIZ_NAME: v.bizName,
+          AGENT_NAME: v.agentName,
+          BIZ_EMAIL: v.email,
+          OPENAI_MODEL: v.openaiModel,
+          QUAL_RULES: v.qualRules,
+          AIRTABLE_BASE_ID: v.airtableBaseId || '',
+          AIRTABLE_TABLE: v.airtableTable || 'Logs',
+          AIRTABLE_CRED_ID: v.airtableCredId || '',
+          SMTP_FROM: v.smtpFrom || 'no-reply@example.com',
+          SMTP_CRED_ID: v.smtpCredId || 'SMTP_CREDENTIAL'
+        }),
+        fileBase: 'leadQualifier'
+      },
+      dmResponder: {
+        title: 'AI DM Responder',
+        desc: 'Short replies for IG/TikTok that push to your CTA. Tags & logs.',
+        promptId: 'prDMResponder',
+        tplId: 'tplAgentDMResponder',
+        fields: [
+          { name: 'bizName', label: 'Business Name', required: true },
+          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
+          { name: 'email', label: 'Owner/Team Email (for logs)', required: true },
+          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
+          { name: 'platformWebhook', label: 'Platform Reply Webhook (Make/Zapier)', required: true },
+          { name: 'bookUrl', label: 'Booking URL', required: true },
+          { name: 'faqUrl', label: 'FAQ URL' },
+          { name: 'airtableBaseId', label: 'Airtable Base ID' },
+          { name: 'airtableTable', label: 'Airtable Table', value: 'DMs' },
+          { name: 'airtableCredId', label: 'Airtable Credential ID' }
+        ],
+        map: (v) => ({
+          BIZ_NAME: v.bizName,
+          AGENT_NAME: v.agentName,
+          BIZ_EMAIL: v.email,
+          OPENAI_MODEL: v.openaiModel,
+          PLATFORM_REPLY_WEBHOOK: v.platformWebhook,
+          BOOK_URL: v.bookUrl,
+          FAQ_URL: v.faqUrl || '',
+          PRIMARY_CTA: 'book',
+          AIRTABLE_BASE_ID: v.airtableBaseId || '',
+          AIRTABLE_TABLE: v.airtableTable || 'Logs',
+          AIRTABLE_CRED_ID: v.airtableCredId || ''
+        }),
+        fileBase: 'dmResponder'
+      }
+    };
+
+    function getScriptText(id) {
+      const el = $(id);
+      if (!el) throw new Error('Missing script: ' + id);
+      return el.textContent || '';
+    }
+
+    function embedPromptInJSON(prompt) {
+      const escaped = JSON.stringify(prompt);
+      return escaped.slice(1, -1);
+    }
+
+    function renderAgentForm(agent) {
+      const form = $('agentForm');
+      if (!form) return;
+      
+      form.innerHTML = '';
+      
+      agent.fields.forEach(field => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'field';
+        
+        const label = document.createElement('label');
+        label.textContent = field.label + (field.required ? ' *' : '');
+        
+        const input = document.createElement('input');
+        input.name = field.name;
+        input.value = field.value || '';
+        input.placeholder = field.label;
+        if (field.required) input.required = true;
+        
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        form.appendChild(wrapper);
+      });
+    }
+
+    function getAgentValues() {
+      const form = $('agentForm');
+      if (!form) return {};
+      return Object.fromEntries(new FormData(form).entries());
+    }
+
+    function buildAgent(agent) {
+      const values = getAgentValues();
+      
+      const missing = agent.fields
+        .filter(f => f.required && !values[f.name]?.trim())
+        .map(f => f.label);
+      
+      if (missing.length) {
+        throw new Error('Missing required fields: ' + missing.join(', '));
+      }
+      
+      const map = agent.map(values);
+      
+      let prompt = getScriptText(agent.promptId);
+      prompt = injectPlaceholders(prompt, map);
+      
+      let workflow = getScriptText(agent.tplId);
+      
+      const embeddedPrompt = embedPromptInJSON(prompt);
+      workflow = workflow.replace(/YOU_ARE_[A-Z_]+/g, embeddedPrompt);
+      
+      workflow = injectPlaceholders(workflow, map);
+      
+      try {
+        const parsed = JSON.parse(workflow);
+        workflow = JSON.stringify(parsed, null, 2);
+      } catch (e) {
+        throw new Error('Invalid workflow JSON: ' + e.message);
+      }
+      
+      return { prompt, workflow };
+    }
+
+    function setDownloadLink(linkId, filename, content, mimeType) {
+      const link = $(linkId);
+      if (!link) return;
+      
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = filename;
+      
+      link.addEventListener('click', () => {
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      }, { once: true });
+    }
+
+    /* ============ ROUTING ============ */
+    function navigate() {
+      const hash = location.hash || '#/';
+      const viewHome = $('view-home');
+      const viewAgent = $('view-agent');
+      
+      if (!viewHome || !viewAgent) return;
+      
+      const match = hash.match(/^#\/agent\/([a-zA-Z0-9_-]+)$/);
+      
+      if (match) {
+        const agentKey = match[1];
+        const agent = AGENTS[agentKey];
+        
+        if (!agent) {
+          location.hash = '#/';
+          return;
+        }
+        
+        viewHome.classList.add('hidden');
+        viewAgent.classList.remove('hidden');
+        
+        $('agentTitle').textContent = agent.title;
+        $('agentDesc').textContent = agent.desc;
+        
+        renderAgentForm(agent);
+        
+        $('agentPromptPreview').textContent = '';
+        $('agentMsg').classList.add('hidden');
+        
+        $('agentGenerate').onclick = (e) => {
+          e.preventDefault();
+          
+          try {
+            const result = buildAgent(agent);
+            
+            $('agentPromptPreview').textContent = result.prompt;
+            
+            setDownloadLink(
+              'agentPromptDownload',
+              `${agent.fileBase}-prompt.txt`,
+              result.prompt,
+              'text/plain'
+            );
+            
+            setDownloadLink(
+              'agentJsonDownload',
+              `${agent.fileBase}-workflow.json`,
+              result.workflow,
+              'application/json'
+            );
+            
+            const msg = $('agentMsg');
+            msg.classList.remove('hidden');
+            setTimeout(() => msg.classList.add('hidden'), 2000);
+            
+          } catch (err) {
+            console.error(err);
+            alert('Error: ' + err.message);
+          }
+        };
+        
+        $('agentPromptDownload').onclick = (e) => {
+          if (!$('agentPromptPreview').textContent) {
+            e.preventDefault();
+            alert('Please generate the agent first');
+          }
+        };
+        
+        $('agentJsonDownload').onclick = (e) => {
+          if (!$('agentPromptPreview').textContent) {
+            e.preventDefault();
+            alert('Please generate the agent first');
+          }
+        };
+        
+      } else {
+        viewAgent.classList.add('hidden');
+        viewHome.classList.remove('hidden');
+      }
+    }
+
+    /* ============ INIT ============ */
+    function init() {
+      const yearEl = $('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+      
+      initChat();
+      initAudioPlayer();
+      navigate();
+      
+      const previewBtn = $('previewBtn');
+      if (previewBtn) {
+        previewBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          generatePreview();
+        });
+      }
+      
+      const ttsBtn = $('ttsBtn');
+      if (ttsBtn) {
+        ttsBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          generateTTS();
+        });
+      }
+      
+      window.addEventListener('hashchange', navigate);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+</body>
+</html>
+        ]
+      ]
+    },
     "Send Email": {
       "main": [
         [
@@ -751,9 +1657,9 @@ One or two lines max. No emojis unless user uses them first.
     "executionOrder": "v1"
   }
 }
-  </script>
+    </script>
 
-  <script id="tplAgentSalesCloser" type="application/json">
+    <script id="tplAgentSalesCloser" type="application/json">
 {
   "name": "AI Sales Closer",
   "nodes": [
@@ -952,9 +1858,9 @@ One or two lines max. No emojis unless user uses them first.
     "executionOrder": "v1"
   }
 }
-  </script>
+    </script>
 
-  <script id="tplAgentLeadQualifier" type="application/json">
+    <script id="tplAgentLeadQualifier" type="application/json">
 {
   "name": "AI Lead Qualifier",
   "nodes": [
@@ -1157,9 +2063,9 @@ One or two lines max. No emojis unless user uses them first.
     "executionOrder": "v1"
   }
 }
-  </script>
+    </script>
 
-  <script id="tplAgentDMResponder" type="application/json">
+    <script id="tplAgentDMResponder" type="application/json">
 {
   "name": "AI DM Responder",
   "nodes": [
@@ -1296,940 +2202,3 @@ One or two lines max. No emojis unless user uses them first.
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Send Reply to Platform": {
-      "main": [
-        [
-          {
-            "node": "Respond",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Log to Airtable": {
-      "main": [
-        [
-          {
-            "node": "Respond",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  }
-}
-  </script>
-
-  <!-- MAIN JAVASCRIPT -->
-  <script>
-  (function(){
-    'use strict';
-    
-    const $ = (id) => document.getElementById(id);
-    const escapeHtml = (s) => (s || '').replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[m]));
-
-    /* ============ DEMO CHAT ============ */
-    function addMsg(role, text) {
-      const wrap = $('chatBox');
-      if (!wrap) return;
-      
-      const row = document.createElement('div');
-      row.className = 'flex gap-3' + (role === 'user' ? ' justify-end' : '');
-      
-      if (role === 'user') {
-        row.innerHTML = `<div class="max-w-[75%] bg-brand-500/20 rounded-xl px-3 py-2">${escapeHtml(text)}</div>`;
-      } else {
-        row.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-brand-500 grid place-items-center text-black font-bold flex-shrink-0">A</div>
-          <div class="max-w-[75%] bg-white/5 rounded-xl px-3 py-2">${escapeHtml(text)}</div>
-        `;
-      }
-      
-      wrap.appendChild(row);
-      wrap.scrollTop = wrap.scrollHeight;
-    }
-
-    function initChat() {
-      const form = $('chatForm');
-      const input = $('chatInput');
-      
-      if (!form || !input) return;
-      
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
-        if (!text) return;
-        
-        addMsg('user', text);
-        input.value = '';
-        
-        setTimeout(() => {
-          addMsg('bot', "Thanks! (Demo only) — the real receptionist runs in your n8n workflows.");
-        }, 400);
-      });
-    }
-
-    /* ============ RECEPTIONIST FORM ============ */
-    function getFormValues() {
-      const form = $('aiForm');
-      if (!form) return {};
-      
-      const values = Object.fromEntries(new FormData(form).entries());
-      
-      // Auto-detect timezone if not provided
-      try {
-        values.timezone = values.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
-      } catch (e) {
-        values.timezone = values.timezone || 'America/New_York';
-      }
-      
-      values.agentName = values.agentName || 'Alex';
-      values.language = values.language || 'English';
-      
-      return values;
-    }
-
-    function truncate(str, maxLen = 1200) {
-      if (!str) return '';
-      return str.length > maxLen ? str.slice(0, maxLen) + ' …' : str;
-    }
-
-    function buildPrompt(values = {}) {
-      const tz = values.timezone || 'America/New_York';
-      const biz = values.bizName || 'the business';
-      const agent = values.agentName || 'Alex';
-      const industry = values.industry || 'services';
-      const services = values.services || 'General services';
-      const hours = values.hours || 'Mon–Fri 9:00–17:00';
-      const location = values.location || 'Local area';
-      const policies = values.policies || 'Standard policies apply.';
-      const emailFrom = values.email || 'no-reply@example.com';
-      
-      let now;
-      try {
-        now = new Date().toLocaleString('en-US', {
-          timeZone: tz,
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      } catch (e) {
-        now = new Date().toLocaleString();
-      }
-
-      return `# ROLE
-You are ${agent}, a friendly, efficient AI receptionist for **${biz}** (${industry}). Keep replies to 1–2 sentences, natural and clear.
-
-# CURRENT TIME
-- Current time: **${now}**
-- Timezone: **${tz}**
-Use ISO 8601 timestamps when interacting with tools.
-
-# BUSINESS CONTEXT
-Business: ${biz}
-Location / Service: ${location}
-Industry: ${industry}
-Services: ${services}
-Hours: ${hours}
-Policies: ${policies}
-
-# TASK
-Answer questions and help book appointments quickly.
-
-# BOOKING FLOW
-1) Ask for the preferred date/time (within ${hours}).
-2) Check the requested slot.
-3) If unavailable, propose up to 3 close alternatives (same day or next business day).
-4) Collect full name, email, phone.
-5) Confirm slot and create the booking.
-6) Summarize details and say a confirmation will be sent from **${emailFrom}**.
-
-# STYLE & RULES
-Warm, concise, confident; use contractions. Don't invent availability outside ${hours}. Confirm final date/time + contact details.`;
-    }
-
-    /* ============ DOWNLOADS ============ */
-    function flashSuccess(msg) {
-      const el = $('successMsg');
-      if (!el) return;
-      
-      el.textContent = msg;
-      el.classList.remove('hidden');
-      
-      clearTimeout(el._timeout);
-      el._timeout = setTimeout(() => el.classList.add('hidden'), 2000);
-    }
-
-    function downloadFile(filename, content, mimeType = 'text/plain') {
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function enablePromptDownload() {
-      const btn = $('downloadPromptBtn');
-      if (!btn) return;
-      
-      btn.disabled = false;
-      btn.onclick = (e) => {
-        e.preventDefault();
-        const values = getFormValues();
-        const prompt = buildPrompt(values);
-        const filename = `${(values.bizName || 'AI_Receptionist').replace(/[^a-z0-9]/gi, '_')}_prompt.txt`;
-        downloadFile(filename, prompt, 'text/plain');
-        flashSuccess('Prompt downloaded ✓');
-      };
-    }
-
-    /* ============ JSON WORKFLOW GENERATION ============ */
-    function readTemplate(id) {
-      const el = $(id);
-      if (!el) {
-        const notice = $('notice');
-        if (notice) notice.textContent = `Template "${id}" is missing.`;
-        throw new Error('Missing template: ' + id);
-      }
-      
-      const text = el.textContent || '';
-      if (!text.trim()) {
-        const notice = $('notice');
-        if (notice) notice.textContent = `Template "${id}" is empty.`;
-        throw new Error('Empty template: ' + id);
-      }
-      
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Failed to parse template "${id}": ${e.message}`);
-      }
-    }
-
-    function slugify(str) {
-      return (str || '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 48) || 'biz';
-    }
-
-    function generateUniqueId() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0;
-        const v = c === 'x' ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
-    }
-
-    function injectPlaceholders(str, map) {
-      let result = str;
-      Object.entries(map).forEach(([key, value]) => {
-        const placeholder = `{{${key}}}`;
-        result = result.split(placeholder).join(String(value ?? ''));
-      });
-      return result;
-    }
-
-    function renderWorkflow(templateId, values, type) {
-      const workflow = readTemplate(templateId);
-      const base = 'aos-' + slugify(values.bizName);
-      
-      const map = {
-        WEBHOOK_PATH_CHECK: `${base}-check`,
-        WEBHOOK_PATH_BOOK: `${base}-book`,
-        WEBHOOK_ID_CHECK: generateUniqueId(),
-        WEBHOOK_ID_BOOK: generateUniqueId(),
-        CALENDAR_ID: values.calendarId || 'primary',
-        TIMEZONE: values.timezone || 'America/New_York',
-        BIZ_NAME: values.bizName || 'Business',
-        CONFIRMATION_EMAIL: values.email || 'no-reply@example.com'
-      };
-      
-      // Set timezone in settings
-      if (workflow.settings) {
-        workflow.settings.timezone = map.TIMEZONE;
-      }
-      
-      // Inject placeholders
-      let workflowStr = JSON.stringify(workflow, null, 2);
-      workflowStr = injectPlaceholders(workflowStr, map);
-      
-      return workflowStr;
-    }
-
-    function enableWorkflowDownload(btnId, templateId, values, type, filename) {
-      const btn = $(btnId);
-      if (!btn) return;
-      
-      btn.disabled = false;
-      btn.onclick = (e) => {
-        e.preventDefault();
-        try {
-          const json = renderWorkflow(templateId, values, type);
-          downloadFile(filename, json, 'application/json');
-          flashSuccess(`${filename} downloaded ✓`);
-        } catch (err) {
-          console.error(err);
-          alert('Download failed: ' + err.message);
-        }
-      };
-    }
-
-    /* ============ PREVIEW GENERATION ============ */
-    async function generatePreview() {
-      const btn = $('previewBtn');
-      const spinner = $('previewSpinner');
-      const output = $('promptOut');
-      const notice = $('notice');
-      const ttsBtn = $('ttsBtn');
-      
-      if (!btn || !output) return;
-      
-      btn.disabled = true;
-      if (spinner) spinner.classList.remove('hidden');
-      
-      try {
-        const values = getFormValues();
-        const prompt = buildPrompt(values);
-        
-        // Show truncated preview
-        output.textContent = truncate(prompt, 1200);
-        
-        // Enable downloads
-        enablePromptDownload();
-        enableWorkflowDownload('downloadAvailBtn', 'tplCheckAvailability', values, 'check', 'checkAvailability.json');
-        enableWorkflowDownload('downloadBookBtn', 'tplBookAppointment', values, 'book', 'bookAppointment.json');
-        
-        if (notice) {
-          notice.textContent = 'Downloads ready. JSONs customized with your Calendar ID, Timezone, and unique webhook paths.';
-        }
-        
-        // Enable TTS button
-        if (ttsBtn) ttsBtn.disabled = false;
-        
-      } catch (err) {
-        console.error(err);
-        alert('Error generating preview: ' + err.message);
-      } finally {
-        if (spinner) spinner.classList.add('hidden');
-        btn.disabled = false;
-      }
-    }
-
-    /* ============ AUDIO PLAYER ============ */
-    function formatTime(seconds) {
-      seconds = Math.max(0, seconds | 0);
-      const m = (seconds / 60) | 0;
-      const s = seconds % 60;
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-
-    function initAudioPlayer() {
-      const audio = $('audio');
-      const ui = $('audioUI');
-      const playBtn = $('audioPlay');
-      const seek = $('audioSeek');
-      const timeEl = $('audioTime');
-      const durEl = $('audioDur');
-      
-      if (!audio || !ui) return;
-      
-      function updateUI() {
-        if (!isFinite(audio.duration)) return;
-        
-        durEl.textContent = formatTime(audio.duration);
-        timeEl.textContent = formatTime(audio.currentTime);
-        
-        const pct = (audio.currentTime / Math.max(1, audio.duration)) * 100;
-        seek.value = pct;
-        seek.style.setProperty('--pct', pct + '%');
-        playBtn.textContent = audio.paused ? '▶' : '⏸';
-      }
-      
-      playBtn.addEventListener('click', () => {
-        audio.paused ? audio.play() : audio.pause();
-      });
-      
-      audio.addEventListener('play', updateUI);
-      audio.addEventListener('pause', updateUI);
-      audio.addEventListener('timeupdate', updateUI);
-      audio.addEventListener('loadedmetadata', () => {
-        ui.classList.remove('hidden');
-        updateUI();
-      });
-      
-      seek.addEventListener('input', () => {
-        const pct = parseFloat(seek.value || '0') / 100;
-        if (isFinite(audio.duration)) {
-          audio.currentTime = audio.duration * pct;
-        }
-        seek.style.setProperty('--pct', seek.value + '%');
-      });
-    }
-
-    /* ============ TEXT-TO-SPEECH ============ */
-    async function generateTTS() {
-      const ttsBtn = $('ttsBtn');
-      if (ttsBtn) ttsBtn.disabled = true;
-      
-      try {
-        const values = getFormValues();
-        const voiceId = $('voiceSelect')?.value || '';
-        const text = `Hey, this is ${values.agentName || 'Alex'} with ${values.bizName || 'your business'}. How can I help you today?`;
-        
-        // This is a placeholder - you'd need to implement your TTS API endpoint
-        // For now, we'll just show a message
-        alert('TTS feature requires backend API integration. The greeting would be: "' + text + '"');
-        
-      } catch (err) {
-        console.error(err);
-        alert('TTS failed: ' + err.message);
-      } finally {
-        if (ttsBtn) ttsBtn.disabled = false;
-      }
-    }
-
-    /* ============ AGENT SYSTEM ============ */
-    const AGENTS = {
-      invoice: {
-        title: 'AI Invoice / Follow-ups',
-        desc: 'Generate invoices + polite reminders and email them. Logs to Airtable.',
-        promptId: 'prInvoice',
-        tplId: 'tplAgentInvoice',
-        fields: [
-          { name: 'bizName', label: 'Business Name', required: true },
-          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
-          { name: 'email', label: 'Business Email (from)', required: true },
-          { name: 'timezone', label: 'Timezone', value: 'America/New_York' },
-          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
-          { name: 'paymentLink', label: 'Payment Link (Stripe/PayPal)', required: true },
-          { name: 'taxRules', label: 'Tax Rules (optional)' },
-          { name: 'airtableBaseId', label: 'Airtable Base ID' },
-          { name: 'airtableTable', label: 'Airtable Table', value: 'Invoices' },
-          { name: 'airtableCredId', label: 'Airtable Credential ID' },
-          { name: 'smtpFrom', label: 'SMTP From (no-reply@...)' },
-          { name: 'smtpCredId', label: 'SMTP Credential ID' }
-        ],
-        map: (v) => ({
-          BIZ_NAME: v.bizName,
-          AGENT_NAME: v.agentName,
-          BIZ_EMAIL: v.email,
-          TIMEZONE: v.timezone,
-          OPENAI_MODEL: v.openaiModel,
-          PAYMENT_LINK: v.paymentLink,
-          TAX_RULES_SNIPPET: v.taxRules || '',
-          AIRTABLE_BASE_ID: v.airtableBaseId || '',
-          AIRTABLE_TABLE: v.airtableTable || 'Logs',
-          AIRTABLE_CRED_ID: v.airtableCredId || '',
-          SMTP_FROM: v.smtpFrom || 'no-reply@example.com',
-          SMTP_CRED_ID: v.smtpCredId || 'SMTP_CREDENTIAL'
-        }),
-        fileBase: 'invoice'
-      },
-      salesCloser: {
-        title: 'AI Sales Closer',
-        desc: 'Objection-aware nudges via SMS/Email. Auto-logs follow-ups.',
-        promptId: 'prSalesCloser',
-        tplId: 'tplAgentSalesCloser',
-        fields: [
-          { name: 'bizName', label: 'Business Name', required: true },
-          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
-          { name: 'email', label: 'Business Email (from)', required: true },
-          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
-          { name: 'offerSnippet', label: 'Offer Snippet', required: true },
-          { name: 'ctaUrl', label: 'CTA URL (checkout/booking)', required: true },
-          { name: 'followupGap', label: 'Follow-up Gap (hours)', value: '24' },
-          { name: 'airtableBaseId', label: 'Airtable Base ID' },
-          { name: 'airtableTable', label: 'Airtable Table', value: 'Sales' },
-          { name: 'airtableCredId', label: 'Airtable Credential ID' },
-          { name: 'smtpFrom', label: 'SMTP From (no-reply@...)' },
-          { name: 'smtpCredId', label: 'SMTP Credential ID' },
-          { name: 'twilioFrom', label: 'Twilio From +1...' },
-          { name: 'twilioCredId', label: 'Twilio Credential ID' }
-        ],
-        map: (v) => ({
-          BIZ_NAME: v.bizName,
-          AGENT_NAME: v.agentName,
-          BIZ_EMAIL: v.email,
-          OPENAI_MODEL: v.openaiModel,
-          OFFER_SNIPPET: v.offerSnippet,
-          CTA_URL: v.ctaUrl,
-          FOLLOWUP_GAP_HOURS: v.followupGap || '24',
-          AIRTABLE_BASE_ID: v.airtableBaseId || '',
-          AIRTABLE_TABLE: v.airtableTable || 'Logs',
-          AIRTABLE_CRED_ID: v.airtableCredId || '',
-          SMTP_FROM: v.smtpFrom || 'no-reply@example.com',
-          SMTP_CRED_ID: v.smtpCredId || 'SMTP_CREDENTIAL',
-          TWILIO_FROM: v.twilioFrom || '',
-          TWILIO_CRED_ID: v.twilioCredId || ''
-        }),
-        fileBase: 'salesCloser'
-      },
-      leadQualifier: {
-        title: 'AI Lead Qualifier',
-        desc: 'Score & route leads (A/B/C). Email both lead & owner with next steps.',
-        promptId: 'prLeadQualifier',
-        tplId: 'tplAgentLeadQualifier',
-        fields: [
-          { name: 'bizName', label: 'Business Name', required: true },
-          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
-          { name: 'email', label: 'Owner/Team Email', required: true },
-          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
-          { name: 'qualRules', label: 'Qualifier Rules (A/B/C tiers)', value: 'A: ready budget & timeline; B: missing one; C: mismatch' },
-          { name: 'airtableBaseId', label: 'Airtable Base ID' },
-          { name: 'airtableTable', label: 'Airtable Table', value: 'Leads' },
-          { name: 'airtableCredId', label: 'Airtable Credential ID' },
-          { name: 'smtpFrom', label: 'SMTP From (no-reply@...)' },
-          { name: 'smtpCredId', label: 'SMTP Credential ID' }
-        ],
-        map: (v) => ({
-          BIZ_NAME: v.bizName,
-          AGENT_NAME: v.agentName,
-          BIZ_EMAIL: v.email,
-          OPENAI_MODEL: v.openaiModel,
-          QUAL_RULES: v.qualRules,
-          AIRTABLE_BASE_ID: v.airtableBaseId || '',
-          AIRTABLE_TABLE: v.airtableTable || 'Logs',
-          AIRTABLE_CRED_ID: v.airtableCredId || '',
-          SMTP_FROM: v.smtpFrom || 'no-reply@example.com',
-          SMTP_CRED_ID: v.smtpCredId || 'SMTP_CREDENTIAL'
-        }),
-        fileBase: 'leadQualifier'
-      },
-      dmResponder: {
-        title: 'AI DM Responder',
-        desc: 'Short replies for IG/TikTok that push to your CTA. Tags & logs.',
-        promptId: 'prDMResponder',
-        tplId: 'tplAgentDMResponder',
-        fields: [
-          { name: 'bizName', label: 'Business Name', required: true },
-          { name: 'agentName', label: 'Agent Name', value: 'Ava' },
-          { name: 'email', label: 'Owner/Team Email (for logs)', required: true },
-          { name: 'openaiModel', label: 'OpenAI Model', value: 'gpt-4o-mini' },
-          { name: 'platformWebhook', label: 'Platform Reply Webhook (Make/Zapier)', required: true },
-          { name: 'bookUrl', label: 'Booking URL', required: true },
-          { name: 'faqUrl', label: 'FAQ URL' },
-          { name: 'airtableBaseId', label: 'Airtable Base ID' },
-          { name: 'airtableTable', label: 'Airtable Table', value: 'DMs' },
-          { name: 'airtableCredId', label: 'Airtable Credential ID' }
-        ],
-        map: (v) => ({
-          BIZ_NAME: v.bizName,
-          AGENT_NAME: v.agentName,
-          BIZ_EMAIL: v.email,
-          OPENAI_MODEL: v.openaiModel,
-          PLATFORM_REPLY_WEBHOOK: v.platformWebhook,
-          BOOK_URL: v.bookUrl,
-          FAQ_URL: v.faqUrl || '',
-          PRIMARY_CTA: 'book',
-          AIRTABLE_BASE_ID: v.airtableBaseId || '',
-          AIRTABLE_TABLE: v.airtableTable || 'Logs',
-          AIRTABLE_CRED_ID: v.airtableCredId || ''
-        }),
-        fileBase: 'dmResponder'
-      }
-    };
-
-    function getScriptText(id) {
-      const el = $(id);
-      if (!el) throw new Error('Missing script: ' + id);
-      return el.textContent || '';
-    }
-
-    function embedPromptInJSON(prompt) {
-      // Use JSON.stringify to properly escape, then remove outer quotes
-      const escaped = JSON.stringify(prompt);
-      // Remove the leading and trailing quotes that JSON.stringify adds
-      return escaped.slice(1, -1);
-    }
-
-    function renderAgentForm(agent) {
-      const form = $('agentForm');
-      if (!form) return;
-      
-      form.innerHTML = '';
-      
-      agent.fields.forEach(field => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'field';
-        
-        const label = document.createElement('label');
-        label.textContent = field.label + (field.required ? ' *' : '');
-        
-        const input = document.createElement('input');
-        input.name = field.name;
-        input.value = field.value || '';
-        input.placeholder = field.label;
-        if (field.required) input.required = true;
-        
-        wrapper.appendChild(label);
-        wrapper.appendChild(input);
-        form.appendChild(wrapper);
-      });
-    }
-
-    function getAgentValues() {
-      const form = $('agentForm');
-      if (!form) return {};
-      return Object.fromEntries(new FormData(form).entries());
-    }
-
-    function buildAgent(agent) {
-      const values = getAgentValues();
-      
-      // Check required fields
-      const missing = agent.fields
-        .filter(f => f.required && !values[f.name]?.trim())
-        .map(f => f.label);
-      
-      if (missing.length) {
-        throw new Error('Missing required fields: ' + missing.join(', '));
-      }
-      
-      // Build mapped values
-      const map = agent.map(values);
-      
-      // Get prompt template
-      let prompt = getScriptText(agent.promptId);
-      prompt = injectPlaceholders(prompt, map);
-      
-      // Get workflow template
-      let workflow = getScriptText(agent.tplId);
-      
-      // Embed prompt into workflow (replace YOU_ARE_* token)
-      const embeddedPrompt = embedPromptInJSON(prompt);
-      workflow = workflow.replace(/YOU_ARE_[A-Z_]+/g, embeddedPrompt);
-      
-      // Replace other placeholders
-      workflow = injectPlaceholders(workflow, map);
-      
-      // Parse and re-stringify to validate
-      try {
-        const parsed = JSON.parse(workflow);
-        workflow = JSON.stringify(parsed, null, 2);
-      } catch (e) {
-        throw new Error('Invalid workflow JSON: ' + e.message);
-      }
-      
-      return { prompt, workflow };
-    }
-
-    function setDownloadLink(linkId, filename, content, mimeType) {
-      const link = $(linkId);
-      if (!link) return;
-      
-      const blob = new Blob([content], { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      link.href = url;
-      link.download = filename;
-      
-      // Clean up old URL when clicked
-      link.addEventListener('click', () => {
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-      }, { once: true });
-    }
-
-    /* ============ ROUTING ============ */
-    function navigate() {
-      const hash = location.hash || '#/';
-      const viewHome = $('view-home');
-      const viewAgent = $('view-agent');
-      
-      if (!viewHome || !viewAgent) return;
-      
-      const match = hash.match(/^#\/agent\/([a-zA-Z0-9_-]+)$/);
-      
-      if (match) {
-        const agentKey = match[1];
-        const agent = AGENTS[agentKey];
-        
-        if (!agent) {
-          location.hash = '#/';
-          return;
-        }
-        
-        // Show agent view
-        viewHome.classList.add('hidden');
-        viewAgent.classList.remove('hidden');
-        
-        // Populate agent details
-        $('agentTitle').textContent = agent.title;
-        $('agentDesc').textContent = agent.desc;
-        
-        // Render form
-        renderAgentForm(agent);
-        
-        // Clear preview
-        $('agentPromptPreview').textContent = '';
-        $('agentMsg').classList.add('hidden');
-        
-        // Wire generate button
-        $('agentGenerate').onclick = (e) => {
-          e.preventDefault();
-          
-          try {
-            const result = buildAgent(agent);
-            
-            // Show preview
-            $('agentPromptPreview').textContent = result.prompt;
-            
-            // Setup downloads
-            setDownloadLink(
-              'agentPromptDownload',
-              `${agent.fileBase}-prompt.txt`,
-              result.prompt,
-              'text/plain'
-            );
-            
-            setDownloadLink(
-              'agentJsonDownload',
-              `${agent.fileBase}-workflow.json`,
-              result.workflow,
-              'application/json'
-            );
-            
-            // Show success message
-            const msg = $('agentMsg');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 2000);
-            
-          } catch (err) {
-            console.error(err);
-            alert('Error: ' + err.message);
-          }
-        };
-        
-        // Prevent download clicks if not generated
-        $('agentPromptDownload').onclick = (e) => {
-          if (!$('agentPromptPreview').textContent) {
-            e.preventDefault();
-            alert('Please generate the agent first');
-          }
-        };
-        
-        $('agentJsonDownload').onclick = (e) => {
-          if (!$('agentPromptPreview').textContent) {
-            e.preventDefault();
-            alert('Please generate the agent first');
-          }
-        };
-        
-      } else {
-        // Show home view
-        viewAgent.classList.add('hidden');
-        viewHome.classList.remove('hidden');
-      }
-    }
-
-    /* ============ INIT ============ */
-    function init() {
-      // Set year
-      const yearEl = $('year');
-      if (yearEl) yearEl.textContent = new Date().getFullYear();
-      
-      // Initialize components
-      initChat();
-      initAudioPlayer();
-      navigate();
-      
-      // Wire preview button
-      const previewBtn = $('previewBtn');
-      if (previewBtn) {
-        previewBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          generatePreview();
-        });
-      }
-      
-      // Wire TTS button
-      const ttsBtn = $('ttsBtn');
-      if (ttsBtn) {
-        ttsBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          generateTTS();
-        });
-      }
-      
-      // Handle navigation
-      window.addEventListener('hashchange', navigate);
-    }
-
-    // Start when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-
-  })();
-  </script>
-</body>
-</html>0
-          }
-        ]
-      ]
-    },
-    "Check Availability Tool": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1",
-    "timezone": "{{TIMEZONE}}"
-  }
-}
-  </script>
-
-  <script id="tplBookAppointment" type="application/json">
-{
-  "name": "bookAppointment",
-  "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "{{WEBHOOK_PATH_BOOK}}",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [240, 300],
-      "id": "webhook-book",
-      "name": "Webhook",
-      "webhookId": "{{WEBHOOK_ID_BOOK}}"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{$json.body.systemPrompt || 'You are an appointment booking assistant. Create calendar events with the provided details.'}}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 2.2,
-      "position": [560, 300],
-      "id": "ai-agent-book",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "mode": "list",
-          "value": "gpt-4o-mini"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [560, 500],
-      "id": "openai-book",
-      "name": "OpenAI Chat Model"
-    },
-    {
-      "parameters": {
-        "calendar": {
-          "__rl": true,
-          "value": "{{CALENDAR_ID}}",
-          "mode": "list",
-          "cachedResultName": "{{CALENDAR_ID}}"
-        },
-        "start": "={{ $json.body.startTime || $now.toISO() }}",
-        "end": "={{ $json.body.endTime || $now.plus({ hours: 1 }).toISO() }}",
-        "additionalFields": {
-          "attendees": "={{ $json.body.attendeeEmail ? [$json.body.attendeeEmail] : [] }}",
-          "description": "=Appointment Details:\nName: {{ $json.body.customerName || 'N/A' }}\nEmail: {{ $json.body.attendeeEmail || 'N/A' }}\nPhone: {{ $json.body.customerPhone || 'N/A' }}\nService: {{ $json.body.serviceType || 'Standard appointment' }}",
-          "summary": "=Appointment: {{ $json.body.customerName || 'New booking' }} - {{ $json.body.serviceType || 'Service' }}"
-        }
-      },
-      "type": "n8n-nodes-base.googleCalendarTool",
-      "typeVersion": 1.3,
-      "position": [760, 500],
-      "id": "calendar-create",
-      "name": "Create Calendar Event Tool"
-    },
-    {
-      "parameters": {
-        "fromEmail": "={{CONFIRMATION_EMAIL}}",
-        "toEmail": "={{ $json.body.attendeeEmail || '' }}",
-        "subject": "=Appointment Confirmed - {{BIZ_NAME}}",
-        "text": "=Hi {{ $json.body.customerName || 'there' }},\n\nYour appointment has been confirmed!\n\nDate & Time: {{ $json.body.startTime }}\nService: {{ $json.body.serviceType || 'Standard appointment' }}\n\nWe look forward to seeing you!\n\nBest regards,\n{{BIZ_NAME}}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [960, 400],
-      "id": "send-email",
-      "name": "Send Confirmation Email"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Appointment booked successfully\",\n  \"details\": {\n    \"customerName\": {{ $json.body.customerName ? JSON.stringify($json.body.customerName) : '\"\"' }},\n    \"startTime\": {{ $json.body.startTime ? JSON.stringify($json.body.startTime) : '\"\"' }},\n    \"serviceType\": {{ $json.body.serviceType ? JSON.stringify($json.body.serviceType) : '\"\"' }}\n  }\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.4,
-      "position": [1160, 300],
-      "id": "respond-book",
-      "name": "Respond to Webhook"
-    }
-  ],
-  "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Send Confirmation Email",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index":
