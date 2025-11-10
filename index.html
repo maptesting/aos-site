@@ -1811,13 +1811,10 @@ Warm, concise, confident; use contractions. Don't invent availability outside ${
     }
 
     function embedPromptInJSON(prompt) {
-      // Properly escape for JSON string context
-      return prompt
-        .replace(/\\/g, '\\\\')
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, '\\n')
-        .replace(/\r/g, '\\r')
-        .replace(/\t/g, '\\t');
+      // Use JSON.stringify to properly escape, then remove outer quotes
+      const escaped = JSON.stringify(prompt);
+      // Remove the leading and trailing quotes that JSON.stringify adds
+      return escaped.slice(1, -1);
     }
 
     function renderAgentForm(agent) {
